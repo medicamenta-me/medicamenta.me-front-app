@@ -5,7 +5,8 @@
 Aplicativo mobile para gestão de medicamentos, com funcionalidades para pacientes, dependentes, cuidadores e equipes empresariais.
 
 **Plataformas:** iOS e Android  
-**Status:** ✅ Build funcional após reestruturação (12/11/2025)
+**Status:** ✅ Build funcional após reestruturação (12/11/2025)  
+**CI/CD:** ✅ GitHub Actions configurado para deploy automático no Firebase Hosting
 
 ## 🛠️ Tecnologias
 
