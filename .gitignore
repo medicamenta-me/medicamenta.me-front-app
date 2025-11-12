@@ -34,10 +34,9 @@ ui-debug.log*
 .env
 .env.local
 .env.*.local
-environment.ts
-environment.prod.ts
-src/environments/environment.ts
-src/environments/environment.prod.ts
+# Keep example files, ignore actual credentials
+!src/environments/environment.ts
+!src/environments/environment.prod.ts
 
 # OS
 .DS_Store
