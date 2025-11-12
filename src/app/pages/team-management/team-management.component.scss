@@ -1,0 +1,19 @@
+.filters {
+  padding: 16px;
+  ion-searchbar { padding: 0; margin-bottom: 12px; }
+}
+
+ion-list {
+  padding: 0;
+}
+
+ion-item {
+  --padding-start: 16px;
+  
+  ion-label {
+    h2 { font-weight: 600; margin-bottom: 4px; }
+    p { font-size: 0.875rem; color: var(--ion-color-medium); margin: 4px 0; }
+    ion-badge { margin: 8px 4px 0 0; font-size: 0.75rem; }
+    ion-icon { font-size: 0.875rem; vertical-align: middle; }
+  }
+}

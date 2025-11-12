@@ -1,0 +1,7 @@
+{
+  "name": "medicamenta.me-front-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

@@ -1,0 +1,162 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Gerar Relatório</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="report-builder-container">
+    
+    <!-- Seleção de Template -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="documentText"></ion-icon>
+          Tipo de Relatório
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          @for (template of templates(); track template.id) {
+            <ion-item 
+              button 
+              [detail]="false"
+              (click)="onTemplateSelect(template.id)"
+              [class.selected]="selectedTemplate()?.id === template.id">
+              <ion-icon [name]="template.icon" slot="start" [style.color]="template.color"></ion-icon>
+              <ion-label>
+                <h2>{{ template.name }}</h2>
+                <p>{{ template.description }}</p>
+              </ion-label>
+              @if (selectedTemplate()?.id === template.id) {
+                <ion-icon name="checkmarkCircle" slot="end" color="success"></ion-icon>
+              }
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Seleção de Período -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="calendar"></ion-icon>
+          Período do Relatório
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-button expand="block" fill="outline" (click)="selectQuickPeriod()">
+          <ion-icon name="calendar" slot="start"></ion-icon>
+          Períodos Rápidos
+        </ion-button>
+
+        <div class="date-selection">
+          <ion-item button (click)="openDatePicker('start')">
+            <ion-label>Data Inicial</ion-label>
+            <ion-note slot="end">{{ formatDate(periodStart()) }}</ion-note>
+          </ion-item>
+
+          <ion-item button (click)="openDatePicker('end')">
+            <ion-label>Data Final</ion-label>
+            <ion-note slot="end">{{ formatDate(periodEnd()) }}</ion-note>
+          </ion-item>
+        </div>
+
+        <ion-note class="period-info">
+          <ion-icon name="informationCircle"></ion-icon>
+          Período selecionado: {{ (periodEnd().getTime() - periodStart().getTime()) / (1000 * 60 * 60 * 24) | number:'1.0-0' }} dias
+        </ion-note>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Seções do Relatório -->
+    @if (selectedTemplate()) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="create"></ion-icon>
+            Seções do Relatório
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-list-header>
+              <ion-label>
+                <h3>Personalizar Conteúdo</h3>
+                <p>{{ countEnabledSections() }} de {{ selectedTemplate()!.sections.length }} seções selecionadas</p>
+              </ion-label>
+            </ion-list-header>
+
+            @for (section of selectedTemplate()!.sections; track section.id) {
+              <ion-item>
+                <ion-checkbox 
+                  [(ngModel)]="section.enabled"
+                  [disabled]="section.required"
+                  (ionChange)="toggleSection(section.id)">
+                  {{ section.name }}
+                </ion-checkbox>
+                @if (section.required) {
+                  <ion-chip slot="end" color="primary" size="small">
+                    <ion-label>Obrigatória</ion-label>
+                  </ion-chip>
+                }
+              </ion-item>
+            }
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <!-- Botão Gerar -->
+    <div class="generate-button-container">
+      <ion-button 
+        expand="block" 
+        size="large"
+        (click)="generateReport()"
+        [disabled]="isGenerating() || !selectedTemplate()">
+        @if (isGenerating()) {
+          <ion-spinner name="crescent" slot="start"></ion-spinner>
+          Gerando...
+        } @else {
+          <ion-icon name="documentText" slot="start"></ion-icon>
+          Gerar Relatório
+        }
+      </ion-button>
+
+      <ion-text color="medium" class="info-text">
+        <ion-icon name="informationCircle"></ion-icon>
+        O relatório será gerado em formato PDF profissional
+      </ion-text>
+    </div>
+
+  </div>
+
+  <!-- Modal de Seleção de Data -->
+  <ion-modal [isOpen]="showDateModal()" (didDismiss)="showDateModal.set(false)">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Selecionar Data</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="showDateModal.set(false)">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-datetime
+          presentation="date"
+          [value]="datePickerType() === 'start' ? periodStart().toISOString() : periodEnd().toISOString()"
+          (ionChange)="onDateChange($event)"
+          locale="pt-BR">
+        </ion-datetime>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

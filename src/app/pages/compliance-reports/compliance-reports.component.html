@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Relatórios de Compliance</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showGenerateModal.set(true)">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let report of reports()" lines="full">
+      <ion-label>
+        <h2>{{ report.startDate | date:'short' }} - {{ report.endDate | date:'short' }}</h2>
+        <p>Gerado em: {{ report.generatedAt | date:'short' }}</p>
+        <p>Taxa de Adesão: {{ (report.adherence.adherenceRate * 100).toFixed(1) }}%</p>
+      </ion-label>
+      <ion-buttons slot="end">
+        <ion-button (click)="exportPDF(report)">
+          <ion-icon name="document-text-outline"></ion-icon>
+        </ion-button>
+        <ion-button (click)="exportExcel(report)">
+          <ion-icon name="grid-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+
+  <!-- Generate Modal -->
+  <ion-modal [isOpen]="showGenerateModal()" (didDismiss)="showGenerateModal.set(false)">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Gerar Relatório</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="showGenerateModal.set(false)">Fechar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list>
+          <ion-item>
+            <ion-label position="stacked">Data Inicial</ion-label>
+            <ion-datetime [(ngModel)]="startDate" presentation="date"></ion-datetime>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Data Final</ion-label>
+            <ion-datetime [(ngModel)]="endDate" presentation="date"></ion-datetime>
+          </ion-item>
+        </ion-list>
+        <ion-button expand="block" (click)="generateReport()" [disabled]="isLoading()">
+          <ion-icon slot="start" name="create-outline"></ion-icon>
+          Gerar Relatório
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

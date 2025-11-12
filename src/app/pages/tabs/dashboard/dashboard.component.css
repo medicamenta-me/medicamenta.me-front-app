@@ -1,0 +1,614 @@
+/* ============================================
+   DASHBOARD ACCESSIBLE STYLES
+   Optimized for: elderly, visually impaired, autistic, colorblind
+   ============================================ */
+
+.accessible-dashboard {
+  --background: #F8F9FA;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  background: linear-gradient(135deg, #34D187 0%, #2eb877 100%);
+  padding: 2rem 1.5rem;
+  color: white;
+  text-align: center;
+}
+
+.dashboard-greeting {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-subtitle {
+  font-size: 1.125rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+/* Period Sections */
+.dose-period-section {
+  margin: 1.5rem 1rem;
+}
+
+.period-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.period-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+.period-header ion-icon {
+  font-size: 2rem;
+  color: white;
+}
+
+.morning-header {
+  background: linear-gradient(135deg, #FFA726 0%, #FB8C00 100%);
+}
+
+.afternoon-header {
+  background: linear-gradient(135deg, #42A5F5 0%, #1E88E5 100%);
+}
+
+.evening-header {
+  background: linear-gradient(135deg, #5C6BC0 0%, #3949AB 100%);
+}
+
+/* Dose Cards */
+.dose-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.dose-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.dose-card:focus-within {
+  border-color: #34D187;
+  outline: 3px solid rgba(52, 209, 135, 0.3);
+  outline-offset: 2px;
+}
+
+.dose-card[data-status="taken"] {
+  border-left: 6px solid #34D187;
+  background: rgba(52, 209, 135, 0.05);
+}
+
+.dose-card[data-status="missed"] {
+  border-left: 6px solid #B3001B;
+  background: rgba(179, 0, 27, 0.05);
+}
+
+.dose-card[data-status="upcoming"] {
+  border-left: 6px solid #2196F3;
+}
+
+/* Dose Card Header */
+.dose-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dose-status-indicator {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.dose-status-indicator[data-status="taken"] {
+  background: rgba(52, 209, 135, 0.25);
+  color: #000000; /* Black for maximum contrast */
+}
+
+.dose-status-indicator[data-status="missed"] {
+  background: rgba(179, 0, 27, 0.35);
+  color: #000000; /* Black for maximum contrast */
+}
+
+.dose-status-indicator[data-status="upcoming"] {
+  background: rgba(33, 150, 243, 0.25);
+  color: #000000; /* Black for maximum contrast */
+}
+
+.dose-info {
+  flex: 1;
+}
+
+.medication-name {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
+}
+
+.medication-dosage {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #666666;
+  margin: 0 0 0.5rem 0;
+}
+
+.medication-time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #004d29;
+  margin: 0;
+}
+
+.medication-time ion-icon {
+  font-size: 1.25rem;
+}
+
+/* Phase B: Stock Indicator */
+.medication-stock {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.5rem 0 0 0;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.medication-stock ion-icon {
+  font-size: 1.125rem;
+}
+
+.medication-stock[data-stock-status="critical"] {
+  background: rgba(179, 0, 27, 0.25);
+  color: #000000; /* Black for maximum contrast */
+  border: 2px solid #8B0015;
+}
+
+.medication-stock[data-stock-status="low"] {
+  background: rgba(255, 167, 38, 0.25);
+  color: #000000; /* Black for maximum contrast */
+  border: 2px solid #E65100;
+}
+
+.medication-stock[data-stock-status="adequate"] {
+  background: rgba(52, 209, 135, 0.25);
+  color: #000000; /* Black for maximum contrast */
+  border: 2px solid #2eb877;
+}
+
+/* Dose Status Info */
+.dose-status-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: #F8F9FA;
+  border-radius: 10px;
+}
+
+.status-badge {
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge[data-status="taken"] {
+  background: #34D187;
+  color: white;
+}
+
+.status-badge[data-status="missed"] {
+  background: #B3001B;
+  color: white;
+}
+
+.status-badge[data-status="upcoming"] {
+  background: #2196F3;
+  color: white;
+}
+
+.administered-by {
+  font-size: 1rem;
+  color: #666666;
+  font-weight: 500;
+}
+
+/* Action Buttons */
+.dose-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.action-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 54px;
+}
+
+.action-button ion-icon {
+  font-size: 1.5rem;
+}
+
+.action-button:focus {
+  outline: 3px solid rgba(0, 0, 0, 0.3);
+  outline-offset: 3px;
+}
+
+.action-button:active {
+  transform: scale(0.98);
+}
+
+.action-taken {
+  background: #34D187;
+  color: white;
+}
+
+.action-taken:hover {
+  background: #2eb877;
+  box-shadow: 0 4px 12px rgba(52, 209, 135, 0.3);
+}
+
+.action-taken:focus {
+  outline-color: rgba(52, 209, 135, 0.6);
+}
+
+.action-missed {
+  background: #B3001B;
+  color: white;
+}
+
+.action-missed:hover {
+  background: #9d0018;
+  box-shadow: 0 4px 12px rgba(179, 0, 27, 0.3);
+}
+
+.action-missed:focus {
+  outline-color: rgba(179, 0, 27, 0.6);
+}
+
+.action-undo {
+  background: #757575;
+  color: white;
+}
+
+.action-undo:hover {
+  background: #616161;
+  box-shadow: 0 4px 12px rgba(117, 117, 117, 0.3);
+}
+
+/* Empty State */
+.empty-state-accessible {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  min-height: 300px;
+}
+
+.empty-state-accessible ion-icon {
+  font-size: 5rem;
+  color: #004d29;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+}
+
+.empty-state-accessible h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 0.75rem 0;
+}
+
+.empty-state-accessible p {
+  font-size: 1.25rem;
+  color: #666666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  min-height: 300px;
+  text-align: center;
+}
+
+.loading-state ion-spinner {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 1.5rem;
+}
+
+.loading-state p {
+  font-size: 1.25rem;
+  color: #666666;
+  font-weight: 500;
+}
+
+/* ============================================
+   SMART REMINDERS - RISK ALERT CARD
+   ============================================ */
+.risk-alert-card {
+  margin: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.risk-alert-card ion-card-header {
+  padding: 1rem 1.25rem;
+}
+
+.risk-alert-card ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+}
+
+.risk-alert-card ion-card-title ion-icon {
+  font-size: 1.5rem;
+}
+
+.risk-alert-card ion-card-content {
+  padding: 1.25rem;
+}
+
+.risk-alert-item {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--ion-color-danger);
+}
+
+.risk-alert-item:last-child {
+  margin-bottom: 1rem;
+}
+
+.risk-percentage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ion-color-danger);
+  margin: 0 0 0.5rem 0;
+}
+
+.risk-medication {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+
+.risk-reasons {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+  color: #666;
+}
+
+.risk-reasons li {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.risk-alert-card ion-button {
+  margin-top: 0.5rem;
+  --border-width: 2px;
+}
+
+/* Smart Suggestions Badge */
+ion-toolbar ion-button ion-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+}
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+@media (prefers-contrast: high) {
+  .dose-card {
+    border-width: 3px;
+  }
+
+  .action-button {
+    border: 3px solid currentColor;
+  }
+
+  .status-badge {
+    border: 2px solid white;
+  }
+  
+  .risk-alert-item {
+    border-left-width: 6px;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .dose-card,
+  .action-button {
+    transition: none;
+  }
+
+  .dose-card:hover {
+    transform: none;
+  }
+
+  .action-button:active {
+    transform: none;
+  }
+}
+
+/* ============================================
+   DARK MODE
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  .accessible-dashboard {
+    --background: #1A1A1A;
+  }
+
+  .patient-selector,
+  .dose-card {
+    background: #2A2A2A;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .medication-name {
+    color: #FFFFFF;
+  }
+
+  .medication-dosage,
+  .administered-by {
+    color: #CCCCCC;
+  }
+
+  .dose-status-info {
+    background: #1A1A1A;
+  }
+  
+  /* Smart Reminders Dark Mode */
+  .risk-alert-item {
+    background: #1A1A1A;
+  }
+  
+  .risk-medication {
+    color: #FFFFFF;
+  }
+  
+  .risk-reasons {
+    color: #CCCCCC;
+  }
+
+  .empty-state-accessible h3 {
+    color: #FFFFFF;
+  }
+
+  .empty-state-accessible p,
+  .loading-state p {
+    color: #CCCCCC;
+  }
+}
+
+/* ============================================
+   MOBILE OPTIMIZATIONS
+   ============================================ */
+@media (max-width: 576px) {
+  .dashboard-greeting {
+    font-size: 1.75rem;
+  }
+
+  .dashboard-subtitle {
+    font-size: 1rem;
+  }
+
+  .medication-name {
+    font-size: 1.25rem;
+  }
+
+  .medication-dosage,
+  .medication-time {
+    font-size: 1rem;
+  }
+
+  .action-button {
+    font-size: 1rem;
+    padding: 0.875rem;
+    width: 100%;
+  }
+
+  .dose-actions {
+    flex-direction: column;
+  }
+}
+
+/* ============================================
+   TABLET OPTIMIZATIONS
+   ============================================ */
+@media (min-width: 768px) {
+  .patient-selector {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .dose-period-section {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  .dose-actions {
+    display: none;
+  }
+
+  .dose-card {
+    page-break-inside: avoid;
+  }
+}

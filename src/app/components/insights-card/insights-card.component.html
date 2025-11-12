@@ -1,0 +1,81 @@
+<ion-card class="insights-card">
+  <ion-card-header>
+    <ion-card-title>
+      <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+      {{ 'INSIGHTS.TITLE' | translate }}
+      @if (insights.length > 0) {
+        <ion-badge color="primary" class="insights-badge">
+          {{ insights.length }}
+        </ion-badge>
+      }
+    </ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+    @if (insights.length === 0) {
+      <div class="no-insights">
+        <ion-icon name="thumbs-up-outline" color="success" size="large"></ion-icon>
+        <p>{{ 'INSIGHTS.NO_INSIGHTS' | translate }}</p>
+      </div>
+    } @else {
+      <ion-list lines="none" class="insights-list">
+        @for (insight of visibleInsights; track insight.id) {
+          <ion-item 
+            class="insight-item"
+            [ngClass]="getAnimationClass(insight.priority)">
+            <div class="insight-icon" slot="start">
+              <ion-icon 
+                [name]="insight.icon + '-outline'" 
+                [color]="getColor(insight.type)"
+                size="large">
+              </ion-icon>
+            </div>
+            
+            <ion-label class="ion-text-wrap">
+              <h3 class="insight-title">
+                {{ insight.title | translate }}
+              </h3>
+              <p class="insight-description">
+                {{ insight.description | translate }}
+              </p>
+              
+              <div class="insight-actions">
+                @if (insight.actionLabel) {
+                  <ion-button 
+                    fill="clear" 
+                    size="small" 
+                    [color]="getColor(insight.type)"
+                    (click)="handleAction($event, insight)"
+                    class="action-button">
+                    {{ insight.actionLabel | translate }}
+                    <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+                  </ion-button>
+                }
+                
+                <ion-button 
+                  fill="clear" 
+                  size="small" 
+                  color="medium"
+                  (click)="dismissInsight($event, insight.id)"
+                  class="dismiss-button">
+                  <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+
+      @if (hasMoreInsights) {
+        <ion-button 
+          expand="block" 
+          fill="outline" 
+          (click)="viewAllInsights()"
+          class="view-all-button">
+          {{ 'INSIGHTS.VIEW_ALL' | translate }} ({{ insights.length }})
+          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      }
+    }
+  </ion-card-content>
+</ion-card>

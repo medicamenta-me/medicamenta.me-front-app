@@ -1,0 +1,459 @@
+/**
+ * MedicationEntity Unit Tests
+ * 
+ * Tests for the Medication Aggregate Root entity.
+ * Coverage: Domain logic, business rules, validations, state transitions.
+ */
+
+import { MedicationEntity } from './medication.entity';
+import { DoseEntity } from './dose.entity';
+
+describe('MedicationEntity', () => {
+  // Test Data
+  const validMedicationData = {
+    id: 'med-123',
+    userId: 'user-456',
+    patientId: 'patient-789',
+    name: 'Dipirona',
+    dosage: '500mg',
+    frequency: '8 em 8 horas',
+    time: '08:00',
+    startTime: '08:00',
+    currentStock: 30,
+    stockUnit: 'comprimidos',
+    notes: 'Tomar com água',
+    active: true,
+    isActive: true,
+    isArchived: false,
+    archivedAt: null,
+    schedule: [],
+    createdAt: new Date('2025-01-01'),
+    lastModified: new Date('2025-01-01')
+  };
+
+  describe('Constructor and Initialization', () => {
+    it('should create a medication entity with valid data', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      expect(medication).toBeDefined();
+      expect(medication.id).toBe('med-123');
+      expect(medication.name).toBe('Dipirona');
+      expect(medication.dosage).toBe('500mg');
+      expect(medication.currentStock).toBe(30);
+    });
+
+    it('should generate schedule on creation', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      expect(medication.schedule).toBeDefined();
+      expect(medication.schedule.length).toBeGreaterThan(0);
+    });
+
+    it('should set default values for optional fields', () => {
+      const minimalData = {
+        id: 'med-123',
+        userId: 'user-456',
+        patientId: 'patient-789',
+        name: 'Medicamento',
+        dosage: '10mg',
+        frequency: '12 em 12 horas',
+        startTime: '08:00'
+      };
+
+      const medication = new MedicationEntity(minimalData);
+
+      expect(medication.currentStock).toBe(0);
+      expect(medication.stockUnit).toBe('unidades');
+      expect(medication.active).toBe(true);
+      expect(medication.isArchived).toBe(false);
+      expect(medication.notes).toBe('');
+    });
+
+    it('should throw error for invalid data', () => {
+      const invalidData = {
+        id: '',
+        userId: '',
+        patientId: '',
+        name: '',
+        dosage: '',
+        frequency: '',
+        startTime: ''
+      };
+
+      expect(() => new MedicationEntity(invalidData as any)).toThrow();
+    });
+  });
+
+  describe('Business Logic - Stock Management', () => {
+    it('should decrease stock correctly', () => {
+      const medication = new MedicationEntity(validMedicationData);
+      const initialStock = medication.currentStock;
+
+      medication.decreaseStock(5);
+
+      expect(medication.currentStock).toBe(initialStock - 5);
+    });
+
+    it('should not allow negative stock', () => {
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        currentStock: 3
+      });
+
+      expect(() => medication.decreaseStock(5)).toThrow();
+      expect(medication.currentStock).toBe(3); // Stock unchanged
+    });
+
+    it('should update stock correctly', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      medication.updateStock(50);
+
+      expect(medication.currentStock).toBe(50);
+    });
+
+    it('should not allow negative stock update', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      expect(() => medication.updateStock(-10)).toThrow();
+    });
+
+    it('should detect low stock correctly', () => {
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        currentStock: 3,
+        
+      });
+
+      expect(medication.isLowStock()).toBe(true);
+    });
+
+    it('should not flag low stock when sufficient', () => {
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        currentStock: 20,
+        
+      });
+
+      expect(medication.isLowStock()).toBe(false);
+    });
+
+    it('should detect out of stock', () => {
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        currentStock: 0
+      });
+
+      expect(medication.needsRestocking()).toBe(true);
+    });
+  });
+
+  describe('Business Logic - Dose Management', () => {
+    it('should record dose as taken and decrease stock', () => {
+      const medication = new MedicationEntity(validMedicationData);
+      const initialStock = medication.currentStock;
+      const doseTime = medication.schedule[0].time;
+
+      medication.recordDoseTaken(doseTime, 'John Doe', 'Tomou corretamente');
+
+      const dose = medication.schedule.find(d => d.time === doseTime);
+      expect(dose?.status).toBe('taken');
+      expect(dose?.administeredBy?.name).toBe('John Doe');
+      expect(dose?.notes).toBe('Tomou corretamente');
+      expect(medication.currentStock).toBe(initialStock - 1);
+    });
+
+    it('should record dose as missed without decreasing stock', () => {
+      const medication = new MedicationEntity(validMedicationData);
+      const initialStock = medication.currentStock;
+      const doseTime = medication.schedule[0].time;
+
+      medication.recordDoseMissed(doseTime, 'Jane Doe', 'Esqueceu de tomar');
+
+      const dose = medication.schedule.find(d => d.time === doseTime);
+      expect(dose?.status).toBe('missed');
+      expect(dose?.administeredBy?.name).toBe('Jane Doe');
+      expect(medication.currentStock).toBe(initialStock); // Stock unchanged
+    });
+
+    it('should reset dose to upcoming', () => {
+      const medication = new MedicationEntity(validMedicationData);
+      const doseTime = medication.schedule[0].time;
+
+      // Mark as taken first
+      medication.recordDoseTaken(doseTime, 'John Doe');
+      
+      // Reset
+      medication.resetDose(doseTime);
+
+      const dose = medication.schedule.find(d => d.time === doseTime);
+      expect(dose?.status).toBe('upcoming');
+      expect(dose?.administeredBy).toBeUndefined();
+    });
+
+    it('should throw error for non-existent dose time', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      expect(() => medication.recordDoseTaken('99:99', 'John Doe')).toThrow();
+    });
+  });
+
+  describe('Business Logic - Adherence Calculation', () => {
+    it('should calculate adherence rate correctly', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      // Mark some doses as taken
+      medication.recordDoseTaken(medication.schedule[0].time, 'User');
+      medication.recordDoseTaken(medication.schedule[1].time, 'User');
+      medication.recordDoseMissed(medication.schedule[2].time, 'User');
+
+      const adherenceRate = medication.calculateAdherenceRate();
+
+      expect(adherenceRate).toBeGreaterThanOrEqual(0);
+      expect(adherenceRate).toBeLessThanOrEqual(100);
+    });
+
+    it('should return 0% adherence when no doses recorded', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      const adherenceRate = medication.calculateAdherenceRate();
+
+      expect(adherenceRate).toBe(0);
+    });
+
+    it('should return 100% adherence when all doses taken', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      // Mark all doses as taken
+      medication.schedule.forEach(dose => {
+        medication.recordDoseTaken(dose.time, 'User');
+      });
+
+      const adherenceRate = medication.calculateAdherenceRate();
+
+      expect(adherenceRate).toBe(100);
+    });
+  });
+
+  describe('Business Logic - Update Operations', () => {
+    it('should update medication details', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      medication.updateDetails({
+        name: 'Paracetamol',
+        dosage: '750mg',
+        notes: 'Tomar após refeições'
+      });
+
+      expect(medication.name).toBe('Paracetamol');
+      expect(medication.dosage).toBe('750mg');
+      expect(medication.notes).toBe('Tomar após refeições');
+      expect(medication.frequency).toBe('8 em 8 horas'); // Unchanged
+    });
+
+    it('should regenerate schedule when frequency changes', () => {
+      const medication = new MedicationEntity(validMedicationData);
+      const oldScheduleLength = medication.schedule.length;
+
+      medication.updateDetails({
+        frequency: '6 em 6 horas',
+        startTime: '06:00'
+      });
+
+      expect(medication.frequency).toBe('6 em 6 horas');
+      expect(medication.schedule.length).not.toBe(oldScheduleLength);
+    });
+
+    it('should update lastModified timestamp on changes', () => {
+      const medication = new MedicationEntity(validMedicationData);
+      const oldTimestamp = medication.lastModified;
+
+      // Wait a bit to ensure timestamp difference
+      setTimeout(() => {
+        medication.updateDetails({ notes: 'Nova nota' });
+        expect(medication.lastModified.getTime()).toBeGreaterThan(oldTimestamp.getTime());
+      }, 10);
+    });
+  });
+
+  describe('Business Logic - Archive/Activate', () => {
+    it('should archive medication', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      medication.archive();
+
+      expect(medication.isArchived).toBe(true);
+      expect(medication.archivedAt).toBeDefined();
+    });
+
+    it('should unarchive medication', () => {
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        isArchived: true,
+        archivedAt: new Date()
+      });
+
+      medication.unarchive();
+
+      expect(medication.isArchived).toBe(false);
+      expect(medication.archivedAt).toBeUndefined();
+    });
+
+    it('should deactivate medication', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      medication.deactivate();
+
+      expect(medication.active).toBe(false);
+    });
+
+    it('should activate medication', () => {
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        isActive: false
+      });
+
+      medication.activate();
+
+      expect(medication.active).toBe(true);
+    });
+  });
+
+  describe('Immutability and Data Integrity', () => {
+    it('should return plain object copy', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      const plainObject = medication.toPlainObject();
+
+      expect(plainObject).toEqual(expect.objectContaining({
+        id: 'med-123',
+        name: 'Dipirona',
+        dosage: '500mg'
+      }));
+    });
+
+    it('should not allow direct schedule modification', () => {
+      const medication = new MedicationEntity(validMedicationData);
+      const originalSchedule = [...medication.schedule];
+
+      // Try to modify returned schedule
+      const schedule = medication.schedule;
+      schedule.push(new DoseEntity('23:00', 'upcoming'));
+
+      // Original schedule should be unchanged
+      expect(medication.schedule.length).toBe(originalSchedule.length);
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle empty notes', () => {
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        notes: ''
+      });
+
+      expect(medication.notes).toBe('');
+    });
+
+    it('should handle zero stock', () => {
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        currentStock: 0
+      });
+
+      expect(medication.currentStock).toBe(0);
+      expect(medication.needsRestocking()).toBe(true);
+    });
+
+    it('should handle very large stock numbers', () => {
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        currentStock: 999999
+      });
+
+      expect(medication.currentStock).toBe(999999);
+    });
+
+    it('should handle future dates', () => {
+      const futureDate = new Date('2030-01-01');
+      const medication = new MedicationEntity({
+        ...validMedicationData,
+        createdAt: futureDate
+      });
+
+      expect(medication.createdAt).toEqual(futureDate);
+    });
+  });
+
+  describe('Schedule Integration', () => {
+    it('should have doses with correct medication reference', () => {
+      const medication = new MedicationEntity(validMedicationData);
+
+      medication.schedule.forEach(dose => {
+        expect(dose.medicationId).toBe('med-123');
+      });
+    });
+
+    it('should generate doses for today', () => {
+      const medication = new MedicationEntity(validMedicationData);
+      const today = new Date();
+
+      medication.schedule.forEach(dose => {
+        expect(dose.date.toDateString()).toBe(today.toDateString());
+      });
+    });
+
+    it('should order doses chronologically', () => {
+      const medication = new MedicationEntity(validMedicationData);
+      const times = medication.schedule.map(d => d.time);
+
+      // Check if times are in ascending order
+      for (let i = 1; i < times.length; i++) {
+        expect(times[i] >= times[i - 1]).toBe(true);
+      }
+    });
+  });
+
+  describe('Validation Rules', () => {
+    it('should require name', () => {
+      expect(() => new MedicationEntity({
+        ...validMedicationData,
+        name: ''
+      } as any)).toThrow();
+    });
+
+    it('should require dosage', () => {
+      expect(() => new MedicationEntity({
+        ...validMedicationData,
+        dosage: ''
+      } as any)).toThrow();
+    });
+
+    it('should require frequency', () => {
+      expect(() => new MedicationEntity({
+        ...validMedicationData,
+        frequency: ''
+      } as any)).toThrow();
+    });
+
+    it('should require userId', () => {
+      expect(() => new MedicationEntity({
+        ...validMedicationData,
+        userId: ''
+      } as any)).toThrow();
+    });
+
+    it('should accept valid stock units', () => {
+      const units = ['comprimidos', 'ml', 'gotas', 'cápsulas', 'unidades'];
+
+      units.forEach(unit => {
+        const medication = new MedicationEntity({
+          ...validMedicationData,
+          stockUnit: unit
+        });
+
+        expect(medication.stockUnit).toBe(unit);
+      });
+    });
+  });
+});

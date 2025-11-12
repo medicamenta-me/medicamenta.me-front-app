@@ -1,0 +1,10 @@
+/* Signup Component - Accessible Styles */
+.signup-page {
+  --background: #FFFFFF;
+}
+
+/* Ensure consistent styling */
+ion-header ion-toolbar[color="primary"] {
+  --background: #34D187 !important;
+  --color: #FFFFFF !important;
+}

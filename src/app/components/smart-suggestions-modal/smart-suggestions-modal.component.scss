@@ -1,0 +1,249 @@
+.suggestions-container {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+  
+  ion-icon {
+    font-size: 80px;
+    margin-bottom: 16px;
+  }
+  
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+  }
+  
+  p {
+    font-size: 0.95rem;
+    color: var(--ion-color-medium);
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+.suggestion-card {
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  &.priority-high {
+    border-left: 4px solid var(--ion-color-danger);
+  }
+  
+  &.priority-medium {
+    border-left: 4px solid var(--ion-color-warning);
+  }
+  
+  &.priority-low {
+    border-left: 4px solid var(--ion-color-success);
+  }
+}
+
+.card-header-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  
+  .suggestion-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+  
+  .header-text {
+    flex: 1;
+    
+    ion-card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    
+    .priority-badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+  }
+}
+
+.description {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ion-color-dark);
+  margin: 16px 0;
+}
+
+.analysis-section,
+.action-section {
+  margin: 20px 0;
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  
+  h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--ion-color-dark);
+  }
+}
+
+.analysis-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+  }
+  
+  .stat-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    
+    &.success {
+      color: var(--ion-color-success);
+    }
+    
+    &.warning {
+      color: var(--ion-color-warning);
+    }
+    
+    &.danger {
+      color: var(--ion-color-danger);
+    }
+  }
+}
+
+.action-detail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  
+  ion-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  
+  span {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    
+    strong {
+      color: var(--ion-color-primary);
+      font-weight: 600;
+    }
+  }
+}
+
+.action-buttons {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  
+  ion-button {
+    margin: 0;
+    font-weight: 600;
+    
+    ion-icon {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+.confidence-note {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .suggestion-card {
+    background: var(--ion-background-color-step-50);
+  }
+  
+  .empty-state {
+    h2 {
+      color: var(--ion-color-light);
+    }
+  }
+  
+  .description {
+    color: var(--ion-color-light);
+  }
+  
+  .analysis-section,
+  .action-section {
+    background: var(--ion-background-color-step-100);
+    
+    h3 {
+      color: var(--ion-color-light);
+    }
+  }
+  
+  .stat {
+    .stat-value {
+      color: var(--ion-color-light);
+    }
+  }
+  
+  .action-detail {
+    background: var(--ion-background-color-step-150);
+  }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .suggestions-container {
+    padding: 12px;
+  }
+  
+  .card-header-content {
+    .suggestion-icon {
+      font-size: 1.5rem;
+    }
+    
+    .header-text ion-card-title {
+      font-size: 1rem;
+    }
+  }
+  
+  .analysis-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Animações */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

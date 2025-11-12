@@ -1,0 +1,372 @@
+/* ================================================
+   MEDICATION DETAIL - ACCESSIBLE DESIGN
+   ================================================ */
+
+.accessible-medication-detail {
+  --background: #F5F5F5;
+  --padding-bottom: 2rem;
+}
+
+/* ================================================
+   MEDICATION HEADER
+   ================================================ */
+
+.detail-header {
+  background: linear-gradient(135deg, var(--ion-color-success) 0%, #2AB872 100%);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: white;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 4px 12px rgba(52, 209, 135, 0.3);
+}
+
+.header-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+.header-icon.low-stock {
+  background: rgba(255, 152, 0, 0.3);
+  border-color: rgba(255, 152, 0, 0.7);
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+}
+
+.header-icon ion-icon { font-size: 3rem; color: white; }
+.detail-header h1 { font-size: 2rem; font-weight: 700; margin: 0 0 0.5rem; line-height: 1.2; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+.patient-name { font-size: 1.25rem; font-weight: 500; margin: 0; opacity: 0.95; }
+
+/* ================================================
+   ACTION BUTTONS
+   ================================================ */
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: white;
+  margin: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 2px solid;
+  border-radius: 12px;
+  background: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 80px;
+}
+
+.action-btn ion-icon { font-size: 1.75rem; }
+.action-btn span { font-size: 1rem; line-height: 1.2; }
+.edit-btn { border-color: #004d29; color: #004d29; }
+.delete-btn { border-color: #5a0000; color: #5a0000; }
+.back-btn { border-color: #666; color: #666; }
+
+.edit-btn:hover, .edit-btn:focus { background: var(--ion-color-success); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52, 209, 135, 0.3); }
+.delete-btn:hover, .delete-btn:focus { background: #B3001B; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(179, 0, 27, 0.3); }
+.back-btn:hover, .back-btn:focus { background: #666; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3); }
+.action-btn:focus-visible { outline: 3px solid #005FCC; outline-offset: 2px; }
+
+
+/* ================================================
+   INFO SECTION
+   ================================================ */
+
+.info-section { margin: 1rem; }
+.section-title { font-size: 1.5rem; font-weight: 700; color: #333; margin: 0 0 1rem 0.5rem; }
+
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #E0E0E0;
+}
+
+.info-row:last-child { padding-bottom: 0; border-bottom: none; }
+.notes-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+
+.info-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.info-label ion-icon { font-size: 1.5rem; color: #004d29; flex-shrink: 0; }
+
+.info-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #333;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.info-value.low-stock { color: #FF9800; }
+.low-stock-badge { background: #FF9800; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.notes-text { text-align: left; font-size: 1.125rem; font-weight: 500; color: #666; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+
+
+/* ================================================
+   SCHEDULE SECTION
+   ================================================ */
+
+.schedule-section { margin: 1.5rem 1rem 2rem; }
+
+.dose-card-detail {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 5px solid;
+  transition: all 0.3s ease;
+}
+
+.dose-card-detail[data-status="taken"] { border-left-color: #4CAF50; background: linear-gradient(90deg, rgba(76, 175, 80, 0.05) 0%, white 20%); }
+.dose-card-detail[data-status="missed"] { border-left-color: #B3001B; background: linear-gradient(90deg, rgba(179, 0, 27, 0.05) 0%, white 20%); }
+.dose-card-detail[data-status="upcoming"] { border-left-color: var(--ion-color-success); background: linear-gradient(90deg, rgba(52, 209, 135, 0.05) 0%, white 20%); }
+.dose-card-detail:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); }
+
+.dose-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+
+.dose-status-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dose-status-icon[data-status="taken"] { background: rgba(76, 175, 80, 0.25); color: #000; }
+.dose-status-icon[data-status="missed"] { background: rgba(179, 0, 27, 0.25); color: #000; }
+.dose-status-icon[data-status="upcoming"] { background: rgba(52, 209, 135, 0.25); color: #000; }
+.dose-status-icon ion-icon { font-size: 1.75rem; }
+
+.dose-time { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; color: #333; }
+.dose-time ion-icon { font-size: 1.75rem; color: #004d29; }
+
+.dose-admin-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+
+.status-badge { padding: 0.5rem 1rem; border-radius: 20px; font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-badge[data-status="taken"] { background: rgba(76, 175, 80, 0.3); color: #000; }
+.status-badge[data-status="missed"] { background: rgba(179, 0, 27, 0.3); color: #000; }
+.status-badge[data-status="upcoming"] { background: rgba(52, 209, 135, 0.3); color: #000; }
+.admin-by { font-size: 1rem; color: #666; font-weight: 500; }
+
+.dose-actions-detail { display: flex; gap: 1rem; margin-top: 1rem; }
+
+.dose-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid;
+  border-radius: 12px;
+  background: white;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 54px;
+}
+
+.dose-action-btn ion-icon { font-size: 1.75rem; }
+.taken-btn { border-color: #4CAF50; color: #4CAF50; }
+.missed-btn { border-color: #5a0000; color: #5a0000; }
+.undo-btn { border-color: #666; color: #666; }
+
+.taken-btn:hover, .taken-btn:focus { background: #4CAF50; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
+.missed-btn:hover, .missed-btn:focus { background: #B3001B; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(179, 0, 27, 0.3); }
+.undo-btn:hover, .undo-btn:focus { background: #666; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3); }
+.dose-action-btn:focus-visible { outline: 3px solid #005FCC; outline-offset: 2px; }
+
+/* ================================================
+   EMPTY & LOADING STATES
+   ================================================ */
+
+.empty-schedule {
+  background: white;
+  border-radius: 12px;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.empty-schedule ion-icon { font-size: 4rem; color: #BDBDBD; margin-bottom: 1rem; }
+.empty-schedule p { font-size: 1.25rem; color: #666; margin: 0; font-weight: 500; }
+
+.loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 1.5rem; gap: 1.5rem; }
+.loading-state ion-spinner { width: 60px; height: 60px; }
+.loading-state p { font-size: 1.25rem; color: #666; margin: 0; font-weight: 500; }
+
+
+/* ================================================
+   RESPONSIVE DESIGN
+   ================================================ */
+
+@media (max-width: 768px) {
+  .detail-header h1 { font-size: 1.75rem; }
+  .patient-name { font-size: 1.125rem; }
+  .header-icon { width: 70px; height: 70px; }
+  .header-icon ion-icon { font-size: 2.5rem; }
+  .action-buttons { flex-wrap: wrap; }
+  .action-btn { min-width: calc(50% - 0.5rem); min-height: 70px; }
+  .back-btn { flex-basis: 100%; }
+  .info-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .info-value { text-align: left; justify-content: flex-start; }
+  .dose-actions-detail { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  .detail-header { padding: 1.5rem 1rem; }
+  .detail-header h1 { font-size: 1.5rem; }
+  .patient-name { font-size: 1rem; }
+  .header-icon { width: 60px; height: 60px; }
+  .header-icon ion-icon { font-size: 2rem; }
+  .action-buttons { padding: 1rem; margin: 0.75rem; gap: 0.75rem; }
+  .action-btn { padding: 0.75rem; min-height: 60px; }
+  .action-btn ion-icon { font-size: 1.5rem; }
+  .action-btn span { font-size: 0.875rem; }
+  .info-section, .schedule-section { margin-left: 0.75rem; margin-right: 0.75rem; }
+  .section-title { font-size: 1.25rem; }
+  .dose-time { font-size: 1.25rem; }
+}
+
+@media (prefers-contrast: high) {
+  .action-btn, .dose-action-btn { border-width: 3px; }
+  .info-row { border-bottom-width: 3px; }
+}
+
+
+  .dose-card-detail {
+    border-left-width: 6px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .action-btn,
+  .dose-action-btn,
+  .dose-card-detail {
+    transition: none;
+  }
+
+  @keyframes pulse-warning {
+    0%, 100% {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .accessible-medication-detail {
+    --background: #1A1A1A;
+  }
+
+  .action-buttons,
+  .info-card,
+  .dose-card-detail,
+  .empty-schedule {
+    background: #2A2A2A;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .section-title {
+    color: #E0E0E0;
+  }
+
+  .info-label {
+    color: #B0B0B0;
+  }
+
+  .info-value {
+    color: #E0E0E0;
+  }
+
+  .notes-text {
+    color: #B0B0B0;
+  }
+
+  .dose-time {
+    color: #E0E0E0;
+  }
+
+  .admin-by {
+    color: #B0B0B0;
+  }
+
+  .empty-schedule p,
+  .loading-state p {
+    color: #B0B0B0;
+  }
+
+  .info-row {
+    border-bottom-color: #404040;
+  }
+
+  .action-btn,
+  .dose-action-btn {
+    background: #2A2A2A;
+  }
+
+  .dose-card-detail[data-status="taken"] {
+    background: linear-gradient(90deg, rgba(76, 175, 80, 0.1) 0%, #2A2A2A 20%);
+  }
+
+  .dose-card-detail[data-status="missed"] {
+    background: linear-gradient(90deg, rgba(179, 0, 27, 0.1) 0%, #2A2A2A 20%);
+  }
+
+  .dose-card-detail[data-status="upcoming"] {
+    background: linear-gradient(90deg, rgba(52, 209, 135, 0.1) 0%, #2A2A2A 20%);
+  }
+}

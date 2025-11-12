@@ -1,0 +1,213 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/family-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'FAMILY_CALENDAR.TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="syncWithGoogleCalendar()" [disabled]="syncingWithGoogle()">
+        @if (syncingWithGoogle()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <ion-icon name="sync-outline"></ion-icon>
+        }
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="calendar-content">
+  <!-- Navegação do Mês -->
+  <div class="month-navigation">
+    <ion-button fill="clear" (click)="previousMonth()">
+      <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+    </ion-button>
+    
+    <div class="month-title">
+      <h2>{{ monthData().monthName }} {{ monthData().year }}</h2>
+    </div>
+    
+    <ion-button fill="clear" (click)="nextMonth()">
+      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+    
+    <ion-button fill="clear" (click)="goToToday()">
+      <ion-icon slot="icon-only" name="today-outline"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Legenda de Membros -->
+  <div class="members-legend">
+    <div class="legend-header">
+      <span class="legend-title">{{ 'FAMILY_CALENDAR.MEMBERS' | translate }}</span>
+      <div class="legend-actions">
+        <ion-button size="small" fill="clear" (click)="showAll()">Todos</ion-button>
+        <ion-button size="small" fill="clear" (click)="hideAll()">Nenhum</ion-button>
+      </div>
+    </div>
+    
+    <div class="member-chips">
+      @for (member of memberFilters(); track member.memberId) {
+        <ion-chip
+          [class.active]="member.active"
+          [class.inactive]="!member.active"
+          (click)="toggleMember(member.memberId)"
+          [style.--member-color]="member.color">
+          <div class="member-color-dot" [style.background]="member.color"></div>
+          <ion-label>{{ member.memberName }}</ion-label>
+        </ion-chip>
+      }
+    </div>
+  </div>
+
+  <!-- Grade do Calendário -->
+  <div class="calendar-grid">
+    <!-- Cabeçalho dos dias da semana -->
+    <div class="calendar-header">
+      @for (day of weekDays; track day) {
+        <div class="week-day">{{ day }}</div>
+      }
+    </div>
+
+    <!-- Células dos dias -->
+    <div class="calendar-body">
+      @for (day of monthData().days; track day.date.getTime()) {
+        <div
+          [class]="getDayClass(day)"
+          (click)="openDayDetails(day)">
+          
+          <!-- Número do dia -->
+          <div class="day-number">{{ day.dayNumber }}</div>
+          
+          <!-- Indicadores de doses (cores dos membros) -->
+          @if (day.totalDoses > 0 && day.isCurrentMonth) {
+            <div class="member-indicators">
+              @for (color of day.memberColors; track color) {
+                <div class="member-dot" [style.background]="color"></div>
+              }
+            </div>
+            
+            <!-- Badges de status -->
+            <div class="status-badges">
+              @if (day.hasTaken) {
+                <ion-badge color="success" class="status-badge">
+                  {{ day.takenCount }}
+                </ion-badge>
+              }
+              @if (day.hasMissed) {
+                <ion-badge color="danger" class="status-badge">
+                  {{ day.missedCount }}
+                </ion-badge>
+              }
+              @if (day.hasPending) {
+                <ion-badge color="warning" class="status-badge">
+                  {{ day.pendingCount }}
+                </ion-badge>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Modal de Detalhes do Dia -->
+  <ion-modal
+    [isOpen]="showDayModal()"
+    (didDismiss)="closeDayModal()"
+    [breakpoints]="[0, 0.5, 0.75, 1]"
+    [initialBreakpoint]="0.75">
+    
+    @if (selectedDay(); as day) {
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ day.dateString }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeDayModal()">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content">
+        <!-- Resumo do dia -->
+        <ion-card class="day-summary-card">
+          <ion-card-header>
+            <ion-card-title>{{ 'FAMILY_CALENDAR.SUMMARY' | translate }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="summary-stats">
+              <div class="stat-item">
+                <ion-icon name="checkmark-circle" color="success"></ion-icon>
+                <span>{{ day.takenCount }} tomadas</span>
+              </div>
+              <div class="stat-item">
+                <ion-icon name="alert-circle" color="danger"></ion-icon>
+                <span>{{ day.missedCount }} perdidas</span>
+              </div>
+              <div class="stat-item">
+                <ion-icon name="time-outline" color="warning"></ion-icon>
+                <span>{{ day.pendingCount }} pendentes</span>
+              </div>
+            </div>
+            <p class="summary-text">{{ day.summaryText }}</p>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Lista de doses -->
+        @if (day.doses.length > 0) {
+          <ion-card class="doses-card">
+            <ion-card-header>
+              <ion-card-title>{{ 'FAMILY_CALENDAR.DOSES' | translate }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list lines="full">
+                @for (dose of day.doses; track dose.medicationId + dose.time) {
+                  <ion-item>
+                    <!-- Cor do membro -->
+                    <div
+                      slot="start"
+                      class="member-color-indicator"
+                      [style.background]="dose.memberColor">
+                    </div>
+
+                    <!-- Informações da dose -->
+                    <ion-label>
+                      <h2>{{ dose.medicationName }}</h2>
+                      <p>{{ dose.memberName }} - {{ formatTime(dose.time) }}</p>
+                      <p class="dosage-info">{{ dose.dosage }}</p>
+                      @if (dose.notes) {
+                        <ion-note color="medium">{{ dose.notes }}</ion-note>
+                      }
+                    </ion-label>
+
+                    <!-- Status da dose -->
+                    <ion-badge
+                      slot="end"
+                      [color]="getStatusColor(dose.status)">
+                      <ion-icon
+                        [name]="getStatusIcon(dose.status)"
+                        class="status-icon">
+                      </ion-icon>
+                      {{ getStatusText(dose.status) }}
+                    </ion-badge>
+                  </ion-item>
+                }
+              </ion-list>
+            </ion-card-content>
+          </ion-card>
+        } @else {
+          <ion-card class="empty-card">
+            <ion-card-content>
+              <div class="empty-state">
+                <ion-icon name="calendar-outline" size="large"></ion-icon>
+                <p>{{ 'FAMILY_CALENDAR.NO_DOSES' | translate }}</p>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        }
+      </ion-content>
+    }
+  </ion-modal>
+</ion-content>

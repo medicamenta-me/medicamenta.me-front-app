@@ -1,0 +1,104 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>{{ 'TERMS.MODAL.TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="terms-modal-content">
+  <div class="terms-container" *ngIf="terms()">
+    <!-- Terms Header -->
+    <div class="terms-header">
+      <h1>{{ (terms()!.summary || '').split('\n')[0] || 'Termos de Uso' }}</h1>
+      <div class="terms-meta">
+        <ion-text color="medium">
+          <p>
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <strong>{{ 'TERMS.VERSION' | translate }}:</strong> {{ terms()!.version }}
+          </p>
+        </ion-text>
+        <ion-text color="medium">
+          <p>
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <strong>{{ 'TERMS.EFFECTIVE_DATE' | translate }}:</strong> {{ formatDate(terms()!.effectiveDate) }}
+          </p>
+        </ion-text>
+        <ion-text color="medium">
+          <p>
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <strong>{{ 'TERMS.COUNTRY' | translate }}:</strong> {{ terms()!.country }}
+          </p>
+        </ion-text>
+      </div>
+    </div>
+
+    <!-- Scroll Instructions -->
+    <div class="scroll-instructions" *ngIf="!hasScrolledToBottom()">
+      <ion-text color="warning">
+        <p>
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          {{ 'TERMS.MODAL.SCROLL_INSTRUCTION' | translate }}
+        </p>
+      </ion-text>
+    </div>
+
+    <!-- Terms Content (scrollable) -->
+    <div 
+      class="terms-text-container" 
+      #termsContent
+      (scroll)="onScroll($event)"
+    >
+      <div class="terms-text" [innerHTML]="terms()!.text"></div>
+      
+      <!-- Bottom marker -->
+      <div class="scroll-marker">
+        <ion-text color="success" *ngIf="hasScrolledToBottom()">
+          <p>
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            {{ 'TERMS.MODAL.SCROLLED_COMPLETE' | translate }}
+          </p>
+        </ion-text>
+      </div>
+    </div>
+
+    <!-- Acceptance Section -->
+    <div class="acceptance-section">
+      <div class="checkbox-container" [class.enabled]="hasScrolledToBottom()">
+        <ion-checkbox
+          [(ngModel)]="acceptanceChecked"
+          [disabled]="!hasScrolledToBottom()"
+          (ionChange)="onCheckboxChange($event)"
+        ></ion-checkbox>
+        <ion-text>
+          <p [class.disabled]="!hasScrolledToBottom()">
+            {{ 'TERMS.MODAL.ACCEPTANCE_LABEL' | translate }}
+          </p>
+        </ion-text>
+      </div>
+
+      <ion-button
+        expand="block"
+        color="primary"
+        [disabled]="!canAccept || isAccepting()"
+        (click)="acceptTerms()"
+        class="accept-button"
+      >
+        <ion-spinner *ngIf="isAccepting()" name="crescent"></ion-spinner>
+        <span *ngIf="!isAccepting()">{{ 'TERMS.MODAL.ACCEPT_BUTTON' | translate }}</span>
+      </ion-button>
+
+      <!-- Cannot close message -->
+      <ion-text color="danger" class="blocking-message">
+        <p>
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          {{ 'TERMS.MODAL.BLOCKING_MESSAGE' | translate }}
+        </p>
+      </ion-text>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div class="loading-container" *ngIf="!terms()">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>{{ 'COMMON.LOADING' | translate }}</p>
+  </div>
+</ion-content>

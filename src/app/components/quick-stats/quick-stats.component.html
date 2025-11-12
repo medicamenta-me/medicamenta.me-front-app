@@ -1,0 +1,85 @@
+<div class="quick-stats-container">
+  <!-- Aderência Semanal -->
+  <ion-card class="stat-card adherence-card">
+    <ion-card-content>
+      <div class="stat-icon" [style.color]="'var(--ion-color-' + getAdherenceColor(stats.weeklyAdherence) + ')'">
+        <ion-icon name="checkmark-circle"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">
+          {{ 'QUICK_STATS.WEEKLY_ADHERENCE' | translate }}
+        </div>
+        <div class="stat-value" [style.color]="'var(--ion-color-' + getAdherenceColor(stats.weeklyAdherence) + ')'">
+          {{ formatPercentage(stats.weeklyAdherence) }}%
+        </div>
+        <!-- Mini gráfico inline (visual simples) -->
+        <div class="mini-graph">
+          <div class="graph-bar" 
+               [style.width.%]="stats.weeklyAdherence"
+               [style.background-color]="'var(--ion-color-' + getAdherenceColor(stats.weeklyAdherence) + ')'">
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Próximas Doses (24h) -->
+  <ion-card class="stat-card upcoming-card">
+    <ion-card-content>
+      <div class="stat-icon" style="color: var(--ion-color-primary)">
+        <ion-icon name="time"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">
+          {{ 'QUICK_STATS.UPCOMING_DOSES' | translate }}
+        </div>
+        <div class="stat-value" style="color: var(--ion-color-primary)">
+          {{ stats.upcomingDoses }}
+        </div>
+        <div class="stat-sublabel">
+          {{ 'QUICK_STATS.NEXT_24H' | translate }}
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Estoque Crítico -->
+  <ion-card class="stat-card stock-card">
+    <ion-card-content>
+      <div class="stat-icon" [style.color]="'var(--ion-color-' + getStockColor(stats.criticalStock) + ')'">
+        <ion-icon name="cube"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">
+          {{ 'QUICK_STATS.CRITICAL_STOCK' | translate }}
+        </div>
+        <div class="stat-value" [style.color]="'var(--ion-color-' + getStockColor(stats.criticalStock) + ')'">
+          {{ stats.criticalStock }}
+        </div>
+        <div class="stat-sublabel">
+          {{ 'QUICK_STATS.MEDICATIONS' | translate }}
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Total Medicamentos Ativos -->
+  <ion-card class="stat-card active-card">
+    <ion-card-content>
+      <div class="stat-icon" style="color: var(--ion-color-medium)">
+        <ion-icon name="medical"></ion-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">
+          {{ 'QUICK_STATS.ACTIVE_MEDICATIONS' | translate }}
+        </div>
+        <div class="stat-value" style="color: var(--ion-color-medium)">
+          {{ stats.totalActive }}
+        </div>
+        <div class="stat-sublabel">
+          {{ 'QUICK_STATS.TOTAL' | translate }}
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</div>

@@ -1,0 +1,197 @@
+ion-header ion-toolbar {
+  --background: var(--ion-color-primary);
+  --color: white;
+}
+
+ion-header ion-segment {
+  --background: transparent;
+  margin: 0 8px;
+}
+
+ion-header ion-segment-button {
+  --color: rgba(255, 255, 255, 0.7);
+  --color-checked: white;
+  --indicator-color: white;
+}
+
+ion-header ion-segment-button ion-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+ion-header ion-segment-button ion-icon {
+  font-size: 1.2em;
+}
+
+ion-header ion-badge {
+  margin-left: 6px;
+  font-size: 0.8em;
+}
+
+/* Insights View */
+.insights-view {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.priority-section {
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.critical-section {
+  border-left: 4px solid var(--ion-color-danger);
+}
+
+.high-section {
+  border-left: 4px solid var(--ion-color-warning);
+}
+
+ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+ion-card-title ion-icon {
+  font-size: 1.5em;
+}
+
+ion-card-title ion-badge {
+  margin-left: auto;
+  font-size: 0.9em;
+}
+
+ion-list {
+  padding: 0;
+}
+
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 72px;
+}
+
+ion-item ion-icon[slot="start"] {
+  font-size: 2em;
+  margin-right: 16px;
+}
+
+ion-item h3 {
+  font-size: 1em;
+  font-weight: 600;
+  margin: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.priority-badge {
+  font-size: 0.7em;
+  padding: 2px 6px;
+}
+
+ion-item p {
+  font-size: 0.9em;
+  color: var(--ion-color-medium);
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+ion-item ion-button[fill="clear"] {
+  margin: 8px 0 0 0;
+  height: auto;
+  font-size: 0.9em;
+  --padding-start: 0;
+}
+
+/* No Insights */
+.no-insights-card {
+  margin-top: 40px;
+}
+
+.no-insights {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.no-insights ion-icon {
+  font-size: 4em;
+  margin-bottom: 20px;
+}
+
+.no-insights h2 {
+  font-size: 1.5em;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin: 0 0 12px 0;
+}
+
+.no-insights p {
+  font-size: 1em;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+/* Reports View */
+.reports-view {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.reports-view ion-card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reports-view ion-item {
+  --min-height: 56px;
+}
+
+.reports-view ion-label {
+  margin: 8px 0;
+}
+
+.reports-view ion-select,
+.reports-view ion-textarea {
+  margin-top: 8px;
+}
+
+.download-buttons {
+  margin-top: 24px;
+}
+
+.download-button {
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.download-button ion-icon {
+  font-size: 1.2em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  ion-header ion-segment-button ion-label {
+    font-size: 0.9em;
+  }
+
+  ion-header ion-segment-button ion-icon {
+    font-size: 1em;
+  }
+
+  ion-card-title {
+    font-size: 1.1em;
+  }
+
+  ion-item h3 {
+    font-size: 0.95em;
+  }
+
+  ion-item p {
+    font-size: 0.85em;
+  }
+}

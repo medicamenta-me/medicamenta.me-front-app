@@ -1,0 +1,176 @@
+.conflict-info {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.large-icon {
+  font-size: 4em;
+  margin-bottom: 16px;
+}
+
+.conflict-info h2 {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 16px 0 8px;
+  color: var(--ion-color-dark);
+}
+
+.conflict-info p {
+  color: var(--ion-color-medium);
+  margin-bottom: 24px;
+}
+
+.timestamp-info {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.timestamp-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+}
+
+.timestamp-item ion-icon {
+  font-size: 2em;
+}
+
+.timestamp-item strong {
+  display: block;
+  font-size: 0.9em;
+  color: var(--ion-color-dark);
+}
+
+.timestamp-item p {
+  margin: 4px 0 0;
+  font-size: 0.85em;
+  color: var(--ion-color-medium);
+}
+
+/* Differences Card */
+.differences-card {
+  margin: 20px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.diff-values {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.diff-value {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--ion-color-light);
+}
+
+.diff-value.local {
+  border-left: 3px solid var(--ion-color-primary);
+}
+
+.diff-value.server {
+  border-left: 3px solid var(--ion-color-tertiary);
+}
+
+.diff-value ion-badge {
+  margin-bottom: 8px;
+  font-size: 0.75em;
+}
+
+.diff-value p {
+  margin: 8px 0 0;
+  font-size: 0.9em;
+  color: var(--ion-color-dark);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Resolution Options */
+.resolution-options {
+  margin: 24px 0;
+}
+
+.resolution-options h3 {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--ion-color-dark);
+}
+
+.resolution-options ion-card {
+  margin: 12px 0;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.resolution-options ion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.resolution-options ion-card.selected {
+  border-color: var(--ion-color-primary);
+  background: rgba(var(--ion-color-primary-rgb), 0.05);
+}
+
+.option-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.option-header ion-icon {
+  font-size: 1.5em;
+}
+
+.option-header strong {
+  font-size: 1em;
+  color: var(--ion-color-dark);
+}
+
+.resolution-options ion-card-content p {
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--ion-color-medium);
+  line-height: 1.5;
+}
+
+/* Action Buttons */
+.action-buttons {
+  margin-top: 32px;
+}
+
+.action-buttons ion-button {
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .timestamp-info {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .diff-values {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .large-icon {
+    font-size: 3em;
+  }
+
+  .conflict-info h2 {
+    font-size: 1.3em;
+  }
+}

@@ -1,0 +1,121 @@
+.report-builder-container {
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+ion-card {
+  margin-bottom: 16px;
+}
+
+ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+ion-card-title ion-icon {
+  font-size: 24px;
+}
+
+/* Template Selection */
+ion-item.selected {
+  --background: var(--ion-color-primary-tint);
+  --background-activated: var(--ion-color-primary-shade);
+}
+
+ion-item h2 {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+ion-item p {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+}
+
+/* Date Selection */
+.date-selection {
+  margin-top: 16px;
+}
+
+.period-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.period-info ion-icon {
+  font-size: 18px;
+  color: var(--ion-color-primary);
+}
+
+/* Sections */
+ion-list-header {
+  padding-top: 0;
+  margin-bottom: 8px;
+}
+
+ion-list-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+ion-list-header p {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+ion-checkbox {
+  margin-right: 12px;
+}
+
+/* Generate Button */
+.generate-button-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: var(--ion-background-color);
+  border-top: 1px solid var(--ion-color-light-shade);
+  z-index: 10;
+}
+
+.generate-button-container ion-button {
+  margin-bottom: 8px;
+}
+
+.info-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.info-text ion-icon {
+  font-size: 16px;
+}
+
+/* Loading State */
+ion-button[disabled] {
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .report-builder-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}

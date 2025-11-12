@@ -1,0 +1,5 @@
+{
+  "name": "Medicamenta.me",
+  "description": "A mobile application for Medicamenta.me, built with the Ionic Framework and Angular to help manage medications and appointments.",
+  "requestFramePermissions": []
+}

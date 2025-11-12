@@ -1,0 +1,10 @@
+/* Login Component - Accessible Styles */
+.login-page {
+  --background: #FFFFFF;
+}
+
+/* Ensure consistent styling */
+ion-header ion-toolbar[color="primary"] {
+  --background: #34D187 !important;
+  --color: #FFFFFF !important;
+}

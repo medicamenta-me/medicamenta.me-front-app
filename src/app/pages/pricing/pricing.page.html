@@ -1,0 +1,297 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'PRICING.TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="pricing-content">
+  <!-- Payment Configuration Warning -->
+  <ion-card *ngIf="!paymentConfigured()" class="warning-card">
+    <ion-card-content>
+      <div class="warning-content">
+        <ion-icon name="warning-outline" color="warning"></ion-icon>
+        <div class="warning-text">
+          <h3>{{ 'PRICING.WARNING.TITLE' | translate }}</h3>
+          <p>{{ configStatus().message }}</p>
+          <p><small>{{ 'PRICING.WARNING.FREE_ONLY' | translate }}</small></p>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        {{ 'PRICING.HERO.TITLE' | translate }}
+      </h1>
+      <p class="hero-subtitle">
+        {{ 'PRICING.HERO.SUBTITLE' | translate }}<br>
+        {{ 'PRICING.HERO.SUBTITLE_LINE2' | translate }}
+      </p>
+    </div>
+
+    <!-- Billing Toggle -->
+    <div class="billing-toggle">
+      <span [class.active]="billingCycle() === 'monthly'">{{ 'PRICING.BILLING.MONTHLY' | translate }}</span>
+      <ion-toggle
+        [checked]="billingCycle() === 'yearly'"
+        (ionChange)="toggleBillingCycle()"
+        color="success"
+      ></ion-toggle>
+      <span [class.active]="billingCycle() === 'yearly'">
+        {{ 'PRICING.BILLING.YEARLY' | translate }}
+        <ion-badge color="success" class="discount-badge">
+          -{{ getSavingsPercentage() }}%
+        </ion-badge>
+      </span>
+    </div>
+  </div>
+
+  <!-- Plans Grid -->
+  <div class="plans-container">
+    <ion-grid>
+      <ion-row class="ion-justify-content-center">
+        <ion-col
+          size="12"
+          size-md="6"
+          size-lg="3"
+          *ngFor="let plan of getAvailablePlans()"
+        >
+          <ion-card
+            [class]="'plan-card ' + plan.plan"
+            [class.popular]="plan.popular"
+            [class.recommended]="plan.recommended"
+            [class.current]="isCurrentPlan(plan.plan)"
+            (click)="selectPlan(plan.plan)"
+          >
+            <!-- Badge de Destaque -->
+            <div class="plan-badge" *ngIf="plan.popular">
+              <ion-icon name="star"></ion-icon>
+              {{ 'PRICING.BADGES.POPULAR' | translate }}
+            </div>
+            <div class="plan-badge recommended-badge" *ngIf="plan.recommended">
+              <ion-icon name="trophy"></ion-icon>
+              {{ 'PRICING.BADGES.RECOMMENDED' | translate }}
+            </div>
+            <div class="plan-badge current-badge" *ngIf="isCurrentPlan(plan.plan)">
+              <ion-icon name="checkmark-circle"></ion-icon>
+              {{ 'PRICING.BADGES.CURRENT' | translate }}
+            </div>
+
+            <ion-card-header>
+              <!-- Ícone do Plano -->
+              <div class="plan-icon" [style.color]="'var(--ion-color-' + plan.color + ')'">
+                <ion-icon [name]="plan.icon" size="large"></ion-icon>
+              </div>
+
+              <!-- Nome do Plano -->
+              <ion-card-title class="plan-name">
+                {{ plan.name }}
+              </ion-card-title>
+
+              <!-- Preço -->
+              <div class="plan-pricing">
+                <div class="price" *ngIf="getPrice(plan) > 0">
+                  <span class="currency">R$</span>
+                  <span class="amount">{{ getPrice(plan) | number:'1.2-2' }}</span>
+                  <span class="period">{{ (billingCycle() === 'monthly' ? 'PRICING.BILLING.PER_MONTH' : 'PRICING.BILLING.PER_YEAR') | translate }}</span>
+                </div>
+                <div class="price free" *ngIf="getPrice(plan) === 0 && plan.plan === 'free'">
+                  <span class="amount">{{ 'PRICING.BILLING.FREE' | translate }}</span>
+                </div>
+                <div class="price custom" *ngIf="getPrice(plan) === 0 && plan.plan === 'enterprise'">
+                  <span class="amount">{{ 'PRICING.BILLING.CUSTOM' | translate }}</span>
+                </div>
+
+                <!-- Economia Anual -->
+                <div class="savings" *ngIf="billingCycle() === 'yearly' && getPrice(plan) > 0">
+                  <ion-text color="success">
+                    <small>
+                      {{ 'PRICING.BILLING.SAVE' | translate }} R$ {{ (plan.monthlyPrice * 12 - plan.yearlyPrice) | number:'1.2-2' }}
+                    </small>
+                  </ion-text>
+                </div>
+              </div>
+            </ion-card-header>
+
+            <ion-card-content>
+              <!-- Features List -->
+              <ion-list class="features-list" lines="none">
+                <ion-item *ngFor="let feature of getMainFeatures(plan.plan)">
+                  <ion-icon
+                    slot="start"
+                    [name]="feature.included ? 'checkmark-circle' : 'close-circle'"
+                    [color]="feature.included ? 'success' : 'medium'"
+                  ></ion-icon>
+                  <ion-label class="feature-label">
+                    {{ feature.name }}
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+
+              <!-- CTA Button -->
+              <ion-button
+                expand="block"
+                [color]="plan.popular ? 'primary' : plan.recommended ? 'secondary' : 'medium'"
+                [disabled]="isCurrentPlan(plan.plan) || loading()"
+                class="select-plan-btn"
+                size="large"
+              >
+                <ion-spinner *ngIf="loading()" name="crescent"></ion-spinner>
+                <span *ngIf="!loading()">
+                  {{ getButtonText(plan.plan) }}
+                </span>
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Feature Comparison Table -->
+  <div class="comparison-section">
+    <div class="section-header">
+      <h2>{{ 'PRICING.COMPARISON.TITLE' | translate }}</h2>
+      <p>{{ 'PRICING.COMPARISON.SUBTITLE' | translate }}</p>
+    </div>
+
+    <div class="comparison-table-wrapper">
+      <ion-grid class="comparison-table">
+        <!-- Header -->
+        <ion-row class="table-header">
+          <ion-col size="4" class="feature-col">
+            <strong>{{ 'PRICING.COMPARISON.FEATURES_LABEL' | translate }}</strong>
+          </ion-col>
+          <ion-col size="2" *ngFor="let plan of plans" class="plan-col">
+            <div class="plan-header">
+              <ion-icon [name]="plan.icon" [color]="plan.color"></ion-icon>
+              <strong>{{ plan.name }}</strong>
+            </div>
+          </ion-col>
+        </ion-row>
+
+        <!-- Feature Rows -->
+        <ion-row
+          *ngFor="let feature of features; let i = index"
+          class="feature-row"
+          [class.even]="i % 2 === 0"
+        >
+          <ion-col size="4" class="feature-col">
+            <ion-text>{{ feature.name }}</ion-text>
+          </ion-col>
+          <ion-col size="2" class="value-col">
+            <div class="feature-value" [style.color]="getFeatureColor(feature.free)">
+              {{ formatFeatureValue(feature.free) }}
+            </div>
+          </ion-col>
+          <ion-col size="2" class="value-col">
+            <div class="feature-value" [style.color]="getFeatureColor(feature.premium)">
+              {{ formatFeatureValue(feature.premium) }}
+            </div>
+          </ion-col>
+          <ion-col size="2" class="value-col">
+            <div class="feature-value" [style.color]="getFeatureColor(feature.family)">
+              {{ formatFeatureValue(feature.family) }}
+            </div>
+          </ion-col>
+          <ion-col size="2" class="value-col">
+            <div class="feature-value" [style.color]="getFeatureColor(feature.enterprise)">
+              {{ formatFeatureValue(feature.enterprise) }}
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="faq-section">
+    <div class="section-header">
+      <h2>{{ 'PRICING.FAQ.TITLE' | translate }}</h2>
+    </div>
+
+    <ion-list class="faq-list" lines="none">
+      <ion-item class="faq-item">
+        <ion-label class="ion-text-wrap">
+          <h3>{{ 'PRICING.FAQ.Q1_TITLE' | translate }}</h3>
+          <p>{{ 'PRICING.FAQ.Q1_ANSWER' | translate }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item class="faq-item">
+        <ion-label class="ion-text-wrap">
+          <h3>{{ 'PRICING.FAQ.Q2_TITLE' | translate }}</h3>
+          <p>{{ 'PRICING.FAQ.Q2_ANSWER' | translate }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item class="faq-item">
+        <ion-label class="ion-text-wrap">
+          <h3>{{ 'PRICING.FAQ.Q3_TITLE' | translate }}</h3>
+          <p>{{ 'PRICING.FAQ.Q3_ANSWER' | translate }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item class="faq-item">
+        <ion-label class="ion-text-wrap">
+          <h3>{{ 'PRICING.FAQ.Q4_TITLE' | translate }}</h3>
+          <p>{{ 'PRICING.FAQ.Q4_ANSWER' | translate }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item class="faq-item">
+        <ion-label class="ion-text-wrap">
+          <h3>{{ 'PRICING.FAQ.Q5_TITLE' | translate }}</h3>
+          <p>{{ 'PRICING.FAQ.Q5_ANSWER' | translate }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- Trust Badges -->
+  <div class="trust-section">
+    <ion-grid>
+      <ion-row class="ion-align-items-center ion-justify-content-center">
+        <ion-col size="6" size-md="3" class="ion-text-center">
+          <ion-icon name="shield-checkmark" color="success" size="large"></ion-icon>
+          <p><strong>{{ 'PRICING.GUARANTEES.SECURE_PAYMENT' | translate }}</strong></p>
+        </ion-col>
+        <ion-col size="6" size-md="3" class="ion-text-center">
+          <ion-icon name="lock-closed" color="primary" size="large"></ion-icon>
+          <p><strong>{{ 'PRICING.GUARANTEES.ENCRYPTED_DATA' | translate }}</strong></p>
+        </ion-col>
+        <ion-col size="6" size-md="3" class="ion-text-center">
+          <ion-icon name="time" color="warning" size="large"></ion-icon>
+          <p><strong>{{ 'PRICING.GUARANTEES.CANCEL_ANYTIME' | translate }}</strong></p>
+        </ion-col>
+        <ion-col size="6" size-md="3" class="ion-text-center">
+          <ion-icon name="people" color="secondary" size="large"></ion-icon>
+          <p><strong>{{ 'PRICING.GUARANTEES.DEDICATED_SUPPORT' | translate }}</strong></p>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- CTA Final -->
+  <div class="final-cta">
+    <h2>{{ 'PRICING.CTA.TITLE' | translate }}</h2>
+    <p>{{ 'PRICING.CTA.SUBTITLE' | translate }}</p>
+    <ion-button
+      size="large"
+      color="primary"
+      expand="block"
+      class="cta-button"
+      (click)="scrollToPlans()"
+    >
+      Ver Planos
+      <ion-icon slot="end" name="arrow-up"></ion-icon>
+    </ion-button>
+  </div>
+</ion-content>

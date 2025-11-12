@@ -1,0 +1,253 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text="{{ 'COMMON.BACK' | translate }}"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'REPORTS.TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-segment [(ngModel)]="currentView" (ionChange)="onViewChange($event)" mode="md">
+      <ion-segment-button value="insights">
+        <ion-label>
+          <ion-icon name="analytics-outline"></ion-icon>
+          {{ 'REPORTS.INSIGHTS_TAB' | translate }}
+          @if (criticalInsights().length > 0) {
+            <ion-badge color="danger">{{ criticalInsights().length }}</ion-badge>
+          }
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="reports">
+        <ion-label>
+          <ion-icon name="document-text-outline"></ion-icon>
+          {{ 'REPORTS.REPORTS_TAB' | translate }}
+        </ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Insights View -->
+  @if (currentView() === 'insights') {
+    <div class="insights-view">
+      <!-- Critical Insights -->
+      @if (criticalInsights().length > 0) {
+        <ion-card class="priority-section critical-section">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              {{ 'INSIGHTS.CRITICAL_INSIGHTS' | translate }}
+              <ion-badge color="danger">{{ criticalInsights().length }}</ion-badge>
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list lines="full">
+              @for (insight of criticalInsights(); track insight.id) {
+                <ion-item>
+                  <ion-icon [name]="insight.icon" [color]="insight.color" slot="start"></ion-icon>
+                  <ion-label>
+                    <h3>{{ insight.title | translate }}</h3>
+                    <p>{{ insight.message | translate: insight.metadata }}</p>
+                    @if (insight.actionLabel && insight.actionRoute) {
+                      <ion-button fill="clear" size="small" (click)="onInsightAction(insight)">
+                        {{ insight.actionLabel | translate }}
+                      </ion-button>
+                    }
+                  </ion-label>
+                </ion-item>
+              }
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      }
+
+      <!-- High Priority Insights -->
+      @if (highPriorityInsights().length > 0) {
+        <ion-card class="priority-section high-section">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
+              {{ 'INSIGHTS.HIGH_PRIORITY_INSIGHTS' | translate }}
+              <ion-badge color="warning">{{ highPriorityInsights().length }}</ion-badge>
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list lines="full">
+              @for (insight of highPriorityInsights(); track insight.id) {
+                <ion-item>
+                  <ion-icon [name]="insight.icon" [color]="insight.color" slot="start"></ion-icon>
+                  <ion-label>
+                    <h3>{{ insight.title | translate }}</h3>
+                    <p>{{ insight.message | translate: insight.metadata }}</p>
+                    @if (insight.actionLabel && insight.actionRoute) {
+                      <ion-button fill="clear" size="small" (click)="onInsightAction(insight)">
+                        {{ insight.actionLabel | translate }}
+                      </ion-button>
+                    }
+                  </ion-label>
+                </ion-item>
+              }
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      }
+
+      <!-- All Other Insights -->
+      @if (getInsightsByPriority('medium').length > 0 || getInsightsByPriority('low').length > 0) {
+        <ion-card class="priority-section">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+              {{ 'INSIGHTS.OTHER_INSIGHTS' | translate }}
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list lines="full">
+              @for (insight of insights(); track insight.id) {
+                @if (insight.priority === 'medium' || insight.priority === 'low') {
+                  <ion-item>
+                    <ion-icon [name]="insight.icon" [color]="insight.color" slot="start"></ion-icon>
+                    <ion-label>
+                      <h3>
+                        {{ insight.title | translate }}
+                        <ion-badge [color]="getPriorityBadgeColor(insight.priority)" class="priority-badge">
+                          {{ getPriorityLabel(insight.priority) | translate }}
+                        </ion-badge>
+                      </h3>
+                      <p>{{ insight.message | translate: insight.metadata }}</p>
+                      @if (insight.actionLabel && insight.actionRoute) {
+                        <ion-button fill="clear" size="small" (click)="onInsightAction(insight)">
+                          {{ insight.actionLabel | translate }}
+                        </ion-button>
+                      }
+                    </ion-label>
+                  </ion-item>
+                }
+              }
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      }
+
+      <!-- No insights -->
+      @if (insights().length === 0) {
+        <ion-card class="no-insights-card">
+          <ion-card-content>
+            <div class="no-insights">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+              <h2>{{ 'INSIGHTS.NO_INSIGHTS' | translate }}</h2>
+              <p>{{ 'INSIGHTS.ALL_GOOD' | translate }}</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      }
+    </div>
+  }
+
+  <!-- Reports View -->
+  @if (currentView() === 'reports') {
+    <div class="reports-view">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'REPORTS.GENERATE_REPORT' | translate }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <!-- Report Type -->
+            <ion-item>
+              <ion-label position="stacked">{{ 'REPORTS.REPORT_TYPE' | translate }}</ion-label>
+              <ion-select 
+                [value]="reportConfig().type" 
+                (ionChange)="updateReportConfig('type', $event.detail.value)"
+                interface="popover">
+                <ion-select-option value="medical">{{ 'REPORTS.TYPE_MEDICAL' | translate }}</ion-select-option>
+                <ion-select-option value="family">{{ 'REPORTS.TYPE_FAMILY' | translate }}</ion-select-option>
+                <ion-select-option value="caregiver">{{ 'REPORTS.TYPE_CAREGIVER' | translate }}</ion-select-option>
+                <ion-select-option value="complete">{{ 'REPORTS.TYPE_COMPLETE' | translate }}</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Period -->
+            <ion-item>
+              <ion-label position="stacked">{{ 'REPORTS.PERIOD' | translate }}</ion-label>
+              <ion-select 
+                [value]="reportConfig().period" 
+                (ionChange)="updateReportConfig('period', $event.detail.value)"
+                interface="popover">
+                <ion-select-option value="week">{{ 'REPORTS.PERIOD_WEEK' | translate }}</ion-select-option>
+                <ion-select-option value="month">{{ 'REPORTS.PERIOD_MONTH' | translate }}</ion-select-option>
+                <ion-select-option value="year">{{ 'REPORTS.PERIOD_YEAR' | translate }}</ion-select-option>
+                <ion-select-option value="all">{{ 'REPORTS.PERIOD_ALL' | translate }}</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Include Sections -->
+            <ion-item>
+              <ion-label>{{ 'REPORTS.INCLUDE_MEDICATIONS' | translate }}</ion-label>
+              <ion-toggle 
+                [checked]="reportConfig().includeMedications" 
+                (ionChange)="updateReportConfig('includeMedications', $event.detail.checked)">
+              </ion-toggle>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>{{ 'REPORTS.INCLUDE_ADHERENCE' | translate }}</ion-label>
+              <ion-toggle 
+                [checked]="reportConfig().includeAdherence" 
+                (ionChange)="updateReportConfig('includeAdherence', $event.detail.checked)">
+              </ion-toggle>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>{{ 'REPORTS.INCLUDE_PATTERNS' | translate }}</ion-label>
+              <ion-toggle 
+                [checked]="reportConfig().includePatterns" 
+                (ionChange)="updateReportConfig('includePatterns', $event.detail.checked)">
+              </ion-toggle>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>{{ 'REPORTS.INCLUDE_STOCK' | translate }}</ion-label>
+              <ion-toggle 
+                [checked]="reportConfig().includeStock" 
+                (ionChange)="updateReportConfig('includeStock', $event.detail.checked)">
+              </ion-toggle>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>{{ 'REPORTS.INCLUDE_GRAPHS' | translate }}</ion-label>
+              <ion-toggle 
+                [checked]="reportConfig().includeGraphs" 
+                (ionChange)="updateReportConfig('includeGraphs', $event.detail.checked)">
+              </ion-toggle>
+            </ion-item>
+
+            <!-- Notes -->
+            <ion-item>
+              <ion-label position="stacked">{{ 'REPORTS.NOTES' | translate }}</ion-label>
+              <ion-textarea
+                [value]="reportConfig().notes"
+                (ionChange)="updateReportConfig('notes', $event.detail.value)"
+                rows="4"
+                [placeholder]="'REPORTS.NOTES_PLACEHOLDER' | translate">
+              </ion-textarea>
+            </ion-item>
+          </ion-list>
+
+          <!-- Download Buttons -->
+          <div class="download-buttons">
+            <ion-button expand="block" (click)="downloadHTMLReport()" class="download-button">
+              <ion-icon name="download-outline" slot="start"></ion-icon>
+              {{ 'REPORTS.DOWNLOAD_HTML' | translate }}
+            </ion-button>
+            <ion-button expand="block" fill="outline" (click)="downloadCSVReport()" class="download-button">
+              <ion-icon name="download-outline" slot="start"></ion-icon>
+              {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  }
+</ion-content>

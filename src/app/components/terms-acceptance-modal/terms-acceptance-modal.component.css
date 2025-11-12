@@ -1,0 +1,290 @@
+.terms-modal-content {
+  --background: var(--ion-background-color);
+}
+
+.terms-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Header */
+.terms-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--ion-color-primary);
+}
+
+.terms-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ion-color-primary);
+  margin: 0 0 16px 0;
+}
+
+.terms-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.terms-meta p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.terms-meta ion-icon {
+  font-size: 18px;
+}
+
+/* Scroll Instructions */
+.scroll-instructions {
+  background: var(--ion-color-warning-tint);
+  border-left: 4px solid var(--ion-color-warning);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.scroll-instructions p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 500;
+}
+
+.scroll-instructions ion-icon {
+  font-size: 20px;
+  color: var(--ion-color-warning);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Terms Content (scrollable) */
+.terms-text-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 2px solid var(--ion-color-light);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background: var(--ion-color-light);
+  scroll-behavior: smooth;
+}
+
+.terms-text-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terms-text-container::-webkit-scrollbar-track {
+  background: var(--ion-color-light-shade);
+  border-radius: 4px;
+}
+
+.terms-text-container::-webkit-scrollbar-thumb {
+  background: var(--ion-color-medium);
+  border-radius: 4px;
+}
+
+.terms-text-container::-webkit-scrollbar-thumb:hover {
+  background: var(--ion-color-medium-shade);
+}
+
+.terms-text {
+  color: var(--ion-color-dark);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.terms-text h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 20px 0 12px 0;
+  color: var(--ion-color-primary);
+}
+
+.terms-text h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 16px 0 10px 0;
+  color: var(--ion-color-primary-shade);
+}
+
+.terms-text p {
+  margin: 10px 0;
+}
+
+.terms-text ul,
+.terms-text ol {
+  margin: 10px 0;
+  padding-left: 24px;
+}
+
+.terms-text li {
+  margin: 6px 0;
+}
+
+.terms-text strong {
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.scroll-marker {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 2px dashed var(--ion-color-success);
+  text-align: center;
+}
+
+.scroll-marker p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.scroll-marker ion-icon {
+  font-size: 24px;
+}
+
+/* Acceptance Section */
+.acceptance-section {
+  background: var(--ion-color-light);
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid var(--ion-color-primary);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--ion-background-color);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  opacity: 0.5;
+}
+
+.checkbox-container.enabled {
+  opacity: 1;
+  border: 2px solid var(--ion-color-success);
+}
+
+.checkbox-container ion-checkbox {
+  margin-top: 2px;
+  --size: 24px;
+}
+
+.checkbox-container p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.checkbox-container p.disabled {
+  color: var(--ion-color-medium);
+}
+
+.accept-button {
+  margin-bottom: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.blocking-message {
+  text-align: center;
+  font-size: 13px;
+}
+
+.blocking-message p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 500;
+}
+
+.blocking-message ion-icon {
+  font-size: 18px;
+}
+
+/* Loading state */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+}
+
+.loading-container ion-spinner {
+  --color: var(--ion-color-primary);
+  transform: scale(1.5);
+}
+
+.loading-container p {
+  font-size: 16px;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .terms-text-container {
+    background: var(--ion-color-step-50);
+    border-color: var(--ion-color-step-150);
+  }
+  
+  .terms-text {
+    color: var(--ion-color-step-850);
+  }
+  
+  .acceptance-section {
+    background: var(--ion-color-step-50);
+  }
+  
+  .checkbox-container {
+    background: var(--ion-color-step-100);
+  }
+  
+  .scroll-instructions {
+    background: rgba(var(--ion-color-warning-rgb), 0.2);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .terms-container {
+    padding: 16px;
+  }
+  
+  .terms-header h1 {
+    font-size: 20px;
+  }
+  
+  .terms-text-container {
+    max-height: 300px;
+  }
+  
+  .acceptance-section {
+    padding: 16px;
+  }
+}

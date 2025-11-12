@@ -1,0 +1,306 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'WEARABLE_SETTINGS.TITLE' | translate }}</ion-title>
+  </ion-toolbar>
+
+  <!-- Segment Tabs -->
+  <ion-toolbar>
+    <ion-segment [(ngModel)]="selectedTab" value="wearable">
+      <ion-segment-button value="wearable">
+        <ion-icon name="watch"></ion-icon>
+        {{ 'WEARABLE_SETTINGS.TABS.WEARABLE' | translate }}
+      </ion-segment-button>
+      <ion-segment-button value="health">
+        <ion-icon name="fitness"></ion-icon>
+        {{ 'WEARABLE_SETTINGS.TABS.HEALTH' | translate }}
+      </ion-segment-button>
+      <ion-segment-button value="haptic">
+        <ion-icon name="vibration"></ion-icon>
+        {{ 'WEARABLE_SETTINGS.TABS.HAPTIC' | translate }}
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Tab: Wearable -->
+  <div *ngIf="selectedTab === 'wearable'" class="tab-content">
+    <!-- Status Card -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="watch"></ion-icon>
+          {{ 'WEARABLE_SETTINGS.SMARTWATCH.TITLE' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        @if (wearableSupported()) {
+          <div class="status-row">
+            <ion-label>{{ 'WEARABLE_SETTINGS.SMARTWATCH.PLATFORM' | translate }}</ion-label>
+            <ion-badge color="primary">{{ getPlatformName() }}</ion-badge>
+          </div>
+          <div class="status-row">
+            <ion-label>{{ 'WEARABLE_SETTINGS.SMARTWATCH.STATUS' | translate }}</ion-label>
+            <ion-badge [color]="getStatusBadge().color">
+              {{ getStatusBadge().text }}
+            </ion-badge>
+          </div>
+          <div class="status-row">
+            <ion-label>{{ 'WEARABLE_SETTINGS.SMARTWATCH.LAST_SYNC' | translate }}</ion-label>
+            <span class="status-value">{{ formatLastSync(lastSync()) }}</span>
+          </div>
+        } @else {
+          <div class="not-supported">
+            <ion-icon name="close-circle" color="danger"></ion-icon>
+            <p>{{ 'WEARABLE_SETTINGS.SMARTWATCH.NOT_SUPPORTED' | translate }}</p>
+          </div>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Settings Card -->
+    @if (wearableSupported()) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="settings-outline"></ion-icon>
+            {{ 'WEARABLE_SETTINGS.SMARTWATCH.SETTINGS_TITLE' | translate }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item>
+              <ion-label>
+                <h2>{{ 'WEARABLE_SETTINGS.SETTINGS.ENABLE_SMARTWATCH' | translate }}</h2>
+                <p>{{ 'WEARABLE_SETTINGS.SETTINGS.ENABLE_SMARTWATCH_DESC' | translate }}</p>
+              </ion-label>
+              <ion-toggle
+                [checked]="wearableConfig().enabled"
+                (ionChange)="toggleWearable($event)"
+              ></ion-toggle>
+            </ion-item>
+
+            @if (wearableConfig().enabled) {
+              <ion-item>
+                <ion-label>
+                  <h2>{{ 'WEARABLE_SETTINGS.SETTINGS.HAPTIC_FEEDBACK' | translate }}</h2>
+                  <p>{{ 'WEARABLE_SETTINGS.SETTINGS.HAPTIC_FEEDBACK_DESC' | translate }}</p>
+                </ion-label>
+                <ion-toggle
+                  [checked]="wearableConfig().hapticFeedback"
+                  (ionChange)="toggleHaptic($event)"
+                ></ion-toggle>
+              </ion-item>
+
+              <ion-item>
+                <ion-label>
+                  <h2>{{ 'WEARABLE_SETTINGS.SETTINGS.QUICK_CONFIRM' | translate }}</h2>
+                  <p>{{ 'WEARABLE_SETTINGS.SETTINGS.QUICK_CONFIRM_DESC' | translate }}</p>
+                </ion-label>
+                <ion-toggle
+                  [checked]="wearableConfig().quickConfirm"
+                  (ionChange)="toggleQuickConfirm($event)"
+                ></ion-toggle>
+              </ion-item>
+
+              <ion-item>
+                <ion-label>
+                  <h2>{{ 'WEARABLE_SETTINGS.SETTINGS.AUTO_CONFIRM' | translate }}</h2>
+                  <p>{{ 'WEARABLE_SETTINGS.SETTINGS.AUTO_CONFIRM_DESC' | translate }}</p>
+                </ion-label>
+                <ion-toggle
+                  [checked]="wearableConfig().autoConfirmOnWatch"
+                  (ionChange)="toggleAutoConfirm($event)"
+                ></ion-toggle>
+              </ion-item>
+
+              <ion-item button (click)="forceSync()">
+                <ion-icon name="sync" slot="start"></ion-icon>
+                <ion-label>
+                  <h2>{{ 'WEARABLE_SETTINGS.SETTINGS.SYNC_NOW' | translate }}</h2>
+                  <p>{{ 'WEARABLE_SETTINGS.SETTINGS.SYNC_NOW_DESC' | translate }}</p>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+
+  <!-- Tab: Health -->
+  <div *ngIf="selectedTab === 'health'" class="tab-content">
+    <!-- Health Status Card -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="fitness"></ion-icon>
+          {{ 'WEARABLE_SETTINGS.HEALTH.TITLE' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        @if (healthSupported()) {
+          <div class="status-row">
+            <ion-label>{{ 'WEARABLE_SETTINGS.SMARTWATCH.PLATFORM' | translate }}</ion-label>
+            <ion-badge color="primary">{{ getHealthPlatformName() }}</ion-badge>
+          </div>
+          <div class="status-row">
+            <ion-label>{{ 'WEARABLE_SETTINGS.HEALTH.PERMISSIONS' | translate }}</ion-label>
+            <ion-badge [color]="healthPermissions().granted ? 'success' : 'warning'">
+              {{ healthPermissions().granted ? ('WEARABLE_SETTINGS.STATUS.GRANTED' | translate) : ('WEARABLE_SETTINGS.STATUS.NOT_REQUESTED' | translate) }}
+            </ion-badge>
+          </div>
+          <div class="status-row">
+            <ion-label>{{ 'WEARABLE_SETTINGS.SMARTWATCH.LAST_SYNC' | translate }}</ion-label>
+            <span class="status-value">{{ formatLastSync(healthStats().lastSync) }}</span>
+          </div>
+        } @else {
+          <div class="not-supported">
+            <ion-icon name="close-circle" color="danger"></ion-icon>
+            <p>{{ 'WEARABLE_SETTINGS.HEALTH.NOT_SUPPORTED' | translate }}</p>
+          </div>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Health Stats Card -->
+    @if (healthSupported() && healthConfig().enabled) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="stats-chart-outline"></ion-icon>
+            {{ 'WEARABLE_SETTINGS.HEALTH.STATS_TITLE' | translate }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-value">{{ healthStats().totalSyncs }}</span>
+              <span class="stat-label">{{ 'WEARABLE_SETTINGS.STATS.SYNCS' | translate }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ healthStats().medicationsSynced }}</span>
+              <span class="stat-label">{{ 'WEARABLE_SETTINGS.STATS.MEDICATIONS' | translate }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ healthStats().errors }}</span>
+              <span class="stat-label">{{ 'WEARABLE_SETTINGS.STATS.ERRORS' | translate }}</span>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <!-- Health Settings Card -->
+    @if (healthSupported()) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="settings-outline"></ion-icon>
+            {{ 'WEARABLE_SETTINGS.SMARTWATCH.SETTINGS_TITLE' | translate }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item>
+              <ion-label>
+                <h2>{{ 'WEARABLE_SETTINGS.HEALTH_SETTINGS.ENABLE_SYNC' | translate }}</h2>
+                <p>Sync com {{ getHealthPlatformName() }}</p>
+              </ion-label>
+              <ion-toggle
+                [checked]="healthConfig().enabled"
+                (ionChange)="toggleHealthSync($event)"
+              ></ion-toggle>
+            </ion-item>
+
+            @if (healthConfig().enabled) {
+              <ion-item>
+                <ion-label>
+                  <h2>{{ 'WEARABLE_SETTINGS.HEALTH_SETTINGS.AUTO_SYNC' | translate }}</h2>
+                  <p>{{ 'WEARABLE_SETTINGS.HEALTH_SETTINGS.AUTO_SYNC_DESC' | translate }}</p>
+                </ion-label>
+                <ion-toggle
+                  [checked]="healthConfig().autoSync"
+                  (ionChange)="toggleHealthAutoSync($event)"
+                ></ion-toggle>
+              </ion-item>
+
+              @if (healthConfig().autoSync) {
+                <ion-item>
+                  <ion-label>
+                    <h2>{{ 'WEARABLE_SETTINGS.HEALTH_SETTINGS.SYNC_INTERVAL' | translate }}</h2>
+                    <p>{{ healthConfig().syncInterval }} minutos</p>
+                  </ion-label>
+                  <ion-range
+                    min="15"
+                    max="240"
+                    step="15"
+                    [value]="healthConfig().syncInterval"
+                    (ionChange)="updateSyncInterval($event)"
+                  ></ion-range>
+                </ion-item>
+              }
+
+              <ion-item>
+                <ion-label>
+                  <h2>{{ 'WEARABLE_SETTINGS.HEALTH_SETTINGS.SYNC_MEDICATIONS' | translate }}</h2>
+                  <p>{{ 'WEARABLE_SETTINGS.HEALTH_SETTINGS.SYNC_MEDICATIONS_DESC' | translate }}</p>
+                </ion-label>
+                <ion-toggle
+                  [checked]="healthConfig().syncMedications"
+                  (ionChange)="toggleSyncMedications($event)"
+                ></ion-toggle>
+              </ion-item>
+
+              <ion-item button (click)="syncWithHealth()" [disabled]="healthSyncing()">
+                <ion-icon name="sync" slot="start"></ion-icon>
+                <ion-label>
+                  <h2>{{ 'WEARABLE_SETTINGS.SETTINGS.SYNC_NOW' | translate }}</h2>
+                  <p>{{ 'WEARABLE_SETTINGS.SETTINGS.SYNC_NOW_DESC' | translate }}</p>
+                </ion-label>
+                @if (healthSyncing()) {
+                  <ion-spinner slot="end"></ion-spinner>
+                }
+              </ion-item>
+            }
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+
+  <!-- Tab: Haptic -->
+  <div *ngIf="selectedTab === 'haptic'" class="tab-content">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="vibrate"></ion-icon>
+          {{ 'WEARABLE_SETTINGS.HAPTIC_TAB.TITLE' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="info-text">
+          <ion-icon name="information-circle" color="primary"></ion-icon>
+          {{ 'WEARABLE_SETTINGS.HAPTIC_TAB.INFO_TEXT' | translate }}
+        </p>
+
+        <ion-list>
+          @for (pattern of hapticPatterns; track pattern) {
+            <ion-item button (click)="testHapticPattern(pattern)" [disabled]="testingPattern">
+              <ion-icon name="vibrate" slot="start"></ion-icon>
+              <ion-label>
+                <h2>{{ getPatternName(pattern) }}</h2>
+              </ion-label>
+              @if (testingPattern) {
+                <ion-spinner slot="end"></ion-spinner>
+              }
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

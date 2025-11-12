@@ -1,0 +1,340 @@
+:host {
+  --stat-card-bg: var(--ion-color-light);
+  --stat-value-color: var(--ion-color-primary);
+  --stat-label-color: var(--ion-color-medium);
+}
+
+// Stats Cards Grid
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 8px;
+}
+
+.stat-card {
+  margin: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  ion-card-content {
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--stat-value-color);
+    margin-bottom: 4px;
+
+    &.pending {
+      color: var(--ion-color-warning);
+    }
+
+    &.critical {
+      color: var(--ion-color-danger);
+    }
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--stat-label-color);
+    margin-bottom: 8px;
+  }
+
+  .stat-detail {
+    font-size: 0.75rem;
+    color: var(--ion-color-medium-shade);
+
+    .active {
+      color: var(--ion-color-success);
+    }
+
+    .missed {
+      color: var(--ion-color-danger);
+    }
+  }
+}
+
+// Filters Card
+.filters-card {
+  margin: 0 16px 16px;
+
+  ion-card-header {
+    padding-bottom: 8px;
+
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+
+      ion-icon {
+        font-size: 1.25rem;
+      }
+
+      ion-badge {
+        margin-left: auto;
+      }
+    }
+  }
+
+  ion-searchbar {
+    padding: 0;
+    margin-bottom: 12px;
+  }
+
+  .filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+
+    ion-item {
+      --padding-start: 0;
+      --inner-padding-end: 0;
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+}
+
+// Patients List
+.patients-list {
+  padding: 0 16px 16px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+
+  ion-icon {
+    font-size: 4rem;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+  }
+}
+
+// Patient Card
+.patient-card {
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .patient-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    ion-avatar {
+      width: 48px;
+      height: 48px;
+    }
+
+    .patient-info {
+      flex: 1;
+
+      ion-card-title {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+      }
+
+      ion-card-subtitle {
+        font-size: 0.875rem;
+      }
+    }
+
+    .adherence-badge {
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 8px 12px;
+    }
+  }
+
+  .metrics-row {
+    display: flex;
+    gap: 16px;
+    margin: 12px 0;
+    padding: 12px 0;
+    border-top: 1px solid var(--ion-color-light-shade);
+
+    .metric {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      color: var(--ion-color-medium);
+
+      ion-icon {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  .doses-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 8px;
+    margin: 12px 0;
+
+    .dose-stat {
+      text-align: center;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--ion-color-light);
+
+      &.success {
+        background: var(--ion-color-success-tint);
+        color: var(--ion-color-success-shade);
+      }
+
+      &.pending {
+        background: var(--ion-color-warning-tint);
+        color: var(--ion-color-warning-shade);
+      }
+
+      &.danger {
+        background: var(--ion-color-danger-tint);
+        color: var(--ion-color-danger-shade);
+      }
+
+      .dose-count {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .dose-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  .next-dose {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin: 12px 0;
+    background: var(--ion-color-primary-tint);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: var(--ion-color-primary-shade);
+
+    ion-icon {
+      font-size: 1.25rem;
+    }
+  }
+
+  .assigned-team {
+    margin: 12px 0;
+    padding: 12px 0;
+    border-top: 1px solid var(--ion-color-light-shade);
+
+    .team-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--ion-color-medium);
+      margin-bottom: 8px;
+    }
+
+    .team-members {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+
+      ion-chip {
+        margin: 0;
+
+        ion-avatar {
+          width: 24px;
+          height: 24px;
+        }
+
+        ion-label {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+
+  .alerts-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+
+    .alert-badge {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// Pagination
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  margin-top: 16px;
+
+  .page-info {
+    font-size: 0.875rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filter-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .patient-card {
+    .doses-summary {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}

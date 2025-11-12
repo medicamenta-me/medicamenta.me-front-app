@@ -1,0 +1,288 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Sincronização com Calendário</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="calendar-sync-container">
+    
+    <!-- Permissão -->
+    @if (!hasPermission()) {
+      <ion-card class="permission-card">
+        <ion-card-content>
+          <div class="permission-content">
+            <ion-icon name="calendar-outline" color="primary"></ion-icon>
+            <h2>Permissão Necessária</h2>
+            <p>Para sincronizar seus medicamentos com o calendário, precisamos de permissão para acessar seus calendários.</p>
+            <ion-button expand="block" (click)="requestPermission()">
+              <ion-icon slot="start" name="checkmark-circle"></ion-icon>
+              Conceder Permissão
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    @if (hasPermission()) {
+      <!-- Status da Sincronização -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="sync-outline"></ion-icon>
+            Status da Sincronização
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item>
+              <ion-icon slot="start" name="calendar-outline" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Sincronização Automática</h3>
+                <p>Criar eventos automaticamente no calendário</p>
+              </ion-label>
+              <ion-toggle 
+                [checked]="syncConfig().enabled"
+                (ionChange)="onSyncToggle($event)">
+              </ion-toggle>
+            </ion-item>
+
+            @if (syncConfig().enabled && syncStats()) {
+              <ion-item>
+                <ion-icon slot="start" name="checkmark-circle" color="success"></ion-icon>
+                <ion-label>
+                  <h3>Eventos Sincronizados</h3>
+                  <p>{{ syncStats()?.totalEvents || 0 }} eventos no calendário</p>
+                </ion-label>
+              </ion-item>
+
+              @if (syncStats()?.lastSync) {
+                <ion-item>
+                  <ion-icon slot="start" name="time-outline" color="medium"></ion-icon>
+                  <ion-label>
+                    <h3>Última Sincronização</h3>
+                    <p>{{ formatDateTime(syncStats()!.lastSync!) }}</p>
+                  </ion-label>
+                </ion-item>
+              }
+            }
+          </ion-list>
+
+          @if (syncConfig().enabled) {
+            <div class="sync-actions">
+              <ion-button 
+                expand="block" 
+                (click)="syncNow()"
+                [disabled]="isSyncing()">
+                @if (isSyncing()) {
+                  <ion-spinner slot="start"></ion-spinner>
+                  Sincronizando...
+                } @else {
+                  <ion-icon slot="start" name="sync-outline"></ion-icon>
+                  Sincronizar Agora
+                }
+              </ion-button>
+
+              <ion-button 
+                expand="block" 
+                fill="outline"
+                (click)="showAdvancedOptions()">
+                <ion-icon slot="start" name="settings-outline"></ion-icon>
+                Opções Avançadas
+              </ion-button>
+            </div>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Seleção de Calendário -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="list-outline"></ion-icon>
+            Calendário de Destino
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          @if (isLoadingCalendars()) {
+            <div class="loading-calendars">
+              <ion-spinner></ion-spinner>
+              <p>Carregando calendários...</p>
+            </div>
+          } @else if (availableCalendars().length === 0) {
+            <div class="no-calendars">
+              <ion-icon name="alert-circle" color="warning"></ion-icon>
+              <p>Nenhum calendário encontrado</p>
+              <ion-button size="small" (click)="loadCalendars()">
+                Recarregar
+              </ion-button>
+            </div>
+          } @else {
+            <ion-radio-group 
+              [value]="syncConfig().selectedCalendarId"
+              (ionChange)="selectCalendar($event)">
+              @for (calendar of availableCalendars(); track calendar.id) {
+                <ion-item>
+                  <ion-radio [value]="calendar.id" slot="start"></ion-radio>
+                  <ion-label>
+                    <h3>{{ calendar.title }}</h3>
+                  </ion-label>
+                  @if (syncConfig().selectedCalendarId === calendar.id) {
+                    <ion-icon slot="end" name="checkmark-circle" color="success"></ion-icon>
+                  }
+                </ion-item>
+              }
+            </ion-radio-group>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Configurações de Sincronização -->
+      @if (syncConfig().selectedCalendarId) {
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="settings-outline"></ion-icon>
+              Configurações
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list>
+              <!-- Período de Sincronização -->
+              <ion-item>
+                <ion-icon slot="start" name="calendar-outline"></ion-icon>
+                <ion-label>
+                  <h3>Sincronizar próximos</h3>
+                  <p>{{ syncConfig().upcomingDays }} dias</p>
+                </ion-label>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-range
+                  [min]="1"
+                  [max]="30"
+                  [value]="syncConfig().upcomingDays"
+                  [pin]="true"
+                  (ionChange)="updateConfig('upcomingDays', $event.detail.value)">
+                  <ion-label slot="start">1</ion-label>
+                  <ion-label slot="end">30</ion-label>
+                </ion-range>
+              </ion-item>
+
+              <!-- Lembrete -->
+              <ion-item>
+                <ion-icon slot="start" name="time-outline"></ion-icon>
+                <ion-label>
+                  <h3>Lembrete antecipado</h3>
+                  <p>{{ syncConfig().reminderMinutes }} minutos antes</p>
+                </ion-label>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-range
+                  [min]="0"
+                  [max]="60"
+                  [step]="5"
+                  [value]="syncConfig().reminderMinutes"
+                  [pin]="true"
+                  (ionChange)="updateConfig('reminderMinutes', $event.detail.value)">
+                  <ion-label slot="start">0</ion-label>
+                  <ion-label slot="end">60</ion-label>
+                </ion-range>
+              </ion-item>
+
+              <!-- Incluir Notas -->
+              <ion-item>
+                <ion-icon slot="start" name="information-circle"></ion-icon>
+                <ion-label>
+                  <h3>Incluir Observações</h3>
+                  <p>Adicionar notas dos medicamentos nos eventos</p>
+                </ion-label>
+                <ion-toggle
+                  [checked]="syncConfig().includeNotes"
+                  (ionChange)="updateConfig('includeNotes', $event.detail.checked)">
+                </ion-toggle>
+              </ion-item>
+
+              <!-- Sincronização Automática -->
+              <ion-item>
+                <ion-icon slot="start" name="sync-outline"></ion-icon>
+                <ion-label>
+                  <h3>Sincronização Automática</h3>
+                  <p>Sincronizar ao adicionar/editar medicamentos</p>
+                </ion-label>
+                <ion-toggle
+                  [checked]="syncConfig().autoSync"
+                  (ionChange)="updateConfig('autoSync', $event.detail.checked)">
+                </ion-toggle>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      }
+
+      <!-- Conflitos Detectados -->
+      @if (showConflicts() && conflicts().length > 0) {
+        <ion-card class="conflicts-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="warning-outline" color="warning"></ion-icon>
+              Conflitos Detectados
+              <ion-badge color="warning">{{ conflicts().length }}</ion-badge>
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list>
+              @for (conflict of conflicts(); track $index) {
+                <ion-item>
+                  <ion-icon slot="start" name="alert-circle" color="warning"></ion-icon>
+                  <ion-label>
+                    <h3>{{ conflict.medicationName }}</h3>
+                    <p>Horário: {{ conflict.scheduledTime }}</p>
+                    <p class="conflict-event">
+                      Conflita com: {{ conflict.conflictingEvent.title }}
+                    </p>
+                    @if (conflict.suggestedAlternatives.length > 0) {
+                      <div class="alternatives">
+                        <p><strong>Sugestões:</strong></p>
+                        @for (alt of conflict.suggestedAlternatives; track alt) {
+                          <ion-chip color="tertiary" size="small">
+                            <ion-icon name="time-outline"></ion-icon>
+                            <ion-label>{{ alt }}</ion-label>
+                          </ion-chip>
+                        }
+                      </div>
+                    }
+                  </ion-label>
+                </ion-item>
+              }
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      }
+
+      <!-- Informações -->
+      <ion-card class="info-card">
+        <ion-card-content>
+          <div class="info-content">
+            <ion-icon name="information-circle" color="primary"></ion-icon>
+            <div>
+              <h3>Como funciona?</h3>
+              <ul>
+                <li>Eventos são criados automaticamente para cada horário de medicamento</li>
+                <li>Lembretes são configurados com antecedência</li>
+                <li>A sincronização pode ser feita manualmente ou automaticamente</li>
+                <li>Conflitos de horários são detectados e sugestões são oferecidas</li>
+              </ul>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+</ion-content>

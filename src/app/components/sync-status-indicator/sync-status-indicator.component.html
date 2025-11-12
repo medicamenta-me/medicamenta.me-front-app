@@ -1,0 +1,54 @@
+@if (shouldShow()) {
+  <div class="sync-status-bar" [class]="'status-' + syncStatus()">
+    <div class="status-content">
+      <!-- Status Icon -->
+      <div class="status-icon">
+        @if (syncStatus() === 'syncing') {
+          <ion-spinner [color]="getStatusColor()"></ion-spinner>
+        } @else {
+          <ion-icon 
+            [name]="getStatusIcon()" 
+            [color]="getStatusColor()">
+          </ion-icon>
+        }
+      </div>
+
+      <!-- Status Text -->
+      <div class="status-text">
+        <span>{{ getStatusText() }}</span>
+        @if (syncStats().lastSyncTime) {
+          <small>{{ 'OFFLINE.LAST_SYNC' | translate }}: {{ syncStats().lastSyncTime | date:'short' }}</small>
+        }
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="status-actions">
+        <!-- Conflicts Badge -->
+        @if (hasUnresolvedConflicts()) {
+          <ion-button 
+            size="small" 
+            fill="clear" 
+            color="warning"
+            (click)="resolveConflicts()">
+            <ion-icon name="warning-outline" slot="start"></ion-icon>
+            {{ 'OFFLINE.RESOLVE' | translate }}
+            <ion-badge color="warning">{{ getUnresolvedConflictCount() }}</ion-badge>
+          </ion-button>
+        }
+
+        <!-- Sync Button -->
+        @if (isOnline() && hasPendingOperations() && syncStatus() !== 'syncing') {
+          <ion-button 
+            size="small" 
+            fill="solid" 
+            color="primary"
+            (click)="triggerSync()">
+            <ion-icon name="sync-outline" slot="start"></ion-icon>
+            {{ 'OFFLINE.SYNC_NOW' | translate }}
+            <ion-badge color="light">{{ operationQueue().length }}</ion-badge>
+          </ion-button>
+        }
+      </div>
+    </div>
+  </div>
+}

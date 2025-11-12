@@ -1,0 +1,204 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Gamificação Familiar</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Segmentos -->
+  <ion-toolbar>
+    <ion-segment [value]="selectedTab()" (ionChange)="changeTab($event)">
+      <ion-segment-button value="achievements">
+        <ion-icon name="trophy-outline"></ion-icon>
+        <ion-label>Conquistas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="ranking">
+        <ion-icon name="people-outline"></ion-icon>
+        <ion-label>Ranking</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="stats">
+        <ion-icon name="flame-outline"></ion-icon>
+        <ion-label>Estatísticas</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Card de Nível e Progresso -->
+  <ion-card class="level-card">
+    <ion-card-content>
+      <div class="level-info">
+        <div class="level-badge">
+          <ion-icon name="ribbon-outline"></ion-icon>
+          <span class="level-number">{{ level() }}</span>
+        </div>
+        <div class="level-details">
+          <h3>Nível {{ level() }}</h3>
+          <p>{{ totalPoints() | number }} pontos totais</p>
+          <ion-progress-bar [value]="levelProgress() / 100" color="primary"></ion-progress-bar>
+          <p class="next-level-text">{{ getNextLevelMessage() }}</p>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Aba de Conquistas -->
+  @if (selectedTab() === 'achievements') {
+    <div class="achievements-grid">
+      @for (achievement of allAchievements(); track achievement.id) {
+        <div 
+          class="achievement-card"
+          [class.unlocked]="achievement.unlocked"
+          [class.locked]="!achievement.unlocked"
+          [class.animating]="animatingAchievement() === achievement.id"
+          [class]="getRarityClass(achievement.rarity)"
+          (click)="achievement.unlocked && animateAchievement(achievement.id)">
+          
+          <div class="achievement-icon">{{ achievement.icon }}</div>
+          
+          <div class="achievement-info">
+            <h4>{{ achievement.name }}</h4>
+            <p>{{ achievement.description }}</p>
+            
+            @if (achievement.unlocked) {
+              <div class="achievement-meta">
+                <ion-badge [color]="achievement.rarity === 'legendary' ? 'warning' : achievement.rarity === 'epic' ? 'secondary' : achievement.rarity === 'rare' ? 'primary' : 'medium'">
+                  {{ achievement.points }} pts
+                </ion-badge>
+                <span class="unlocked-date">{{ formatDate(achievement.unlockedAt) }}</span>
+              </div>
+            } @else {
+              <div class="achievement-meta locked-meta">
+                <ion-badge color="light">{{ achievement.points }} pts</ion-badge>
+                <span class="locked-text">Bloqueada</span>
+              </div>
+            }
+          </div>
+          
+          @if (achievement.unlocked) {
+            <div class="achievement-checkmark">✓</div>
+          } @else {
+            <div class="achievement-lock">🔒</div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (allAchievements().length === 0) {
+      <ion-card>
+        <ion-card-content class="empty-state">
+          <ion-icon name="trophy-outline" size="large"></ion-icon>
+          <p>Nenhuma conquista ainda</p>
+          <p class="empty-hint">Continue colaborando com sua família para desbloquear conquistas!</p>
+        </ion-card-content>
+      </ion-card>
+    }
+  }
+
+  <!-- Aba de Ranking -->
+  @if (selectedTab() === 'ranking') {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Ranking Familiar</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          @for (member of memberRanking(); track member.memberId; let i = $index) {
+            <ion-item>
+              <div class="ranking-position" slot="start">
+                {{ getRankingIcon(i) }}
+              </div>
+              <ion-label>
+                <h3>{{ member.memberName }}</h3>
+                <p>{{ member.individualPoints | number }} pontos</p>
+                <p class="member-stats-detail">
+                  {{ member.adherenceRate }}% aderência · 
+                  {{ member.activeDays }} dias ativos · 
+                  {{ member.contributedAchievements }} conquistas
+                </p>
+              </ion-label>
+              <ion-badge [color]="getRankingBadgeColor(i)" slot="end">
+                #{{ i + 1 }}
+              </ion-badge>
+            </ion-item>
+          }
+        </ion-list>
+
+        @if (memberRanking().length === 0) {
+          <div class="empty-state">
+            <ion-icon name="people-outline" size="large"></ion-icon>
+            <p>Nenhum membro no ranking ainda</p>
+          </div>
+        }
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- Aba de Estatísticas -->
+  @if (selectedTab() === 'stats') {
+    <div class="stats-grid">
+      @for (stat of getFamilyStats(); track stat.label) {
+        <ion-card class="stat-card">
+          <ion-card-content>
+            <div class="stat-icon">{{ stat.icon }}</div>
+            <div class="stat-value">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+          </ion-card-content>
+        </ion-card>
+      }
+    </div>
+
+    <!-- Card de Streak -->
+    <ion-card class="streak-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="flame-outline"></ion-icon>
+          Sequência de Aderência
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="streak-display">
+          <div class="streak-item">
+            <div class="streak-icon">🔥</div>
+            <div class="streak-info">
+              <h3>{{ currentStreak() }}</h3>
+              <p>Dias Consecutivos</p>
+            </div>
+          </div>
+          <div class="streak-divider"></div>
+          <div class="streak-item">
+            <div class="streak-icon">🏆</div>
+            <div class="streak-info">
+              <h3>{{ longestStreak() }}</h3>
+              <p>Recorde da Família</p>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Progresso de Conquistas -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Progresso de Conquistas</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="achievement-progress">
+          <div class="progress-bar-container">
+            <ion-progress-bar 
+              [value]="(familyGamification()?.achievements?.length || 0) / FAMILY_ACHIEVEMENT_DEFINITIONS.length" 
+              color="success">
+            </ion-progress-bar>
+          </div>
+          <p class="progress-text">
+            {{ familyGamification()?.achievements?.length || 0 }} de {{ FAMILY_ACHIEVEMENT_DEFINITIONS.length }} conquistas desbloqueadas
+          </p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  }
+</ion-content>

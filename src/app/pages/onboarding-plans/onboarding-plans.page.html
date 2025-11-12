@@ -1,0 +1,303 @@
+<ion-content class="onboarding-plans-content">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="logo-animation">
+        <ion-icon name="medkit" color="light"></ion-icon>
+      </div>
+      
+      <h1 class="hero-title">
+        {{ 'ONBOARDING_PLANS.HERO.TITLE_LINE1' | translate }}<br/>
+        {{ 'ONBOARDING_PLANS.HERO.TITLE_LINE2' | translate }}
+      </h1>
+      
+      <p class="hero-subtitle">
+        {{ 'ONBOARDING_PLANS.HERO.SUBTITLE' | translate }}
+      </p>
+
+      <!-- Billing Toggle -->
+      <div class="billing-toggle">
+        <span [class.active]="!isYearly()">{{ 'ONBOARDING_PLANS.BILLING.MONTHLY' | translate }}</span>
+        <ion-toggle
+          [(ngModel)]="isYearly"
+          (ionChange)="toggleBilling()"
+          color="success">
+        </ion-toggle>
+        <span [class.active]="isYearly()">{{ 'ONBOARDING_PLANS.BILLING.YEARLY' | translate }}</span>
+        <ion-badge *ngIf="isYearly()" color="success" class="savings-badge">
+          <ion-icon name="trending-down-outline"></ion-icon>
+          {{ 'ONBOARDING_PLANS.BILLING.SAVE' | translate }} {{ savings() }}%
+        </ion-badge>
+      </div>
+
+      <!-- Trust Indicators -->
+      <div class="trust-indicators">
+        <div class="trust-item">
+          <ion-icon name="shield-checkmark" color="success"></ion-icon>
+          <span>{{ 'ONBOARDING_PLANS.TRUST.SECURE' | translate }}</span>
+        </div>
+        <div class="trust-item">
+          <ion-icon name="close-circle" color="success"></ion-icon>
+          <span>{{ 'ONBOARDING_PLANS.TRUST.CANCEL_ANYTIME' | translate }}</span>
+        </div>
+        <div class="trust-item">
+          <ion-icon name="time" color="success"></ion-icon>
+          <span>{{ 'ONBOARDING_PLANS.TRUST.TRIAL_DAYS' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plans Grid -->
+  <div class="plans-container">
+    <ion-grid>
+      <ion-row class="plans-row">
+        <ion-col 
+          *ngFor="let plan of displayedPlans()" 
+          size="12" 
+          size-md="6" 
+          size-lg="4">
+          
+          <ion-card 
+            class="plan-card"
+            [class.premium-card]="plan.id === 'premium'"
+            [class.family-card]="plan.id === 'family'"
+            [class.free-card]="plan.id === 'free'"
+            button
+            (click)="selectPlan(plan)">
+            
+            <!-- Badge -->
+            <div *ngIf="plan.badge" class="plan-badge" [style.background]="'var(--ion-color-' + plan.color + ')'">
+              <ion-icon name="trophy"></ion-icon>
+              {{ plan.badge }}
+            </div>
+
+            <ion-card-header>
+              <!-- Icon -->
+              <div class="plan-icon" [style.color]="'var(--ion-color-' + plan.color + ')'">
+                <ion-icon [name]="plan.icon" size="large"></ion-icon>
+              </div>
+
+              <!-- Name -->
+              <ion-card-title class="plan-name">{{ plan.name }}</ion-card-title>
+              
+              <!-- Tagline -->
+              <p class="plan-tagline">{{ plan.tagline }}</p>
+
+              <!-- Pricing -->
+              <div class="plan-pricing">
+                <div class="price" *ngIf="plan.price > 0">
+                  <span class="currency">R$</span>
+                  <span class="amount">{{ getPrice(plan) }}</span>
+                  <span class="period">/mês</span>
+                </div>
+                <div class="price free-price" *ngIf="plan.price === 0">
+                  <span class="amount">{{ 'ONBOARDING_PLANS.PRICING.FREE_LABEL' | translate }}</span>
+                  <span class="period">{{ 'ONBOARDING_PLANS_EXTRA.FOREVER' | translate }}</span>
+                </div>
+                
+                <p class="savings-text" *ngIf="isYearly() && plan.price > 0">
+                  💰 Economize R$ {{ (plan.price - plan.priceYearly) * 12 | number:'1.2-2' }}/ano
+                </p>
+              </div>
+            </ion-card-header>
+
+            <ion-card-content>
+              <!-- Quick Highlights -->
+              <div class="highlights-list">
+                <div *ngFor="let highlight of plan.highlights" class="highlight-item">
+                  <ion-icon name="checkmark-circle" [color]="plan.color"></ion-icon>
+                  <span>{{ highlight }}</span>
+                </div>
+              </div>
+
+              <!-- Popular Features -->
+              <div class="features-section">
+                <h4 class="features-title">{{ 'ONBOARDING_PLANS_EXTRA.MAIN_FEATURES' | translate }}</h4>
+                <div class="features-grid">
+                  <div *ngFor="let feature of plan.popularFeatures" class="feature-item">
+                    <ion-icon [name]="feature.icon" [color]="plan.color"></ion-icon>
+                    <span [class.exclusive]="feature.exclusive">
+                      {{ feature.text }}
+                      <ion-badge *ngIf="feature.exclusive" color="warning" class="exclusive-badge">
+                        Premium
+                      </ion-badge>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CTA Button -->
+              <ion-button
+                expand="block"
+                [color]="plan.color"
+                size="large"
+                class="cta-button"
+                [class.pulse-animation]="plan.id === 'premium'">
+                <ion-icon *ngIf="plan.price > 0" name="rocket" slot="start"></ion-icon>
+                <ion-icon *ngIf="plan.price === 0" name="play" slot="start"></ion-icon>
+                {{ plan.ctaText }}
+              </ion-button>
+
+              <!-- Free Trial Notice -->
+              <p class="trial-notice" *ngIf="plan.price > 0">
+                <ion-icon name="gift-outline"></ion-icon>
+                7 dias grátis • Sem compromisso
+              </p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Social Proof Section -->
+  <div class="social-proof-section">
+    <div class="social-proof-content">
+      <h3>{{ 'ONBOARDING_PLANS.SOCIAL_PROOF.TITLE' | translate }}</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <ion-icon name="people" color="primary"></ion-icon>
+          <strong>10.000+</strong>
+          <span>{{ 'ONBOARDING_PLANS.SOCIAL_PROOF.ACTIVE_USERS' | translate }}</span>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="star" color="warning"></ion-icon>
+          <strong>4.8/5</strong>
+          <span>{{ 'ONBOARDING_PLANS.SOCIAL_PROOF.RATING' | translate }}</span>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="medkit" color="success"></ion-icon>
+          <strong>500k+</strong>
+          <span>{{ 'ONBOARDING_PLANS.SOCIAL_PROOF.MEDICATIONS_TRACKED' | translate }}</span>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="heart" color="danger"></ion-icon>
+          <strong>98%</strong>
+          <span>{{ 'ONBOARDING_PLANS.SOCIAL_PROOF.SATISFACTION' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testimonials-section">
+    <h3>{{ 'ONBOARDING_PLANS.SOCIAL_PROOF.TESTIMONIALS_TITLE' | translate }}</h3>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="4">
+          <ion-card class="testimonial-card">
+            <ion-card-content>
+              <div class="stars">
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+              </div>
+              <p class="testimonial-text">
+                {{ 'ONBOARDING_PLANS.SOCIAL_PROOF.TESTIMONIAL_1_TEXT' | translate }}
+              </p>
+              <p class="testimonial-author">{{ 'ONBOARDING_PLANS.SOCIAL_PROOF.TESTIMONIAL_1_AUTHOR' | translate }}</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        
+        <ion-col size="12" size-md="4">
+          <ion-card class="testimonial-card">
+            <ion-card-content>
+              <div class="stars">
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+              </div>
+              <p class="testimonial-text">
+                {{ 'ONBOARDING_PLANS.SOCIAL_PROOF.TESTIMONIAL_2_TEXT' | translate }}
+              </p>
+              <p class="testimonial-author">{{ 'ONBOARDING_PLANS.SOCIAL_PROOF.TESTIMONIAL_2_AUTHOR' | translate }}</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        
+        <ion-col size="12" size-md="4">
+          <ion-card class="testimonial-card">
+            <ion-card-content>
+              <div class="stars">
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+                <ion-icon name="star" color="warning"></ion-icon>
+              </div>
+              <p class="testimonial-text">
+                {{ 'ONBOARDING_PLANS.SOCIAL_PROOF.TESTIMONIAL_3_TEXT' | translate }}
+              </p>
+              <p class="testimonial-author">{{ 'ONBOARDING_PLANS.SOCIAL_PROOF.TESTIMONIAL_3_AUTHOR' | translate }}</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- FAQ Quick -->
+  <div class="faq-quick-section">
+    <h3>{{ 'ONBOARDING_PLANS.FAQ.TITLE' | translate }}</h3>
+    <ion-list class="faq-list">
+      <ion-item lines="none">
+        <ion-icon name="help-circle" slot="start" color="primary"></ion-icon>
+        <ion-label class="ion-text-wrap">
+          <h4>{{ 'ONBOARDING_PLANS.FAQ.Q1_TITLE' | translate }}</h4>
+          <p>{{ 'ONBOARDING_PLANS.FAQ.Q1_ANSWER' | translate }}</p>
+        </ion-label>
+      </ion-item>
+      
+      <ion-item lines="none">
+        <ion-icon name="help-circle" slot="start" color="primary"></ion-icon>
+        <ion-label class="ion-text-wrap">
+          <h4>{{ 'ONBOARDING_PLANS.FAQ.Q2_TITLE' | translate }}</h4>
+          <p>{{ 'ONBOARDING_PLANS.FAQ.Q2_ANSWER' | translate }}</p>
+        </ion-label>
+      </ion-item>
+      
+      <ion-item lines="none">
+        <ion-icon name="help-circle" slot="start" color="primary"></ion-icon>
+        <ion-label class="ion-text-wrap">
+          <h4>{{ 'ONBOARDING_PLANS.FAQ.Q3_TITLE' | translate }}</h4>
+          <p>{{ 'ONBOARDING_PLANS.FAQ.Q3_ANSWER' | translate }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- Skip Option -->
+  <div class="skip-section">
+    <ion-button
+      fill="clear"
+      color="medium"
+      (click)="skipToApp()">
+      {{ 'ONBOARDING_PLANS.ACTIONS.SKIP' | translate }}
+      <ion-icon name="arrow-forward" slot="end"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Security Footer -->
+  <div class="security-footer">
+    <div class="security-badges">
+      <div class="badge-item">
+        <ion-icon name="lock-closed" color="success"></ion-icon>
+        <span>{{ 'ONBOARDING_PLANS.TRUST_BADGES.SECURE_PAYMENT' | translate }}</span>
+      </div>
+      <div class="badge-item">
+        <ion-icon name="shield" color="success"></ion-icon>
+        <span>{{ 'ONBOARDING_PLANS.TRUST_BADGES.PROTECTED_DATA' | translate }}</span>
+      </div>
+      <div class="badge-item">
+        <ion-icon name="checkmark-done" color="success"></ion-icon>
+        <span>{{ 'ONBOARDING_PLANS.TRUST_BADGES.LGPD_COMPLIANT' | translate }}</span>
+      </div>
+    </div>
+  </div>
+</ion-content>

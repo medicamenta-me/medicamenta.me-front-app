@@ -1,0 +1,148 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>💡 Sugestões Inteligentes</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="suggestions-container">
+    @if (suggestions().length === 0) {
+      <!-- Vazio -->
+      <div class="empty-state">
+        <ion-icon name="bulb-outline" color="medium"></ion-icon>
+        <h2>Nenhuma sugestão no momento</h2>
+        <p>Continue usando o app e receberá sugestões personalizadas para melhorar sua adesão!</p>
+      </div>
+    } @else {
+      <!-- Lista de sugestões -->
+      @for (suggestion of suggestions(); track suggestion.id) {
+        <ion-card [class]="'suggestion-card priority-' + suggestion.priority">
+          <ion-card-header>
+            <div class="card-header-content">
+              <ion-icon 
+                [name]="getIconForType(suggestion.type)" 
+                [color]="getColorForPriority(suggestion.priority)"
+                class="suggestion-icon"
+              ></ion-icon>
+              <div class="header-text">
+                <ion-card-title>{{ suggestion.title }}</ion-card-title>
+                <ion-badge [color]="getColorForPriority(suggestion.priority)" class="priority-badge">
+                  {{ suggestion.priority === 'high' ? 'Alta' : suggestion.priority === 'medium' ? 'Média' : 'Baixa' }}
+                </ion-badge>
+              </div>
+            </div>
+          </ion-card-header>
+
+          <ion-card-content>
+            <!-- Descrição -->
+            <p class="description">{{ suggestion.description }}</p>
+
+            <!-- Análise de dados -->
+            <div class="analysis-section">
+              <h3>📊 Análise de Dados</h3>
+              <div class="analysis-stats">
+                <div class="stat">
+                  <span class="stat-label">Total de doses:</span>
+                  <span class="stat-value">{{ suggestion.analysis.totalDoses }}</span>
+                </div>
+                <div class="stat">
+                  <span class="stat-label">Doses perdidas:</span>
+                  <span class="stat-value danger">{{ suggestion.analysis.missedDoses }}</span>
+                </div>
+                <div class="stat">
+                  <span class="stat-label">Taxa de adesão:</span>
+                  <span class="stat-value" [class.success]="suggestion.analysis.missedPercentage < 20">
+                    {{ formatPercentage(100 - suggestion.analysis.missedPercentage) }}
+                  </span>
+                </div>
+                @if (suggestion.analysis.averageDelayMinutes > 0) {
+                  <div class="stat">
+                    <span class="stat-label">Atraso médio:</span>
+                    <span class="stat-value warning">
+                      {{ formatMinutes(suggestion.analysis.averageDelayMinutes) }}
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Ação sugerida -->
+            @if (suggestion.suggestedAction) {
+              <div class="action-section">
+                <h3>✨ Ação Sugerida</h3>
+                @if (suggestion.suggestedAction.type === 'change-time') {
+                  <div class="action-detail">
+                    <ion-icon name="time-outline" color="primary"></ion-icon>
+                    <span>
+                      Mudar horário de <strong>{{ suggestion.analysis.scheduledTime }}</strong> 
+                      para <strong>{{ suggestion.suggestedAction.newTime }}</strong>
+                    </span>
+                  </div>
+                }
+                @if (suggestion.suggestedAction.type === 'increase-reminders') {
+                  <div class="action-detail">
+                    <ion-icon name="notifications-outline" color="primary"></ion-icon>
+                    <span>
+                      Adicionar lembrete extra 
+                      <strong>{{ suggestion.suggestedAction.reminderMinutesBefore }} minutos antes</strong>
+                    </span>
+                  </div>
+                }
+                @if (suggestion.suggestedAction.type === 'change-day') {
+                  <div class="action-detail">
+                    <ion-icon name="calendar-outline" color="primary"></ion-icon>
+                    <span>Considere ajustar o dia da semana desta dose</span>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Botões de ação -->
+            <div class="action-buttons">
+              @if (suggestion.type !== 'praise') {
+                <ion-button 
+                  expand="block" 
+                  color="success" 
+                  (click)="acceptSuggestion(suggestion)"
+                >
+                  <ion-icon name="checkmark" slot="start"></ion-icon>
+                  Aceitar Sugestão
+                </ion-button>
+                <ion-button 
+                  expand="block" 
+                  fill="outline" 
+                  color="medium" 
+                  (click)="rejectSuggestion(suggestion)"
+                >
+                  <ion-icon name="close-circle" slot="start"></ion-icon>
+                  Não, obrigado
+                </ion-button>
+              } @else {
+                <ion-button 
+                  expand="block" 
+                  color="primary" 
+                  (click)="dismissSuggestion(suggestion)"
+                >
+                  <ion-icon name="checkmark" slot="start"></ion-icon>
+                  Entendi!
+                </ion-button>
+              }
+            </div>
+
+            <!-- Confiança da sugestão -->
+            @if (suggestion.analysis.confidence > 0) {
+              <ion-note class="confidence-note">
+                Confiança: {{ formatPercentage(suggestion.analysis.confidence * 100) }}
+              </ion-note>
+            }
+          </ion-card-content>
+        </ion-card>
+      }
+    }
+  </div>
+</ion-content>

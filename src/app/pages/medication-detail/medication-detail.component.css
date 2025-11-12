@@ -1,0 +1,64 @@
+.accessible-medication-detail{--background:#F5F5F5;--padding-bottom:2rem}
+.detail-header{background:linear-gradient(135deg,var(--ion-color-success) 0%,#2AB872 100%);padding:2rem 1.5rem;text-align:center;color:white;border-radius:0 0 24px 24px;box-shadow:0 4px 12px rgba(52,209,135,.3)}
+.header-icon{width:80px;height:80px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;border:3px solid rgba(255,255,255,.5)}
+.header-icon.low-stock{background:rgba(255,152,0,.3);border-color:rgba(255,152,0,.7)}
+.header-icon ion-icon{font-size:3rem;color:white}
+.detail-header h1{font-size:2rem;font-weight:700;margin:0 0 .5rem;line-height:1.2}
+.patient-name{font-size:1.25rem;font-weight:500;margin:0;opacity:.95}
+.action-buttons{display:flex;gap:1rem;padding:1.5rem;background:white;margin:1rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.action-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;padding:1rem;border:2px solid;border-radius:12px;background:white;font-size:1rem;font-weight:600;cursor:pointer;transition:all .3s;min-height:80px}
+.action-btn ion-icon{font-size:1.75rem}
+.edit-btn{border-color:#004d29;color:#004d29}
+.delete-btn{border-color:#5a0000;color:#5a0000}
+.back-btn{border-color:#666;color:#666}
+.edit-btn:hover,.edit-btn:focus{background:var(--ion-color-success);color:white;box-shadow:0 4px 12px rgba(52,209,135,.3)}
+.delete-btn:hover,.delete-btn:focus{background:#B3001B;color:white;box-shadow:0 4px 12px rgba(179,0,27,.3)}
+.back-btn:hover,.back-btn:focus{background:#666;color:white}
+.info-section{margin:1rem}
+.section-title{font-size:1.5rem;font-weight:700;color:#333;margin:0 0 1rem .5rem}
+.info-card{background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.info-row{display:flex;justify-content:space-between;gap:1rem;padding-bottom:1.5rem;border-bottom:2px solid #E0E0E0}
+.info-row:last-child{padding-bottom:0;border-bottom:none}
+.info-label{display:flex;gap:.75rem;font-size:1.125rem;font-weight:600;color:#666}
+.info-label ion-icon{font-size:1.5rem;color:#004d29}
+.info-value{font-size:1.25rem;font-weight:700;color:#333;display:flex;gap:.5rem}
+.info-value.low-stock{color:#FF9800}
+.low-stock-badge{background:#FF9800;color:white;padding:.25rem .75rem;border-radius:20px;font-size:.875rem;font-weight:700}
+.schedule-section{margin:1.5rem 1rem 2rem}
+.dose-card-detail{background:white;border-radius:12px;padding:1.5rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.1);border-left:5px solid}
+.dose-card-detail[data-status=taken]{border-left-color:#4CAF50}
+.dose-card-detail[data-status=missed]{border-left-color:#B3001B}
+.dose-card-detail[data-status=upcoming]{border-left-color:var(--ion-color-success)}
+.dose-header{display:flex;gap:1rem;margin-bottom:1rem}
+.dose-status-icon{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.dose-status-icon[data-status=taken]{background:rgba(76,175,80,.25);color:#000}
+.dose-status-icon[data-status=missed]{background:rgba(179,0,27,.25);color:#000}
+.dose-status-icon[data-status=upcoming]{background:rgba(52,209,135,.25);color:#000}
+.dose-time{display:flex;gap:.5rem;font-size:1.5rem;font-weight:700;color:#333}
+.dose-time ion-icon{font-size:1.75rem;color:#004d29}
+.status-badge{padding:.5rem 1rem;border-radius:20px;font-size:1rem;font-weight:700}
+.status-badge[data-status=taken]{background:rgba(76,175,80,.3);color:#000}
+.status-badge[data-status=missed]{background:rgba(179,0,27,.3);color:#000}
+.status-badge[data-status=upcoming]{background:rgba(52,209,135,.3);color:#000}
+.dose-actions-detail{display:flex;gap:1rem;margin-top:1rem}
+.dose-action-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:.75rem;padding:1rem;border:2px solid;border-radius:12px;font-size:1.125rem;font-weight:700;cursor:pointer;min-height:54px}
+.taken-btn{border-color:#4CAF50;color:#4CAF50}
+.missed-btn{border-color:#5a0000;color:#5a0000}
+.undo-btn{border-color:#666;color:#666}
+.taken-btn:hover,.taken-btn:focus{background:#4CAF50;color:white}
+.missed-btn:hover,.missed-btn:focus{background:#B3001B;color:white}
+.undo-btn:hover,.undo-btn:focus{background:#666;color:white}
+.empty-schedule{background:white;border-radius:12px;padding:3rem 1.5rem;text-align:center}
+@media(max-width:768px){
+.detail-header h1{font-size:1.75rem}
+.header-icon{width:70px;height:70px}
+.action-btn{min-width:calc(50% - .5rem)}
+.back-btn{flex-basis:100%}
+}
+@media(max-width:480px){
+.detail-header{padding:1.5rem 1rem}
+.detail-header h1{font-size:1.5rem}
+.header-icon{width:60px;height:60px}
+.action-buttons{margin:.75rem;gap:.75rem}
+.info-section,.schedule-section{margin-left:.75rem;margin-right:.75rem}
+}

@@ -1,0 +1,327 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'FAMILY_DASHBOARD.TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFamilyAchievements()">
+        <ion-icon name="trophy-outline"></ion-icon>
+      </ion-button>
+      <ion-button routerLink="/family-notification-settings">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="showFilters.set(!showFilters())">
+        <ion-icon name="filter-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Filtros -->
+  @if (showFilters()) {
+    <ion-toolbar>
+      <div class="filters-container">
+        <!-- Filtro de Membros -->
+        <div class="filter-section">
+          <label class="filter-label">Membros:</label>
+          <div class="filter-chips">
+            <ion-chip 
+              [outline]="familyService.selectedMemberIds().length > 0"
+              (click)="clearMemberFilters()">
+              <ion-label>Todos</ion-label>
+            </ion-chip>
+            @for (member of familyService.familyMembers(); track member.id) {
+              <ion-chip 
+                [outline]="!familyService.selectedMemberIds().includes(member.id)"
+                [style.--background]="familyService.selectedMemberIds().includes(member.id) ? familyService.getMemberColor(member.id) : 'transparent'"
+                (click)="toggleMember(member.id)">
+                <ion-avatar>
+                  <img [src]="member.avatarUrl" [alt]="member.name" />
+                </ion-avatar>
+                <ion-label>{{ member.name }}</ion-label>
+              </ion-chip>
+            }
+          </div>
+        </div>
+
+        <!-- Filtro de Status -->
+        <div class="filter-section">
+          <label class="filter-label">Status:</label>
+          <div class="filter-chips">
+            <ion-chip 
+              [outline]="!familyService.selectedStatuses().includes('pending')"
+              color="warning"
+              (click)="toggleStatus('pending')">
+              <ion-icon name="time-outline"></ion-icon>
+              <ion-label>{{ 'FAMILY_DASHBOARD.PENDING' | translate }}</ion-label>
+            </ion-chip>
+            <ion-chip 
+              [outline]="!familyService.selectedStatuses().includes('taken')"
+              color="success"
+              (click)="toggleStatus('taken')">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <ion-label>{{ 'FAMILY_DASHBOARD.TAKEN' | translate }}</ion-label>
+            </ion-chip>
+            <ion-chip 
+              [outline]="!familyService.selectedStatuses().includes('overdue')"
+              color="danger"
+              (click)="toggleStatus('overdue')">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <ion-label>{{ 'FAMILY_DASHBOARD.OVERDUE' | translate }}</ion-label>
+            </ion-chip>
+          </div>
+        </div>
+      </div>
+    </ion-toolbar>
+  }
+
+  <!-- Segment de Visualização -->
+  <ion-toolbar>
+    <ion-segment [value]="activeView()" (ionChange)="activeView.set($any($event).detail.value)">
+      <ion-segment-button value="doses">
+        <ion-icon name="time-outline"></ion-icon>
+        <ion-label>Doses</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="alerts">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <ion-label>Alertas</ion-label>
+        @if (familyService.totalAlerts() > 0) {
+          <ion-badge color="danger">{{ familyService.totalAlerts() }}</ion-badge>
+        }
+      </ion-segment-button>
+      <ion-segment-button value="stats">
+        <ion-icon name="stats-chart-outline"></ion-icon>
+        <ion-label>Estatísticas</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Resumo Rápido -->
+  <div class="quick-stats">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="4">
+          <div class="stat-card">
+            <ion-icon name="people-outline" color="primary"></ion-icon>
+            <div class="stat-value">{{ familyService.totalMembers() }}</div>
+            <div class="stat-label">{{ 'FAMILY_DASHBOARD.MEMBERS' | translate }}</div>
+          </div>
+        </ion-col>
+        <ion-col size="4">
+          <div class="stat-card">
+            <ion-icon name="time-outline" color="warning"></ion-icon>
+            <div class="stat-value">{{ familyService.familyStats().pendingDoses }}</div>
+            <div class="stat-label">{{ 'FAMILY_DASHBOARD.PENDING_DOSES' | translate }}</div>
+          </div>
+        </ion-col>
+        <ion-col size="4">
+          <div class="stat-card">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <div class="stat-value">{{ familyService.familyStats().adherenceRate | number:'1.0-0' }}%</div>
+            <div class="stat-label">{{ 'FAMILY_DASHBOARD.ADHERENCE' | translate }}</div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Card de Gamificação Familiar -->
+  <ion-card class="family-gamification-card" (click)="openFamilyAchievements()">
+    <ion-card-content>
+      <div class="gamification-header">
+        <div class="gamification-icon">🏆</div>
+        <div class="gamification-info">
+          <h3>{{ 'FAMILY_DASHBOARD.GAMIFICATION' | translate }}</h3>
+          <p>{{ 'FAMILY_DASHBOARD.ACHIEVEMENTS_RANKING' | translate }}</p>
+        </div>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Visualização de Doses -->
+  @if (activeView() === 'doses') {
+    <div class="doses-view">
+      @if (familyService.filteredDoses().length === 0) {
+        <div class="empty-state">
+          <ion-icon name="time-outline" color="medium"></ion-icon>
+          <p>{{ 'FAMILY_DASHBOARD.NO_DOSES' | translate }}</p>
+          <small>{{ 'FAMILY_DASHBOARD.ADJUST_FILTERS' | translate }}</small>
+        </div>
+      } @else {
+        <ion-list>
+          @for (dose of familyService.filteredDoses(); track dose.medicationId + dose.time) {
+            <ion-item lines="full">
+              <ion-avatar slot="start" (click)="goToMedication(dose.medicationId)">
+                <img [src]="dose.member.avatarUrl" [alt]="dose.member.name" />
+                <div class="member-badge" [style.background]="familyService.getMemberColor(dose.member.id)">
+                  {{ familyService.getInitials(dose.member.name) }}
+                </div>
+              </ion-avatar>
+              
+              <ion-label (click)="goToMedication(dose.medicationId)">
+                <h2>{{ dose.medicationName }}</h2>
+                <p>{{ dose.member.name }} • {{ dose.dosage }}</p>
+                <p class="dose-time">{{ dose.time }}</p>
+              </ion-label>
+              
+              <!-- Action buttons for pending/overdue doses -->
+              @if (dose.status === 'pending' || dose.status === 'overdue') {
+                <div slot="end" class="dose-actions">
+                  <ion-button
+                    fill="clear"
+                    color="success"
+                    size="small"
+                    (click)="markAsTaken(dose, $event)"
+                    [disabled]="processingDose() === dose.medicationId + dose.time">
+                    @if (processingDose() === dose.medicationId + dose.time) {
+                      <ion-spinner name="crescent"></ion-spinner>
+                    } @else {
+                      <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
+                    }
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
+                    color="danger"
+                    size="small"
+                    (click)="markAsMissed(dose, $event)"
+                    [disabled]="processingDose() === dose.medicationId + dose.time">
+                    <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+                  </ion-button>
+                  <ion-badge [color]="getStatusColor(dose.status)">
+                    <ion-icon [name]="getStatusIcon(dose.status)"></ion-icon>
+                    {{ dose.status === 'overdue' ? 'Atrasado' : 'Pendente' }}
+                  </ion-badge>
+                </div>
+              }
+              
+              <!-- Status badge for taken/missed doses -->
+              @if (dose.status === 'taken' || dose.status === 'missed') {
+                <ion-badge slot="end" [color]="getStatusColor(dose.status)">
+                  <ion-icon [name]="getStatusIcon(dose.status)"></ion-icon>
+                  {{ dose.status === 'taken' ? 'Tomado' : 'Perdido' }}
+                </ion-badge>
+              }
+            </ion-item>
+          }
+        </ion-list>
+      }
+    </div>
+  }
+
+  <!-- Visualização de Alertas -->
+  @if (activeView() === 'alerts') {
+    <div class="alerts-view">
+      @if (familyService.familyAlerts().length === 0) {
+        <div class="empty-state">
+          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+          <p>{{ 'FAMILY_DASHBOARD.NO_ALERTS' | translate }}</p>
+          <small>Tudo está em ordem! 🎉</small>
+        </div>
+      } @else {
+        <ion-list>
+          @for (alert of familyService.familyAlerts(); track alert.id) {
+            <ion-item button (click)="handleAlert(alert)" lines="full">
+              <ion-icon 
+                slot="start" 
+                [name]="getAlertIcon(alert.type)" 
+                [color]="getAlertColor(alert.severity)">
+              </ion-icon>
+              <ion-label>
+                <h3>{{ alert.message }}</h3>
+                <p>{{ alert.member.name }}</p>
+              </ion-label>
+              <ion-badge slot="end" [color]="getAlertColor(alert.severity)">
+                {{ alert.severity === 'high' ? 'Alto' : alert.severity === 'medium' ? 'Médio' : 'Baixo' }}
+              </ion-badge>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    </div>
+  }
+
+  <!-- Visualização de Estatísticas -->
+  @if (activeView() === 'stats') {
+    <div class="stats-view">
+      <!-- Card de Adesão Geral -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Adesão Familiar</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="progress-circle">
+            <div class="progress-value">{{ familyService.familyStats().adherenceRate | number:'1.0-0' }}%</div>
+          </div>
+          <div class="stats-summary">
+            <div class="summary-item">
+              <span class="summary-label">Doses Hoje:</span>
+              <span class="summary-value">{{ familyService.familyStats().totalDosesToday }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Tomadas:</span>
+              <span class="summary-value success">{{ familyService.familyStats().takenDoses }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Pendentes:</span>
+              <span class="summary-value warning">{{ familyService.familyStats().pendingDoses }}</span>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Stats por Membro -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Por Membro</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            @for (memberStat of familyService.familyStats().memberStats; track memberStat.memberId) {
+              <ion-item button (click)="goToMember(memberStat.memberId)" lines="full">
+                <div 
+                  slot="start" 
+                  class="member-color-indicator"
+                  [style.background]="familyService.getMemberColor(memberStat.memberId)">
+                </div>
+                <ion-label>
+                  <h3>{{ memberStat.memberName }}</h3>
+                  <p>{{ memberStat.medications }} medicamento{{ memberStat.medications !== 1 ? 's' : '' }}</p>
+                </ion-label>
+                <div slot="end" class="member-adherence">
+                  <div class="adherence-value">{{ memberStat.adherence | number:'1.0-0' }}%</div>
+                  <ion-badge [color]="memberStat.adherence >= 80 ? 'success' : memberStat.adherence >= 60 ? 'warning' : 'danger'">
+                    Adesão
+                  </ion-badge>
+                </div>
+              </ion-item>
+            }
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Ações Rápidas -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Relatórios e Calendário</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-button expand="block" (click)="goToFamilyReports()">
+            <ion-icon name="stats-chart-outline" slot="start"></ion-icon>
+            Ver Relatório Completo
+          </ion-button>
+          <ion-button expand="block" fill="outline" (click)="goToFamilyCalendar()">
+            <ion-icon name="calendar-outline" slot="start"></ion-icon>
+            Calendário Compartilhado
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  }
+</ion-content>

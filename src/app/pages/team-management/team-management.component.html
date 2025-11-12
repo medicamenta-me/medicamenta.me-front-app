@@ -1,0 +1,130 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'TEAM_MANAGEMENT.PAGE_TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end" *ngIf="canManageTeam()">
+      <ion-button (click)="openInviteModal()">
+        <ion-icon slot="icon-only" name="person-add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Filters -->
+  <div class="filters">
+    <ion-searchbar [(ngModel)]="searchTerm" [placeholder]="'TEAM_MANAGEMENT.SEARCH_MEMBER' | translate"></ion-searchbar>
+    <ion-segment [(ngModel)]="selectedRole" scrollable>
+      <ion-segment-button value="all">{{ 'TEAM_MANAGEMENT.ALL_ROLES' | translate }}</ion-segment-button>
+      <ion-segment-button *ngFor="let role of roles" [value]="role">
+        {{ getRoleLabel(role) }}
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Team List -->
+  <ion-list>
+    <ion-item *ngFor="let member of filteredMembers" lines="full">
+      <ion-avatar slot="start">
+        <img [src]="member.avatar || 'assets/default-avatar.png'" [alt]="member.name">
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ member.name }}</h2>
+        <p>{{ member.email }}</p>
+        <ion-badge [color]="getRoleColor(member.role)">
+          <ion-icon [name]="getRoleIcon(member.role)"></ion-icon>
+          {{ getRoleLabel(member.role) }}
+        </ion-badge>
+        <p *ngIf="member.department"><ion-icon name="business-outline"></ion-icon> {{ member.department }}</p>
+      </ion-label>
+      <ion-buttons slot="end" *ngIf="canManageTeam()">
+        <ion-button (click)="changeRole(member)">
+          <ion-icon name="swap-horizontal-outline"></ion-icon>
+        </ion-button>
+        <ion-button (click)="editPermissions(member)">
+          <ion-icon name="key-outline"></ion-icon>
+        </ion-button>
+        <ion-button color="danger" (click)="removeMember(member)">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+
+  <!-- Invite Modal -->
+  <ion-modal [isOpen]="showInviteModal()" (didDismiss)="closeInviteModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ 'TEAM_MANAGEMENT.INVITE_MEMBER' | translate }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeInviteModal()">{{ 'TEAM_MANAGEMENT.CLOSE' | translate }}</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list>
+          <ion-item>
+            <ion-label position="stacked">{{ 'TEAM_MANAGEMENT.EMAIL_LABEL' | translate }}</ion-label>
+            <ion-input type="email" [(ngModel)]="inviteEmail" [placeholder]="'TEAM_MANAGEMENT.EMAIL_PLACEHOLDER' | translate"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">{{ 'TEAM_MANAGEMENT.ROLE_LABEL' | translate }}</ion-label>
+            <ion-select [(ngModel)]="inviteRole">
+              <ion-select-option *ngFor="let role of roles" [value]="role">
+                {{ getRoleLabel(role) }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">{{ 'TEAM_MANAGEMENT.DEPARTMENT_OPTIONAL' | translate }}</ion-label>
+            <ion-input [(ngModel)]="inviteDepartment" [placeholder]="'TEAM_MANAGEMENT.DEPARTMENT_PLACEHOLDER' | translate"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">{{ 'TEAM_MANAGEMENT.SHIFT' | translate }}</ion-label>
+            <ion-select [(ngModel)]="inviteShift">
+              <ion-select-option value="morning">{{ 'TEAM_MANAGEMENT.SHIFTS.MORNING' | translate }}</ion-select-option>
+              <ion-select-option value="afternoon">{{ 'TEAM_MANAGEMENT.SHIFTS.AFTERNOON' | translate }}</ion-select-option>
+              <ion-select-option value="night">{{ 'TEAM_MANAGEMENT.SHIFTS.NIGHT' | translate }}</ion-select-option>
+              <ion-select-option value="rotating">{{ 'TEAM_MANAGEMENT.SHIFTS.ROTATING' | translate }}</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-list>
+        <ion-button expand="block" (click)="inviteMember()" [disabled]="isLoading()">
+          <ion-icon slot="start" name="send"></ion-icon>
+          {{ 'TEAM_MANAGEMENT.INVITE_MEMBER' | translate }}
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Permissions Modal -->
+  <ion-modal [isOpen]="!!editingMember()" (didDismiss)="closePermissionsModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ 'TEAM_MANAGEMENT.CUSTOM_PERMISSIONS' | translate }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closePermissionsModal()">{{ 'TEAM_MANAGEMENT.CLOSE' | translate }}</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content *ngIf="editingMember()">
+        <ion-list-header>
+          <ion-label>{{ editingMember()!.name }}</ion-label>
+        </ion-list-header>
+        <ion-list *ngIf="customPermissions()">
+          <ion-item *ngFor="let key of Object.keys(customPermissions()!)">
+            <ion-checkbox slot="start" [(ngModel)]="customPermissions()![key]"></ion-checkbox>
+            <ion-label>{{ key }}</ion-label>
+          </ion-item>
+        </ion-list>
+        <ion-button expand="block" (click)="savePermissions()" [disabled]="isLoading()">
+          Salvar Permissões
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

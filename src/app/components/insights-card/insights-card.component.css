@@ -1,0 +1,210 @@
+.insights-card {
+  margin: 16px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+ion-card-header {
+  padding: 16px;
+}
+
+ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+ion-card-title ion-icon {
+  font-size: 1.5em;
+}
+
+.insights-badge {
+  margin-left: auto;
+  font-size: 0.9em;
+  padding: 4px 8px;
+}
+
+ion-card-content {
+  padding: 0;
+}
+
+/* No insights state */
+.no-insights {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ion-color-medium);
+}
+
+.no-insights ion-icon {
+  font-size: 3em;
+  margin-bottom: 16px;
+}
+
+.no-insights p {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+/* Insights list */
+.insights-list {
+  padding: 0;
+}
+
+.insight-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  --inner-padding-end: 0;
+  border-bottom: 1px solid var(--ion-color-light);
+}
+
+.insight-item:last-child {
+  border-bottom: none;
+}
+
+.insight-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--ion-color-light);
+}
+
+ion-label {
+  margin: 0;
+}
+
+.insight-title {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.insight-description {
+  font-size: 0.9em;
+  color: var(--ion-color-medium);
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.insight-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.action-button {
+  margin: 0;
+  height: auto;
+  font-size: 0.85em;
+  --padding-start: 0;
+  --padding-end: 8px;
+}
+
+.action-button ion-icon {
+  font-size: 1em;
+  margin-left: 4px;
+}
+
+.dismiss-button {
+  margin: 0;
+  margin-left: auto;
+  --padding-start: 8px;
+  --padding-end: 8px;
+}
+
+/* View all button */
+.view-all-button {
+  margin: 16px;
+  font-weight: 500;
+}
+
+.view-all-button ion-icon {
+  margin-left: 8px;
+}
+
+/* Animações */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.fade-in-animation {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.slide-in-animation {
+  animation: slideIn 0.4s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  ion-card-title {
+    font-size: 1.1em;
+  }
+
+  .insight-title {
+    font-size: 0.95em;
+  }
+
+  .insight-description {
+    font-size: 0.85em;
+  }
+
+  .insight-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .insight-icon ion-icon {
+    font-size: 1.2em;
+  }
+  
+  .insight-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .dismiss-button {
+    margin-left: 0;
+  }
+}

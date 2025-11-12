@@ -1,0 +1,89 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Limit Info -->
+  <div class="limit-info">
+    <ion-icon name="lock-closed" color="warning" class="limit-icon"></ion-icon>
+    <p class="limit-message">{{ message }}</p>
+  </div>
+
+  <!-- Recommended Plan -->
+  <ion-card class="upgrade-card">
+    <ion-card-header>
+      <ion-card-subtitle>Recomendado</ion-card-subtitle>
+      <ion-card-title>{{ recommendedPlan }}</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <!-- Pricing -->
+      <div class="pricing">
+        <div class="price-option">
+          <span class="price-label">Mensal</span>
+          <span class="price-value">{{ pricing.monthly }}</span>
+        </div>
+        <div class="price-option featured">
+          <ion-badge color="success">Melhor Valor</ion-badge>
+          <span class="price-label">Anual</span>
+          <span class="price-value">{{ pricing.yearly }}</span>
+          <span class="savings">{{ pricing.savings }}</span>
+        </div>
+      </div>
+
+      <!-- Benefits -->
+      <div class="benefits">
+        <h4>O que você ganha:</h4>
+        <ul>
+          <li *ngFor="let benefit of benefits">
+            <ion-icon name="checkmark-circle" color="success"></ion-icon>
+            {{ benefit }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- CTA Button -->
+      <ion-button 
+        expand="block" 
+        color="primary" 
+        size="large"
+        (click)="goToUpgrade()"
+        class="upgrade-button">
+        <ion-icon name="rocket" slot="start"></ion-icon>
+        Fazer Upgrade
+      </ion-button>
+
+      <!-- Continue with Free -->
+      <ion-button 
+        expand="block" 
+        fill="clear" 
+        size="small"
+        (click)="dismiss()">
+        Continuar com plano atual
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Trust Signals -->
+  <div class="trust-signals">
+    <div class="trust-item">
+      <ion-icon name="shield-checkmark" color="primary"></ion-icon>
+      <span>Cancele a qualquer momento</span>
+    </div>
+    <div class="trust-item">
+      <ion-icon name="card" color="primary"></ion-icon>
+      <span>Pagamento 100% seguro</span>
+    </div>
+    <div class="trust-item">
+      <ion-icon name="people" color="primary"></ion-icon>
+      <span>+10.000 usuários satisfeitos</span>
+    </div>
+  </div>
+</ion-content>

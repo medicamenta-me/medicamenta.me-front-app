@@ -1,0 +1,244 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/family-dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'FAMILY_REPORTS.TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="exportToPDF()" (keyup.enter)="exportToPDF()" [disabled]="isExporting">
+        @if (isExporting) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <ion-icon name="download-outline"></ion-icon>
+        }
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Period Filter -->
+  <ion-toolbar>
+    <ion-segment [value]="reportsService.selectedPeriod()" (ionChange)="onPeriodChange($event)">
+      <ion-segment-button value="week">
+        <ion-label>{{ 'FAMILY_REPORTS.PERIOD.WEEK' | translate }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="month">
+        <ion-label>{{ 'FAMILY_REPORTS.PERIOD.MONTH' | translate }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="year">
+        <ion-label>{{ 'FAMILY_REPORTS.PERIOD.YEAR' | translate }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="all">
+        <ion-label>{{ 'FAMILY_REPORTS.PERIOD.ALL' | translate }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div #reportContent class="report-content">
+    <!-- Summary Stats -->
+    <ion-card class="summary-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="stats-chart-outline"></ion-icon>
+          {{ 'FAMILY_REPORTS.SUMMARY.TITLE' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6" size-md="3">
+              <div class="stat-box">
+                <div class="stat-value">{{ reportsService.summaryStats().totalMembers }}</div>
+                <div class="stat-label">{{ 'FAMILY_REPORTS.STATS.MEMBERS_LABEL' | translate }}</div>
+              </div>
+            </ion-col>
+            <ion-col size="6" size-md="3">
+              <div class="stat-box">
+                <div class="stat-value">{{ reportsService.summaryStats().totalDoses }}</div>
+                <div class="stat-label">{{ 'FAMILY_REPORTS.STATS.DOSES_TOTAL_LABEL' | translate }}</div>
+              </div>
+            </ion-col>
+            <ion-col size="6" size-md="3">
+              <div class="stat-box">
+                <div class="stat-value success">{{ reportsService.summaryStats().takenDoses }}</div>
+                <div class="stat-label">{{ 'FAMILY_REPORTS.STATS.TAKEN_LABEL' | translate }}</div>
+              </div>
+            </ion-col>
+            <ion-col size="6" size-md="3">
+              <div class="stat-box">
+                <div class="stat-value danger">{{ reportsService.summaryStats().missedDoses }}</div>
+                <div class="stat-label">{{ 'FAMILY_REPORTS.STATS.MISSED_LABEL' | translate }}</div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <div class="adherence-summary">
+          <div class="adherence-label">{{ 'FAMILY_REPORTS.SUMMARY.GENERAL_ADHERENCE' | translate }}</div>
+          <div class="adherence-value">{{ reportsService.summaryStats().adherenceRate | number:'1.1-1' }}%</div>
+          <div class="adherence-bar">
+            <div 
+              class="adherence-fill" 
+              [style.width.%]="reportsService.summaryStats().adherenceRate">
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Trends Analysis -->
+    <ion-card class="trends-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon [name]="getTrendIcon(reportsService.familyTrends().adherenceTrend)"></ion-icon>
+          Análise de Tendências
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="trend-item">
+          <span class="trend-label">{{ 'FAMILY_REPORTS.TRENDS.ADHERENCE_TREND' | translate }}</span>
+          <ion-chip [color]="getTrendColor(reportsService.familyTrends().adherenceTrend)">
+            <ion-icon [name]="getTrendIcon(reportsService.familyTrends().adherenceTrend)"></ion-icon>
+            <ion-label>
+              @if (reportsService.familyTrends().adherenceTrend === 'improving') {
+                {{ 'FAMILY_REPORTS.TRENDS.IMPROVING' | translate }}
+              } @else if (reportsService.familyTrends().adherenceTrend === 'declining') {
+                {{ 'FAMILY_REPORTS.TRENDS.DECLINING' | translate }}
+              } @else {
+                {{ 'FAMILY_REPORTS.TRENDS.STABLE' | translate }}
+              }
+              ({{ reportsService.familyTrends().trendPercentage > 0 ? '+' : '' }}{{ reportsService.familyTrends().trendPercentage | number:'1.1-1' }}%)
+            </ion-label>
+          </ion-chip>
+        </div>
+
+        <div class="trend-item">
+          <span class="trend-label">{{ 'FAMILY_REPORTS.TRENDS.AVERAGE_ADHERENCE' | translate }}</span>
+          <span class="trend-value">{{ reportsService.familyTrends().averageAdherence | number:'1.1-1' }}%</span>
+        </div>
+
+        <div class="trend-item">
+          <span class="trend-label">Melhor Desempenho:</span>
+          <ion-chip color="success">
+            <ion-icon name="ribbon-outline"></ion-icon>
+            <ion-label>{{ reportsService.familyTrends().bestPerformer.name }} ({{ reportsService.familyTrends().bestPerformer.adherence | number:'1.0-0' }}%)</ion-label>
+          </ion-chip>
+        </div>
+
+        @if (reportsService.familyTrends().needsAttention.length > 0) {
+          <div class="trend-item">
+            <span class="trend-label">Precisa de Atenção:</span>
+            <div class="attention-list">
+              @for (member of reportsService.familyTrends().needsAttention; track member.id) {
+                <ion-chip color="warning">
+                  <ion-icon name="alert-circle-outline"></ion-icon>
+                  <ion-label>{{ member.name }} ({{ member.adherence | number:'1.0-0' }}%)</ion-label>
+                </ion-chip>
+              }
+            </div>
+          </div>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Adherence Timeline Chart -->
+    <ion-card class="chart-card">
+      <ion-card-header>
+        <ion-card-title>{{ 'FAMILY_REPORTS_CHARTS.ADHERENCE_OVER_TIME' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="chart-container">
+          <canvas #adherenceChart></canvas>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Distribution Chart -->
+    <ion-card class="chart-card">
+      <ion-card-header>
+        <ion-card-title>{{ 'FAMILY_REPORTS_CHARTS.DOSE_DISTRIBUTION' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="chart-container distribution">
+          <canvas #distributionChart></canvas>
+        </div>
+        <div class="distribution-legend">
+          @for (item of reportsService.doseDistribution(); track item.period) {
+            <div class="legend-item">
+              <span class="legend-label">{{ item.period }}:</span>
+              <span class="legend-value">{{ item.count }} doses ({{ item.percentage | number:'1.0-0' }}%)</span>
+            </div>
+          }
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Medication Comparison Chart -->
+    <ion-card class="chart-card">
+      <ion-card-header>
+        <ion-card-title>{{ 'FAMILY_REPORTS_CHARTS.MEDICATION_COMPARISON' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="chart-container">
+          <canvas #comparisonChart></canvas>
+        </div>
+        <div class="comparison-details">
+          @for (member of reportsService.medicationComparison(); track member.memberId) {
+            <div class="member-detail">
+              <div class="member-name" [style.border-left-color]="member.color">
+                {{ member.memberName }}
+              </div>
+              <div class="member-stats">
+                <span>{{ member.activeMedications }} medicamentos</span>
+                <span>|</span>
+                <span>{{ member.totalDoses }} doses/dia</span>
+                <span>|</span>
+                <span [class.success]="member.adherenceRate >= 80" [class.warning]="member.adherenceRate < 80 && member.adherenceRate >= 60" [class.danger]="member.adherenceRate < 60">
+                  {{ member.adherenceRate | number:'1.0-0' }}% adesão
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Historical Alerts -->
+    <ion-card class="alerts-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="calendar-outline"></ion-icon>
+          Histórico de Alertas
+          <ion-badge color="danger">{{ reportsService.historicalAlerts().length }}</ion-badge>
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        @if (reportsService.historicalAlerts().length === 0) {
+          <div class="empty-state">
+            <p>{{ 'FAMILY_REPORTS_CHARTS.NO_ALERTS_PERIOD' | translate }}</p>
+          </div>
+        } @else {
+          <div class="alerts-list">
+            @for (alert of reportsService.historicalAlerts().slice(0, 10); track alert.date) {
+              <div class="alert-item">
+                <div class="alert-date">{{ formatDate(alert.date) }}</div>
+                <div class="alert-info">
+                  <ion-badge [color]="alert.type === 'missed' ? 'danger' : 'warning'">
+                    {{ alert.memberName }}
+                  </ion-badge>
+                  <span class="alert-description">{{ alert.description }}</span>
+                </div>
+              </div>
+            }
+            @if (reportsService.historicalAlerts().length > 10) {
+              <div class="more-alerts">
+                + {{ reportsService.historicalAlerts().length - 10 }} alertas anteriores
+              </div>
+            }
+          </div>
+        }
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

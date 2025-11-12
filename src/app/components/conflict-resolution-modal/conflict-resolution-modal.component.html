@@ -1,0 +1,135 @@
+<ion-header>
+  <ion-toolbar color="warning">
+    <ion-title>{{ 'OFFLINE.CONFLICT_RESOLUTION_TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Conflict Info -->
+  <div class="conflict-info">
+    <ion-icon name="alert-circle-outline" color="warning" class="large-icon"></ion-icon>
+    <h2>{{ 'OFFLINE.CONFLICT_DETECTED' | translate }}</h2>
+    <p>{{ 'OFFLINE.CONFLICT_DESCRIPTION' | translate }}</p>
+    
+    <div class="timestamp-info">
+      <div class="timestamp-item">
+        <ion-icon name="phone-portrait-outline" color="primary"></ion-icon>
+        <div>
+          <strong>{{ 'OFFLINE.LOCAL_VERSION' | translate }}</strong>
+          <p>{{ conflict.localTimestamp | date:'short' }}</p>
+        </div>
+      </div>
+      <div class="timestamp-item">
+        <ion-icon name="cloud-download-outline" color="primary"></ion-icon>
+        <div>
+          <strong>{{ 'OFFLINE.SERVER_VERSION' | translate }}</strong>
+          <p>{{ conflict.serverTimestamp | date:'short' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Differences -->
+  @if (getDifferences().length > 0) {
+    <ion-card class="differences-card">
+      <ion-card-header>
+        <ion-card-title>{{ 'OFFLINE.DIFFERENCES' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="full">
+          @for (diff of getDifferences(); track diff.key) {
+            <ion-item>
+              <ion-label>
+                <h3>{{ getFieldLabel(diff.key) }}</h3>
+                <div class="diff-values">
+                  <div class="diff-value local">
+                    <ion-badge color="primary">{{ 'OFFLINE.LOCAL' | translate }}</ion-badge>
+                    <p>{{ formatValue(diff.local) }}</p>
+                  </div>
+                  <div class="diff-value server">
+                    <ion-badge color="tertiary">{{ 'OFFLINE.SERVER' | translate }}</ion-badge>
+                    <p>{{ formatValue(diff.server) }}</p>
+                  </div>
+                </div>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- Resolution Options -->
+  <div class="resolution-options">
+    <h3>{{ 'OFFLINE.CHOOSE_RESOLUTION' | translate }}</h3>
+
+    <!-- Server Wins -->
+    <ion-card 
+      [class.selected]="selectedResolution() === 'server'"
+      (click)="selectResolution('server')"
+      button>
+      <ion-card-content>
+        <div class="option-header">
+          <ion-icon name="cloud-download-outline" color="tertiary"></ion-icon>
+          <strong>{{ 'OFFLINE.KEEP_SERVER_VERSION' | translate }}</strong>
+        </div>
+        <p>{{ 'OFFLINE.KEEP_SERVER_DESC' | translate }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Client Wins -->
+    <ion-card 
+      [class.selected]="selectedResolution() === 'client'"
+      (click)="selectResolution('client')"
+      button>
+      <ion-card-content>
+        <div class="option-header">
+          <ion-icon name="phone-portrait-outline" color="primary"></ion-icon>
+          <strong>{{ 'OFFLINE.KEEP_LOCAL_VERSION' | translate }}</strong>
+        </div>
+        <p>{{ 'OFFLINE.KEEP_LOCAL_DESC' | translate }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Merge -->
+    <ion-card 
+      [class.selected]="selectedResolution() === 'merge'"
+      (click)="selectResolution('merge')"
+      button>
+      <ion-card-content>
+        <div class="option-header">
+          <ion-icon name="git-merge-outline" color="success"></ion-icon>
+          <strong>{{ 'OFFLINE.MERGE_VERSIONS' | translate }}</strong>
+        </div>
+        <p>{{ 'OFFLINE.MERGE_DESC' | translate }}</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <ion-button 
+      expand="block" 
+      color="primary"
+      [disabled]="!selectedResolution() || isResolving()"
+      (click)="applyResolution()">
+      @if (isResolving()) {
+        {{ 'OFFLINE.RESOLVING' | translate }}
+      } @else {
+        {{ 'OFFLINE.APPLY_RESOLUTION' | translate }}
+      }
+    </ion-button>
+    <ion-button 
+      expand="block" 
+      fill="outline"
+      [disabled]="isResolving()"
+      (click)="cancel()">
+      {{ 'COMMON.CANCEL' | translate }}
+    </ion-button>
+  </div>
+</ion-content>

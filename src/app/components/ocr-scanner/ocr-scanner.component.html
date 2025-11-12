@@ -1,0 +1,186 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Scanner de Receitas</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Progress Bar -->
+  @if (isProcessing() || status() === 'loading') {
+    <ion-progress-bar [value]="progress() / 100" [color]="status() === 'error' ? 'danger' : 'primary'"></ion-progress-bar>
+  }
+
+  <!-- Empty State - No Image -->
+  @if (!capturedImage() && !isProcessing()) {
+    <div class="empty-state">
+      <ion-icon name="camera" size="large" color="medium"></ion-icon>
+      <h2>Escaneie uma Receita</h2>
+      <p>Tire uma foto da receita ou bula do medicamento para extrair informações automaticamente.</p>
+      
+      <div class="button-group">
+        <ion-button expand="block" (click)="takePhoto()">
+          <ion-icon slot="start" name="camera"></ion-icon>
+          Tirar Foto
+        </ion-button>
+        
+        <ion-button expand="block" fill="outline" (click)="pickFromGallery()">
+          <ion-icon slot="start" name="image"></ion-icon>
+          Escolher da Galeria
+        </ion-button>
+      </div>
+    </div>
+  }
+
+  <!-- Image Preview -->
+  @if (capturedImage()) {
+    <div class="image-preview">
+      <img [src]="capturedImage()" alt="Captured prescription" />
+      
+      @if (!isProcessing() && !result()) {
+        <div class="preview-actions">
+          <ion-button size="small" (click)="reset()">
+            <ion-icon slot="start" name="refresh"></ion-icon>
+            Nova Foto
+          </ion-button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Processing State -->
+  @if (isProcessing()) {
+    <div class="processing-state">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>{{ getStatusMessage() }}</p>
+      @if (progress() > 0) {
+        <p class="progress-text">{{ progress() }}%</p>
+      }
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error() && !isProcessing()) {
+    <ion-card color="danger">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="close-circle"></ion-icon>
+          Erro ao Processar
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ error() }}</p>
+        <div class="card-actions">
+          <ion-button size="small" (click)="retry()">
+            <ion-icon slot="start" name="refresh"></ion-icon>
+            Tentar Novamente
+          </ion-button>
+          <ion-button size="small" fill="outline" (click)="reset()">
+            Nova Foto
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- Success State with Results -->
+  @if (result() && !isProcessing() && !error()) {
+    <div class="results">
+      <!-- Confidence Indicator -->
+      <ion-card>
+        <ion-card-content>
+          <div class="confidence-indicator">
+            <ion-icon name="checkmark-circle" [color]="getConfidenceColor(result()?.confidence)"></ion-icon>
+            <div>
+              <p class="confidence-label">Confiança do Scan</p>
+              <p class="confidence-value" [color]="getConfidenceColor(result()?.confidence)">
+                {{ result()?.confidence?.toFixed(0) }}%
+              </p>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Extracted Data -->
+      @if (result()?.extractedData) {
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Dados Extraídos</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            @if (result()?.extractedData?.name) {
+              <div class="data-field">
+                <label>Nome do Medicamento</label>
+                <p>{{ result()?.extractedData?.name }}</p>
+              </div>
+            }
+
+            @if (result()?.extractedData?.dosage) {
+              <div class="data-field">
+                <label>Dosagem</label>
+                <p>{{ result()?.extractedData?.dosage }}</p>
+              </div>
+            }
+
+            @if (result()?.extractedData?.frequency) {
+              <div class="data-field">
+                <label>Frequência</label>
+                <p>{{ result()?.extractedData?.frequency }}</p>
+              </div>
+            }
+
+            @if (result()?.extractedData?.form) {
+              <div class="data-field">
+                <label>Forma</label>
+                <p>{{ result()?.extractedData?.form }}</p>
+              </div>
+            }
+
+            @if (result()?.extractedData?.instructions) {
+              <div class="data-field">
+                <label>Instruções</label>
+                <p>{{ result()?.extractedData?.instructions }}</p>
+              </div>
+            }
+
+            @if (result()?.extractedData?.rawText) {
+              <div class="data-field">
+                <label>Texto Completo</label>
+                <p class="raw-text">{{ result()?.extractedData?.rawText }}</p>
+              </div>
+            }
+
+            <!-- Actions -->
+            <div class="result-actions">
+              <ion-button expand="block" (click)="editMedication()" fill="outline">
+                <ion-icon slot="start" name="create"></ion-icon>
+                Revisar e Editar
+              </ion-button>
+              
+              <ion-button expand="block" (click)="saveMedication()" [disabled]="isSaving()">
+                <ion-icon slot="start" name="save"></ion-icon>
+                @if (isSaving()) {
+                  Salvando...
+                } @else {
+                  Salvar Medicamento
+                }
+              </ion-button>
+              
+              <ion-button expand="block" fill="outline" (click)="reset()">
+                <ion-icon slot="start" name="camera"></ion-icon>
+                Escanear Outro
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      }
+    </div>
+  }
+</ion-content>

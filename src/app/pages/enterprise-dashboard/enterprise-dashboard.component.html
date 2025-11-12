@@ -1,0 +1,305 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <ion-icon name="business-outline"></ion-icon>
+      {{ organization()?.displayName || 'Enterprise Dashboard' }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="handleRefresh($event)">
+        <ion-icon slot="icon-only" name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Estatísticas Agregadas -->
+  <div class="stats-cards" *ngIf="stats()">
+    <ion-card class="stat-card">
+      <ion-card-content>
+        <div class="stat-value">{{ stats()!.totalPatients }}</div>
+        <div class="stat-label">{{ 'ENTERPRISE_DASHBOARD_STATS.TOTAL_PATIENTS' | translate }}</div>
+        <div class="stat-detail">
+          <span class="active">{{ stats()!.activePatients }} ativos</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="stat-card">
+      <ion-card-content>
+        <div class="stat-value">{{ formatPercentage(stats()!.todayStats.adherenceRate) }}</div>
+        <div class="stat-label">{{ 'ENTERPRISE_DASHBOARD_STATS.ADHERENCE_TODAY' | translate }}</div>
+        <div class="stat-detail">
+          {{ stats()!.todayStats.takenDoses }}/{{ stats()!.todayStats.scheduledDoses }} doses
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="stat-card">
+      <ion-card-content>
+        <div class="stat-value pending">{{ stats()!.todayStats.pendingDoses }}</div>
+        <div class="stat-label">{{ 'ENTERPRISE_DASHBOARD_STATS.PENDING_DOSES' | translate }}</div>
+        <div class="stat-detail">
+          <span class="missed">{{ stats()!.todayStats.missedDoses }} perdidas</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="stat-card" *ngIf="stats()!.criticalStockAlerts > 0">
+      <ion-card-content>
+        <div class="stat-value critical">{{ stats()!.criticalStockAlerts }}</div>
+        <div class="stat-label">{{ 'ENTERPRISE_DASHBOARD_STATS.CRITICAL_ALERTS' | translate }}</div>
+        <div class="stat-detail">{{ 'ENTERPRISE_DASHBOARD_STATS.LOW_STOCK' | translate }}</div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Filtros -->
+  <ion-card class="filters-card">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="filter-outline"></ion-icon>
+        Filtros
+        <ion-badge color="primary" *ngIf="hasActiveFilters()">
+          {{ hasActiveFilters() ? 'Ativos' : '' }}
+        </ion-badge>
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <!-- Search -->
+      <ion-searchbar
+        [(ngModel)]="searchTerm"
+        (ionChange)="applyFilters()"
+        [placeholder]="'ENTERPRISE_DASHBOARD.SEARCH_PLACEHOLDER' | translate"
+        debounce="500">
+      </ion-searchbar>
+
+      <!-- Filter Row 1 -->
+      <div class="filter-row">
+        <ion-item>
+          <ion-label>{{ 'ENTERPRISE_DASHBOARD_STATS.DEPARTMENT' | translate }}</ion-label>
+          <ion-select
+            [(ngModel)]="selectedDepartment"
+            (ionChange)="applyFilters()"
+            [placeholder]="'ENTERPRISE_DASHBOARD.ALL_DEPARTMENTS' | translate"
+            interface="popover">
+            <ion-select-option [value]="undefined">{{ 'ENTERPRISE_DASHBOARD.ALL_DEPARTMENTS' | translate }}</ion-select-option>
+            <ion-select-option *ngFor="let dept of departments()" [value]="dept">
+              {{ dept }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>{{ 'ENTERPRISE_DASHBOARD_STATS.RESPONSIBLE' | translate }}</ion-label>
+          <ion-select
+            [(ngModel)]="selectedTeamMember"
+            (ionChange)="applyFilters()"
+            [placeholder]="'ENTERPRISE_DASHBOARD.ALL_TEAMS' | translate"
+            interface="popover">
+            <ion-select-option [value]="undefined">{{ 'ENTERPRISE_DASHBOARD.ALL_TEAMS' | translate }}</ion-select-option>
+            <ion-select-option *ngFor="let member of teamMembers()" [value]="member.id">
+              {{ member.name }} ({{ member.role }})
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
+      <!-- Filter Row 2 -->
+      <div class="filter-row">
+        <ion-item>
+          <ion-label>Adesão</ion-label>
+          <ion-select
+            [(ngModel)]="selectedAdherenceLevel"
+            (ionChange)="applyFilters()"
+            [placeholder]="'ENTERPRISE_DASHBOARD.ALL_STATUS' | translate"
+            interface="popover">
+            <ion-select-option [value]="undefined">{{ 'ENTERPRISE_DASHBOARD.ALL_STATUS' | translate }}</ion-select-option>
+            <ion-select-option value="excellent">Excelente (&gt;90%)</ion-select-option>
+            <ion-select-option value="good">Boa (70-90%)</ion-select-option>
+            <ion-select-option value="moderate">Moderada (50-70%)</ion-select-option>
+            <ion-select-option value="poor">Baixa (&lt;50%)</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-checkbox
+            slot="start"
+            [(ngModel)]="showAlertsOnly"
+            (ionChange)="applyFilters()">
+          </ion-checkbox>
+          <ion-label>Com alertas</ion-label>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-checkbox
+            slot="start"
+            [(ngModel)]="showLowStockOnly"
+            (ionChange)="applyFilters()">
+          </ion-checkbox>
+          <ion-label>Estoque baixo</ion-label>
+        </ion-item>
+      </div>
+
+      <!-- Actions -->
+      <div class="filter-actions">
+        <ion-button
+          *ngIf="hasActiveFilters()"
+          fill="clear"
+          size="small"
+          (click)="clearFilters()">
+          <ion-icon slot="start" name="close-circle"></ion-icon>
+          Limpar Filtros
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Lista de Pacientes -->
+  <div class="patients-list">
+    <!-- Loading -->
+    <div *ngIf="isLoading()" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Carregando pacientes...</p>
+    </div>
+
+    <!-- Empty State -->
+    <ion-card *ngIf="!isLoading() && patients().length === 0" class="empty-state">
+      <ion-card-content>
+        <ion-icon name="people-outline" size="large"></ion-icon>
+        <h3>{{ 'ENTERPRISE_DASHBOARD_STATS.NO_PATIENTS' | translate }}</h3>
+        <p *ngIf="hasActiveFilters()">{{ 'ENTERPRISE_DASHBOARD_STATS.ADJUST_FILTERS' | translate }}</p>
+        <p *ngIf="!hasActiveFilters()">{{ 'ENTERPRISE_DASHBOARD_STATS.ADD_PATIENTS' | translate }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Patient Cards -->
+    <ion-card
+      *ngFor="let patient of patients()"
+      class="patient-card"
+      button
+      (click)="viewPatient(patient)">
+      <ion-card-header>
+        <div class="patient-header">
+          <ion-avatar>
+            <img [src]="patient.patient.avatar || 'assets/default-avatar.png'" alt="{{ patient.patient.name }}">
+          </ion-avatar>
+          <div class="patient-info">
+            <ion-card-title>{{ patient.patient.name }}</ion-card-title>
+            <ion-card-subtitle>
+              {{ patient.patient.age }} anos
+              <span *ngIf="patient.patient.department"> • {{ patient.patient.department }}</span>
+            </ion-card-subtitle>
+          </div>
+          <ion-badge
+            [color]="getAdherenceColor(patient.adherence.level)"
+            class="adherence-badge">
+            {{ formatPercentage(patient.adherence.rate) }}
+          </ion-badge>
+        </div>
+      </ion-card-header>
+
+      <ion-card-content>
+        <!-- Adherence & Streak -->
+        <div class="metrics-row">
+          <div class="metric">
+            <ion-icon name="flame-outline"></ion-icon>
+            <span>{{ patient.adherence.streak }} dias</span>
+          </div>
+          <div class="metric">
+            <ion-icon name="fitness-outline"></ion-icon>
+            <span>{{ patient.medications.total }} medicamentos</span>
+          </div>
+          <div class="metric" *ngIf="patient.alerts.count > 0">
+            <ion-icon
+              name="alert-circle-outline"
+              [color]="getSeverityColor(patient.alerts.highestSeverity)">
+            </ion-icon>
+            <span>{{ patient.alerts.count }} alertas</span>
+          </div>
+        </div>
+
+        <!-- Today's Doses -->
+        <div class="doses-summary">
+          <div class="dose-stat success">
+            <div class="dose-count">{{ patient.todayDoses.taken }}</div>
+            <div class="dose-label">Tomadas</div>
+          </div>
+          <div class="dose-stat pending">
+            <div class="dose-count">{{ patient.todayDoses.pending }}</div>
+            <div class="dose-label">Pendentes</div>
+          </div>
+          <div class="dose-stat danger" *ngIf="patient.todayDoses.missed > 0">
+            <div class="dose-count">{{ patient.todayDoses.missed }}</div>
+            <div class="dose-label">Perdidas</div>
+          </div>
+        </div>
+
+        <!-- Next Dose -->
+        <div class="next-dose" *ngIf="patient.todayDoses.nextDose">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>
+            Próxima: {{ patient.todayDoses.nextDose.medicationName }}
+            às {{ patient.todayDoses.nextDose.scheduledTime | date:'HH:mm' }}
+          </span>
+        </div>
+
+        <!-- Assigned Team -->
+        <div class="assigned-team" *ngIf="patient.assignedTeam.length > 0">
+          <div class="team-label">Equipe:</div>
+          <div class="team-members">
+            <ion-chip *ngFor="let member of patient.assignedTeam" size="small">
+              <ion-avatar>
+                <img [src]="member.avatar || 'assets/default-avatar.png'" alt="{{ member.name }}">
+              </ion-avatar>
+              <ion-label>
+                {{ member.name }}
+                <ion-icon [name]="getRoleIcon(member.role)" size="small"></ion-icon>
+              </ion-label>
+            </ion-chip>
+          </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="alerts-list" *ngIf="patient.alerts.count > 0">
+          <ion-badge
+            *ngFor="let alertType of patient.alerts.types"
+            [color]="getSeverityColor(patient.alerts.highestSeverity)"
+            class="alert-badge">
+            {{ alertType }}
+          </ion-badge>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="!isLoading() && patients().length > 0">
+    <ion-button
+      fill="clear"
+      [disabled]="currentPage() === 1"
+      (click)="changePage('prev')">
+      <ion-icon slot="start" name="chevron-back"></ion-icon>
+      Anterior
+    </ion-button>
+
+    <div class="page-info">
+      Página {{ currentPage() }} de {{ totalPages() }}
+    </div>
+
+    <ion-button
+      fill="clear"
+      [disabled]="currentPage() === totalPages()"
+      (click)="changePage('next')">
+      Próxima
+      <ion-icon slot="end" name="chevron-forward"></ion-icon>
+    </ion-button>
+  </div>
+</ion-content>

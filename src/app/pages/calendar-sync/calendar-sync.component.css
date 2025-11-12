@@ -1,0 +1,204 @@
+.calendar-sync-container {
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+ion-card {
+  margin-bottom: 16px;
+}
+
+ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+ion-card-title ion-icon {
+  font-size: 24px;
+}
+
+/* Permission Card */
+.permission-card {
+  border: 2px dashed var(--ion-color-primary);
+}
+
+.permission-content {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.permission-content ion-icon {
+  font-size: 80px;
+  margin-bottom: 16px;
+}
+
+.permission-content h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--ion-color-dark);
+}
+
+.permission-content p {
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Sync Actions */
+.sync-actions {
+  margin-top: 16px;
+}
+
+.sync-actions ion-button {
+  margin-bottom: 8px;
+}
+
+/* Loading Calendars */
+.loading-calendars,
+.no-calendars {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.loading-calendars ion-spinner,
+.no-calendars ion-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.loading-calendars p,
+.no-calendars p {
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  margin-bottom: 12px;
+}
+
+/* Conflicts Card */
+.conflicts-card {
+  border-left: 4px solid var(--ion-color-warning);
+}
+
+.conflicts-card ion-badge {
+  margin-left: 8px;
+}
+
+.conflict-event {
+  color: var(--ion-color-warning);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.alternatives {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+}
+
+.alternatives p {
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: var(--ion-color-dark);
+}
+
+.alternatives ion-chip {
+  margin: 4px 4px 4px 0;
+}
+
+/* Info Card */
+.info-card {
+  background: var(--ion-color-light);
+  border-left: 4px solid var(--ion-color-primary);
+}
+
+.info-content {
+  display: flex;
+  gap: 16px;
+}
+
+.info-content ion-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.info-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--ion-color-dark);
+}
+
+.info-content ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  line-height: 1.6;
+}
+
+.info-content li {
+  margin-bottom: 4px;
+}
+
+/* Items */
+ion-item h3 {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+ion-item p {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+}
+
+/* Range */
+ion-range {
+  padding: 8px 0;
+}
+
+/* Responsivo */
+@media (min-width: 768px) {
+  .calendar-sync-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+
+/* Status indicators */
+.status-enabled {
+  color: var(--ion-color-success);
+}
+
+.status-disabled {
+  color: var(--ion-color-medium);
+}
+
+/* Calendar items */
+ion-radio-group ion-item {
+  --padding-start: 8px;
+}
+
+ion-radio {
+  margin-right: 12px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendar-sync-container ion-card {
+  animation: fadeIn 0.3s ease-out;
+}
