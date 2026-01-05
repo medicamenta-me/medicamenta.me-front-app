@@ -81,8 +81,8 @@ export class ScheduleValueObject {
       return doses.sort((a, b) => a.compareTo(b));
     }
 
-    // Pattern: Xx ao dia / Xx por dia
-    const dailyPattern = /(\d+)x?\s*(ao|por)\s*dia/i;
+    // Pattern: Xx ao dia / Xx por dia / X vezes por dia / X vezes ao dia
+    const dailyPattern = /(\d+)\s*(?:x|vezes)?\s*(ao|por)\s*dia/i;
     const dailyMatch = frequency.match(dailyPattern);
     if (dailyMatch) {
       const timesPerDay = Number.parseInt(dailyMatch[1], 10);
@@ -171,9 +171,22 @@ export class ScheduleValueObject {
     const currentMinute = currentTime.getMinutes();
     const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
 
-    return this._doses.filter(
-      d => d.isUpcoming() && d.time < currentTimeStr
-    );
+    return this._doses.filter(d => {
+      if (!d.isUpcoming()) return false;
+      
+      // Only consider doses that should have been taken today
+      // Doses after current time are not yet due
+      if (d.time >= currentTimeStr) return false;
+      
+      // For doses before current time, they are overdue
+      // But we need to check if they're from today's schedule
+      const [doseHour] = d.time.split(':').map(Number);
+      
+      // If dose hour is after current hour, it's from tomorrow's schedule
+      if (doseHour > currentHour) return false;
+      
+      return true;
+    });
   }
 
   /**

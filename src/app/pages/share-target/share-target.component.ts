@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule } from '@ionic/angular';
 import { ShareTargetService } from '../../services/share-target.service';
 
@@ -12,7 +12,7 @@ import { ShareTargetService } from '../../services/share-target.service';
 @Component({
   selector: 'app-share-target',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [IonicModule],
   template: `
     <ion-content class="ion-padding">
       <div class="share-target-loading">
@@ -54,8 +54,6 @@ export class ShareTargetPage implements OnInit {
   private shareTarget = inject(ShareTargetService);
 
   async ngOnInit() {
-    console.log('[Share Target Page] Processing share...');
-
     // Obter URL atual
     const url = window.location.href;
     

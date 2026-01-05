@@ -19,8 +19,8 @@ import { LogService } from './log.service';
 })
 export class AuthService {
   private readonly firebaseService = inject(FirebaseService);
-  private readonly analyticsService = inject(AnalyticsService);
-  private readonly logService = inject(LogService);
+  private readonly analyticsService = inject(AnalyticsService, { optional: true });
+  private readonly logService = inject(LogService, { optional: true });
   private readonly auth: Auth = this.firebaseService.auth;
   private readonly firestore: Firestore = this.firebaseService.firestore;
 
@@ -34,11 +34,11 @@ export class AuthService {
       
       // Set analytics user ID when auth state changes
       if (user) {
-        this.analyticsService.setUserId(user.uid);
-        this.logService.debug('AuthService', 'Analytics user ID set', { userId: user.uid });
+        this.analyticsService?.setUserId(user.uid);
+        this.logService?.debug('AuthService', 'Analytics user ID set', { userId: user.uid });
       } else {
-        this.analyticsService.setUserId(null);
-        this.logService.debug('AuthService', 'Analytics user ID cleared');
+        this.analyticsService?.setUserId(null);
+        this.logService?.debug('AuthService', 'Analytics user ID cleared');
       }
     });
   }
@@ -47,7 +47,7 @@ export class AuthService {
     try {
       await signInWithEmailAndPassword(this.auth, email, password);
     } catch (error: any) {
-      this.logService.error('AuthService', 'Login error', error as Error);
+      this.logService?.error('AuthService', 'Login error', error as Error);
       throw error;
     }
   }
@@ -69,7 +69,7 @@ export class AuthService {
       await setDoc(userRef, { id: user.uid, ...newUser, dependents: []});
       
     } catch (error: any) {
-      this.logService.error('AuthService', 'Signup error', error as Error);
+      this.logService?.error('AuthService', 'Signup error', error as Error);
       throw error;
     }
   }
@@ -78,8 +78,24 @@ export class AuthService {
     try {
       await signOut(this.auth);
     } catch (error: any) {
-      this.logService.error('AuthService', 'Logout error', error as Error);
+      this.logService?.error('AuthService', 'Logout error', error as Error);
       throw error;
     }
+  }
+
+  /**
+   * Obtém o usuário atual de forma assíncrona
+   * @returns Usuário Firebase ou null
+   */
+  async getCurrentUser(): Promise<FirebaseUser | null> {
+    return this.currentUser();
+  }
+
+  /**
+   * Obtém o UID do usuário atual
+   * @returns UID ou null
+   */
+  getCurrentUserId(): string | null {
+    return this.currentUser()?.uid || null;
   }
 }

@@ -128,6 +128,7 @@ export class MedicationEntity {
     if (updates.manufacturer !== undefined) this._manufacturer = updates.manufacturer;
     if (updates.activeIngredient !== undefined) this._activeIngredient = updates.activeIngredient;
     if (updates.stockUnit !== undefined) this._stockUnit = updates.stockUnit;
+    if (updates.schedule !== undefined) this._schedule = updates.schedule;
     
     this._lastModified = new Date();
     this.validateInvariants();
@@ -246,15 +247,15 @@ export class MedicationEntity {
    * Returns updated dose or null if not found
    * Business rule: Decreases stock when dose is taken
    */
-  recordDoseTaken(time: string, administeredBy: { id: string; name: string }, notes?: string): DoseEntity | null {
+  recordDoseTaken(time: string, administeredBy: { id: string; name: string }, notes?: string, decreaseStock: boolean = true): DoseEntity | null {
     const doseIndex = this._schedule.findIndex(d => d.time === time);
     if (doseIndex === -1) return null;
     
     const updatedDose = this._schedule[doseIndex].markAsTaken(administeredBy, notes);
     this._schedule[doseIndex] = updatedDose;
     
-    // Decrease stock when dose is taken
-    if (this._currentStock > 0) {
+    // Decrease stock when dose is taken (if enabled)
+    if (decreaseStock && this._currentStock > 0) {
       this._currentStock--;
     }
     

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -49,7 +49,6 @@ import { HapticPatternsService, HapticPatternType } from '../../services/haptic-
   styleUrls: ['./wearable-settings.page.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     IonContent,
@@ -72,7 +71,7 @@ import { HapticPatternsService, HapticPatternType } from '../../services/haptic-
     IonRange,
     IonSegment,
     IonSegmentButton
-  ]
+]
 })
 export class WearableSettingsPage {
   private readonly router = inject(Router);

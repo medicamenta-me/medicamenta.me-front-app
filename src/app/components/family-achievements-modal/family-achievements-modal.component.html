@@ -56,7 +56,12 @@
           [class.locked]="!achievement.unlocked"
           [class.animating]="animatingAchievement() === achievement.id"
           [class]="getRarityClass(achievement.rarity)"
-          (click)="achievement.unlocked && animateAchievement(achievement.id)">
+          (click)="achievement.unlocked && animateAchievement(achievement.id)"
+          (keyup.enter)="achievement.unlocked && animateAchievement(achievement.id)"
+          (keyup.space)="achievement.unlocked && animateAchievement(achievement.id)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'Achievement: ' + achievement.name">
           
           <div class="achievement-icon">{{ achievement.icon }}</div>
           

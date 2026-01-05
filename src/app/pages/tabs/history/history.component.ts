@@ -82,7 +82,7 @@ interface LogGroup {
             <div slot="content" class="filters-content">
               <!-- Event Type Filter -->
               <div class="filter-group">
-                <label>{{ 'HISTORY.FILTER_EVENT_TYPE' | translate }}</label>
+                <div class="section-label" role="heading" aria-level="3">{{ 'HISTORY.FILTER_EVENT_TYPE' | translate }}</div>
                 <ion-select [value]="eventTypeFilter()" (ionChange)="onEventTypeFilterChange($event)" interface="popover" [multiple]="true">
                   <ion-select-option value="all">{{ 'HISTORY.ALL_EVENTS' | translate }}</ion-select-option>
                   <ion-select-option value="taken">{{ 'HISTORY.DOSES_TAKEN' | translate }}</ion-select-option>
@@ -95,7 +95,7 @@ interface LogGroup {
 
               <!-- Medication Filter -->
               <div class="filter-group">
-                <label>{{ 'HISTORY.FILTER_MEDICATION' | translate }}</label>
+                <div class="section-label" role="heading" aria-level="3">{{ 'HISTORY.FILTER_MEDICATION' | translate }}</div>
                 <ion-select [value]="medicationFilter()" (ionChange)="onMedicationFilterChange($event)" interface="popover">
                   <ion-select-option value="all">{{ 'HISTORY.ALL_MEDICATIONS' | translate }}</ion-select-option>
                   @for (med of medications(); track med.id) {
@@ -106,7 +106,7 @@ interface LogGroup {
 
               <!-- Period Filter -->
               <div class="filter-group">
-                <label>{{ 'HISTORY.FILTER_PERIOD' | translate }}</label>
+                <div class="section-label" role="heading" aria-level="3">{{ 'HISTORY.FILTER_PERIOD' | translate }}</div>
                 <ion-select [value]="periodFilter()" (ionChange)="onPeriodFilterChange($event)" interface="popover">
                   <ion-select-option value="all">{{ 'HISTORY.ALL_TIME' | translate }}</ion-select-option>
                   <ion-select-option value="today">{{ 'HISTORY.TODAY' | translate }}</ion-select-option>

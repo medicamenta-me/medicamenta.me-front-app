@@ -1,5 +1,5 @@
 import { Component, Input, signal, forwardRef, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { 
   IonInput, 
@@ -25,7 +25,6 @@ import { TranslateModule } from '@ngx-translate/core';
   selector: 'app-phone-input',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     IonInput,
@@ -41,7 +40,7 @@ import { TranslateModule } from '@ngx-translate/core';
     IonItem,
     IonLabel,
     IonSearchbar
-  ],
+],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -52,9 +51,9 @@ import { TranslateModule } from '@ngx-translate/core';
   template: `
     <div class="phone-input-container">
       <!-- Country Selector -->
-      <div class="country-selector" (click)="openCountryModal()">
+      <div class="country-selector" (click)="openCountryModal()" (keyup.enter)="openCountryModal()" tabindex="0" role="button" [attr.aria-label]="'Select country: ' + selectedCountry().name">
         <img 
-          [src]="'./assets/imgs/flags/' + selectedCountry().code.toLowerCase() + '.svg'" 
+          [src]="'./assets/imgs/flags/' + selectedCountry().code.toLowerCase() + '.svg' "
           [alt]="selectedCountry().name + ' flag'"
           class="country-flag"
           loading="lazy">

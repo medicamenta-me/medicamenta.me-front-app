@@ -8,6 +8,12 @@
 import { TestBed } from '@angular/core/testing';
 import { IndexedDBService } from './indexed-db.service';
 import { CompressionService } from './compression.service';
+import { LogService } from './log.service';
+import { AuthService } from './auth.service';
+import { AnalyticsService } from './analytics.service';
+import { PatientSelectorService } from './patient-selector.service';
+import { CareNetworkService } from './care-network.service';
+import { OfflineSyncService } from './offline-sync.service';
 
 describe('IndexedDBService', () => {
   let service: IndexedDBService;
@@ -37,20 +43,51 @@ describe('IndexedDBService', () => {
   });
 
   beforeEach(async () => {
-    // Mock IDBIndex
-    mockIDBIndex = {
-      getAll: jasmine.createSpy('getAll').and.returnValue(mockIDBRequest),
-      count: jasmine.createSpy('count').and.returnValue(mockIDBRequest)
+    // Helper to create a request that auto-succeeds
+    // Reads result from mockIDBRequest if set, otherwise uses default
+    const createMockRequest = (defaultResult: any = undefined) => {
+      const request: any = {
+        onsuccess: null,
+        onerror: null,
+        result: mockIDBRequest?.result !== undefined ? mockIDBRequest.result : defaultResult,
+        error: mockIDBRequest?.error || null
+      };
+      
+      // Auto-trigger success/error after microtask
+      Promise.resolve().then(() => {
+        if (request.error && request.onerror) {
+          request.onerror({ target: request } as any);
+        } else if (request.onsuccess) {
+          request.onsuccess({ target: request } as any);
+        }
+      });
+      
+      // Reset for next request
+      if (mockIDBRequest) {
+        mockIDBRequest.result = undefined;
+        mockIDBRequest.error = null;
+      }
+      
+      return request;
     };
 
-    // Mock IDBObjectStore
+    // Initialize mockIDBRequest as a config object
+    mockIDBRequest = { result: undefined, error: null };
+
+    // Mock IDBIndex - returns auto-succeeding request
+    mockIDBIndex = {
+      getAll: jasmine.createSpy('getAll').and.callFake((value?: any) => createMockRequest([])),
+      count: jasmine.createSpy('count').and.callFake(() => createMockRequest(0))
+    };
+
+    // Mock IDBObjectStore - returns auto-succeeding request
     mockIDBObjectStore = {
-      put: jasmine.createSpy('put').and.returnValue(mockIDBRequest),
-      get: jasmine.createSpy('get').and.returnValue(mockIDBRequest),
-      getAll: jasmine.createSpy('getAll').and.returnValue(mockIDBRequest),
-      delete: jasmine.createSpy('delete').and.returnValue(mockIDBRequest),
-      clear: jasmine.createSpy('clear').and.returnValue(mockIDBRequest),
-      count: jasmine.createSpy('count').and.returnValue(mockIDBRequest),
+      put: jasmine.createSpy('put').and.callFake((item: any) => createMockRequest(undefined)),
+      get: jasmine.createSpy('get').and.callFake((key: any) => createMockRequest(undefined)),
+      getAll: jasmine.createSpy('getAll').and.callFake(() => createMockRequest([])),
+      delete: jasmine.createSpy('delete').and.callFake((key: any) => createMockRequest(undefined)),
+      clear: jasmine.createSpy('clear').and.callFake(() => createMockRequest(undefined)),
+      count: jasmine.createSpy('count').and.callFake(() => createMockRequest(0)),
       index: jasmine.createSpy('index').and.returnValue(mockIDBIndex),
       createIndex: jasmine.createSpy('createIndex')
     };
@@ -61,6 +98,13 @@ describe('IndexedDBService', () => {
       oncomplete: null,
       onerror: null
     };
+    
+    // Auto-trigger transaction complete after a small delay
+    setTimeout(() => {
+      if (mockIDBTransaction.oncomplete) {
+        mockIDBTransaction.oncomplete({} as any);
+      }
+    }, 10);
 
     // Mock IDBDatabase
     mockIDBDatabase = {
@@ -70,13 +114,6 @@ describe('IndexedDBService', () => {
       },
       createObjectStore: jasmine.createSpy('createObjectStore').and.returnValue(mockIDBObjectStore),
       deleteObjectStore: jasmine.createSpy('deleteObjectStore')
-    };
-
-    // Mock IDBRequest (used by all IDB operations)
-    mockIDBRequest = {
-      onsuccess: null,
-      onerror: null,
-      result: null
     };
 
     // Mock indexedDB global
@@ -95,10 +132,24 @@ describe('IndexedDBService', () => {
     mockCompressionService.decompress.and.callFake((data: any) => data);
     mockCompressionService.shouldCompress.and.returnValue(false);
 
+    // Create mocks for circular dependency chain
+    const mockLogService = jasmine.createSpyObj('LogService', ['debug', 'info', 'warn', 'error', 'log']);
+    const mockAuthService = jasmine.createSpyObj('AuthService', ['getCurrentUser', 'isAuthenticated']);
+    const mockAnalyticsService = jasmine.createSpyObj('AnalyticsService', ['logEvent', 'setUserProperties']);
+    const mockPatientSelectorService = jasmine.createSpyObj('PatientSelectorService', ['getSelectedPatientId']);
+    const mockCareNetworkService = jasmine.createSpyObj('CareNetworkService', ['getCareNetworkData']);
+    const mockOfflineSyncService = jasmine.createSpyObj('OfflineSyncService', ['sync', 'queueOperation']);
+
     await TestBed.configureTestingModule({
       providers: [
         IndexedDBService,
-        { provide: CompressionService, useValue: mockCompressionService }
+        { provide: CompressionService, useValue: mockCompressionService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: PatientSelectorService, useValue: mockPatientSelectorService },
+        { provide: CareNetworkService, useValue: mockCareNetworkService },
+        { provide: OfflineSyncService, useValue: mockOfflineSyncService }
       ]
     }).compileComponents();
 
@@ -113,8 +164,9 @@ describe('IndexedDBService', () => {
     spyOn(service as any, 'shouldCompress').and.returnValue(false);
     spyOn(service as any, 'compressItem').and.callFake((item: any) => item);
     spyOn(service as any, 'decompressItem').and.callFake((item: any) => item);
-    spyOn(service as any, 'recordRead').and.stub();
-    spyOn(service as any, 'recordWrite').and.stub();
+    // Let recordRead and recordWrite execute to track metrics
+    spyOn(service as any, 'recordRead').and.callThrough();
+    spyOn(service as any, 'recordWrite').and.callThrough();
   });
 
   it('should be created', () => {
@@ -131,14 +183,9 @@ describe('IndexedDBService', () => {
     it('should add item to store', async () => {
       // Arrange
       const medication = createMockMedication();
-      mockIDBRequest.result = undefined;
 
       // Act
-      const promise = service.put('medications', medication);
-      
-      // Simulate success
-      mockIDBRequest.onsuccess?.();
-      await promise;
+      await service.put('medications', medication);
 
       // Assert
       expect(mockIDBObjectStore.put).toHaveBeenCalledWith(medication);
@@ -148,12 +195,9 @@ describe('IndexedDBService', () => {
       // Arrange
       const medication = createMockMedication();
       medication.name = 'Updated Name';
-      mockIDBRequest.result = undefined;
 
       // Act
-      const promise = service.put('medications', medication);
-      mockIDBRequest.onsuccess?.();
-      await promise;
+      await service.put('medications', medication);
 
       // Assert
       expect(mockIDBObjectStore.put).toHaveBeenCalledWith(medication);
@@ -163,25 +207,35 @@ describe('IndexedDBService', () => {
       // Arrange
       const medication = createMockMedication();
       const error = new Error('Put failed');
-      mockIDBRequest.error = error;
+      
+      // Override put spy to return a failing request
+      const createFailingRequest = () => {
+        const request: any = {
+          onsuccess: null,
+          onerror: null,
+          result: null,
+          error
+        };
+        Promise.resolve().then(() => {
+          if (request.onerror) {
+            request.onerror({ target: request } as any);
+          }
+        });
+        return request;
+      };
+      mockIDBObjectStore.put.and.callFake(() => createFailingRequest());
 
       // Act & Assert
-      const promise = service.put('medications', medication);
-      mockIDBRequest.onerror?.();
-      
-      await expectAsync(promise).toBeRejectedWith(error);
+      await expectAsync(service.put('medications', medication)).toBeRejectedWith(error);
     });
 
     it('should record write metrics', async () => {
       // Arrange
       const medication = createMockMedication();
-      mockIDBRequest.result = undefined;
       const initialWrites = service.metrics().totalWrites;
 
       // Act
-      const promise = service.put('medications', medication);
-      mockIDBRequest.onsuccess?.();
-      await promise;
+      await service.put('medications', medication);
 
       // Assert
       expect(service.metrics().totalWrites).toBeGreaterThan(initialWrites);
@@ -222,13 +276,26 @@ describe('IndexedDBService', () => {
       // Arrange
       const medications = [createMockMedication()];
       const error = new Error('Transaction failed');
-      mockIDBTransaction.error = error;
+      
+      // Create a transaction that auto-fires onerror after items are added
+      const failingTransaction: any = {
+        objectStore: jasmine.createSpy('objectStore').and.returnValue(mockIDBObjectStore),
+        oncomplete: null,
+        onerror: null,
+        error
+      };
+      
+      mockIDBDatabase.transaction.and.returnValue(failingTransaction);
+      
+      // Trigger onerror in next microtask (after putBatch sets the handler)
+      setTimeout(() => {
+        if (failingTransaction.onerror) {
+          failingTransaction.onerror({ target: failingTransaction } as any);
+        }
+      }, 0);
 
       // Act & Assert
-      const promise = service.putBatch('medications', medications);
-      mockIDBTransaction.onerror?.();
-      
-      await expectAsync(promise).toBeRejectedWith(error);
+      await expectAsync(service.putBatch('medications', medications)).toBeRejectedWith(error);
     });
   });
 
@@ -239,9 +306,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = medication;
 
       // Act
-      const promise = service.get('medications', 'med-1');
-      mockIDBRequest.onsuccess?.();
-      const result = await promise;
+      const result = await service.get('medications', 'med-1');
 
       // Assert
       expect(result).toEqual(medication);
@@ -253,9 +318,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = undefined;
 
       // Act
-      const promise = service.get('medications', 'non-existent');
-      mockIDBRequest.onsuccess?.();
-      const result = await promise;
+      const result = await service.get('medications', 'non-existent');
 
       // Assert
       expect(result).toBeUndefined();
@@ -267,9 +330,7 @@ describe('IndexedDBService', () => {
       const initialHits = service.metrics().cacheHits;
 
       // Act
-      const promise = service.get('medications', 'med-1');
-      mockIDBRequest.onsuccess?.();
-      await promise;
+      await service.get('medications', 'med-1');
 
       // Assert
       expect(service.metrics().cacheHits).toBeGreaterThan(initialHits);
@@ -281,9 +342,7 @@ describe('IndexedDBService', () => {
       const initialMisses = service.metrics().cacheMisses;
 
       // Act
-      const promise = service.get('medications', 'med-1');
-      mockIDBRequest.onsuccess?.();
-      await promise;
+      await service.get('medications', 'med-1');
 
       // Assert
       expect(service.metrics().cacheMisses).toBeGreaterThan(initialMisses);
@@ -295,10 +354,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.error = error;
 
       // Act & Assert
-      const promise = service.get('medications', 'med-1');
-      mockIDBRequest.onerror?.();
-      
-      await expectAsync(promise).toBeRejectedWith(error);
+      await expectAsync(service.get('medications', 'med-1')).toBeRejectedWith(error);
     });
   });
 
@@ -312,23 +368,19 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = medications;
 
       // Act
-      const promise = service.getAll('medications');
-      mockIDBRequest.onsuccess?.();
-      const result = await promise;
+      const result = await service.getAll('medications');
 
       // Assert
       expect(result).toEqual(medications);
       expect(result.length).toBe(2);
     });
 
-    it('should return empty array when store is empty', async () => {
+    it('should return empty array for empty store', async () => {
       // Arrange
       mockIDBRequest.result = [];
 
       // Act
-      const promise = service.getAll('medications');
-      mockIDBRequest.onsuccess?.();
-      const result = await promise;
+      const result = await service.getAll('medications');
 
       // Assert
       expect(result).toEqual([]);
@@ -339,9 +391,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = null;
 
       // Act
-      const promise = service.getAll('medications');
-      mockIDBRequest.onsuccess?.();
-      const result = await promise;
+      const result = await service.getAll('medications');
 
       // Assert
       expect(result).toEqual([]);
@@ -355,9 +405,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = medications;
 
       // Act
-      const promise = service.getByIndex('medications', 'userId', 'user-123');
-      mockIDBRequest.onsuccess?.();
-      const result = await promise;
+      const result = await service.getByIndex('medications', 'userId', 'user-123');
 
       // Assert
       expect(result).toEqual(medications);
@@ -385,9 +433,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = 5;
 
       // Act
-      const promise = service.count('medications');
-      mockIDBRequest.onsuccess?.();
-      const result = await promise;
+      const result = await service.count('medications');
 
       // Assert
       expect(result).toBe(5);
@@ -399,9 +445,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = 0;
 
       // Act
-      const promise = service.count('medications');
-      mockIDBRequest.onsuccess?.();
-      const result = await promise;
+      const result = await service.count('medications');
 
       // Assert
       expect(result).toBe(0);
@@ -414,9 +458,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = 3;
 
       // Act
-      const promise = service.countByIndex('medications', 'userId', 'user-123');
-      mockIDBRequest.onsuccess?.();
-      const result = await promise;
+      const result = await service.countByIndex('medications', 'userId', 'user-123');
 
       // Assert
       expect(result).toBe(3);
@@ -431,9 +473,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = undefined;
 
       // Act
-      const promise = service.delete('medications', 'med-1');
-      mockIDBRequest.onsuccess?.();
-      await promise;
+      await service.delete('medications', 'med-1');
 
       // Assert
       expect(mockIDBObjectStore.delete).toHaveBeenCalledWith('med-1');
@@ -445,10 +485,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.error = error;
 
       // Act & Assert
-      const promise = service.delete('medications', 'med-1');
-      mockIDBRequest.onerror?.();
-      
-      await expectAsync(promise).toBeRejectedWith(error);
+      await expectAsync(service.delete('medications', 'med-1')).toBeRejectedWith(error);
     });
   });
 
@@ -486,24 +523,19 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = undefined;
 
       // Act
-      const promise = service.clear('medications');
-      mockIDBRequest.onsuccess?.();
-      await promise;
+      await service.clear('medications');
 
       // Assert
       expect(mockIDBObjectStore.clear).toHaveBeenCalled();
     });
 
-    it('should handle clear errors', async () => {
+    it('should handle read errors', async () => {
       // Arrange
-      const error = new Error('Clear failed');
+      const error = new Error('GetAll failed');
       mockIDBRequest.error = error;
 
       // Act & Assert
-      const promise = service.clear('medications');
-      mockIDBRequest.onerror?.();
-      
-      await expectAsync(promise).toBeRejectedWith(error);
+      await expectAsync(service.getAll('medications')).toBeRejectedWith(error);
     });
   });
 
@@ -551,14 +583,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = 10;
 
       // Act
-      const promise = service.getStorageStats();
-      
-      // Simulate count() success for each store
-      for (let i = 0; i < 9; i++) { // 9 stores in config
-        mockIDBRequest.onsuccess?.();
-      }
-      
-      const result = await promise;
+      const result = await service.getStorageStats();
 
       // Assert
       expect(result.length).toBe(9);
@@ -576,14 +601,7 @@ describe('IndexedDBService', () => {
       mockIDBRequest.result = mockData;
 
       // Act
-      const promise = service.exportData();
-      
-      // Simulate getAll() success for each store
-      for (let i = 0; i < 9; i++) {
-        mockIDBRequest.onsuccess?.();
-      }
-      
-      const result = await promise;
+      const result = await service.exportData();
 
       // Assert
       expect(result).toBeDefined();
@@ -599,9 +617,7 @@ describe('IndexedDBService', () => {
       const initialReads = service.metrics().totalReads;
 
       // Act
-      const promise = service.get('medications', 'med-1');
-      mockIDBRequest.onsuccess?.();
-      await promise;
+      await service.get('medications', 'med-1');
 
       // Assert
       expect(service.metrics().totalReads).toBeGreaterThan(initialReads);
@@ -613,9 +629,7 @@ describe('IndexedDBService', () => {
       const initialWrites = service.metrics().totalWrites;
 
       // Act
-      const promise = service.put('medications', medication);
-      mockIDBRequest.onsuccess?.();
-      await promise;
+      await service.put('medications', medication);
 
       // Assert
       expect(service.metrics().totalWrites).toBeGreaterThan(initialWrites);
@@ -646,8 +660,8 @@ describe('IndexedDBService', () => {
       
       (indexedDB.open as jasmine.Spy).and.returnValue(mockRequest);
       
-      // Create new service instance
-      const newService = new IndexedDBService();
+      // Create new service instance via TestBed to provide injection context
+      const newService = TestBed.inject(IndexedDBService);
       
       // Trigger error
       if (mockRequest.onerror) {

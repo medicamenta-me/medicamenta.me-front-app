@@ -1,5 +1,5 @@
 import { Component, signal, inject, computed, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   IonCard,
   IonCardHeader,
@@ -30,7 +30,6 @@ interface QuotaInfo {
   selector: 'app-ocr-quota-panel',
   standalone: true,
   imports: [
-    CommonModule,
     IonCard,
     IonCardHeader,
     IonCardTitle,
@@ -39,7 +38,7 @@ interface QuotaInfo {
     IonText,
     IonIcon,
     IonButton
-  ],
+],
   template: `
     <ion-card>
       <ion-card-header>
@@ -309,7 +308,6 @@ export class OcrQuotaPanelComponent implements OnInit {
    */
   onUpgradeClick(): void {
     // Navigate to upgrade page (router integration needed)
-    console.log('[OCR Quota Panel] Upgrade clicked');
   }
 
   /**

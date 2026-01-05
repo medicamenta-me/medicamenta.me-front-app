@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader,
@@ -25,7 +25,6 @@ import { MedicationOCRData } from '../../models/ocr.model';
   selector: 'app-ocr-edit-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     IonHeader,
     IonToolbar,
@@ -40,7 +39,7 @@ import { MedicationOCRData } from '../../models/ocr.model';
     IonTextarea,
     IonNote,
     IonIcon
-  ],
+],
   template: `
     <ion-header>
       <ion-toolbar>

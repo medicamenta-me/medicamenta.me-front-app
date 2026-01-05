@@ -67,7 +67,6 @@ export class ComplianceReportsComponent implements OnInit {
       });
 
       this.reports.set(loadedReports);
-      console.log(`[ComplianceReports] Loaded ${loadedReports.length} reports`);
 
     } catch (error) {
       console.error('[ComplianceReports] Error loading reports:', error);
@@ -93,7 +92,6 @@ export class ComplianceReportsComponent implements OnInit {
   }
 
   async exportPDF(report: ComplianceReport) {
-    console.log('[ComplianceReports] Exporting PDF for report:', report.id);
     try {
       await this.enterpriseService.exportComplianceReportToPDF(report);
     } catch (error) {
@@ -103,7 +101,6 @@ export class ComplianceReportsComponent implements OnInit {
   }
 
   async exportExcel(report: ComplianceReport) {
-    console.log('[ComplianceReports] Exporting Excel for report:', report.id);
     try {
       await this.enterpriseService.exportComplianceReportToExcel(report);
     } catch (error) {

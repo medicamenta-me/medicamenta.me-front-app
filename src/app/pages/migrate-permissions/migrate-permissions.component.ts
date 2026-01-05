@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonList, IonItem, IonLabel, IonProgressBar } from '@ionic/angular/standalone';
-import { CommonModule } from '@angular/common';
+
 import { FirebaseService } from '../../services/firebase.service';
+import { LogService } from '../../services/log.service';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 
 interface MigrationResult {
@@ -16,7 +17,6 @@ interface MigrationResult {
   selector: 'app-migrate-permissions',
   standalone: true,
   imports: [
-    CommonModule,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -26,7 +26,7 @@ interface MigrationResult {
     IonItem,
     IonLabel,
     IonProgressBar
-  ],
+],
   template: `
     <ion-header>
       <ion-toolbar color="primary">
@@ -96,6 +96,7 @@ interface MigrationResult {
 })
 export class MigratePermissionsComponent {
   private readonly firebaseService = inject(FirebaseService);
+  private readonly logService = inject(LogService);
 
   isRunning = false;
   results: MigrationResult[] = [];
@@ -125,7 +126,7 @@ export class MigratePermissionsComponent {
       const snapshot = await getDocs(usersCol);
 
       this.totalCount = snapshot.size;
-      console.log(`[Migration] Found ${this.totalCount} users to migrate`);
+      this.logService.info('MigratePermissions', 'Migration started', { totalUsers: this.totalCount });
 
       for (const userDoc of snapshot.docs) {
         const userId = userDoc.id;
@@ -142,7 +143,7 @@ export class MigratePermissionsComponent {
               email,
               status: 'skipped'
             });
-            console.log(`[Migration] Skipped ${email} - field already exists`);
+            this.logService.info('MigratePermissions', 'User skipped - field already exists', { email });
           } else {
             // Extract IDs from whoCareForMe array
             const carerIds = whoCareForMe.map((carer: any) => carer.userId);
@@ -159,7 +160,7 @@ export class MigratePermissionsComponent {
               status: 'success',
               carersCount: carerIds.length
             });
-            console.log(`[Migration] ✅ Migrated ${email} - ${carerIds.length} carer(s)`);
+            this.logService.info('MigratePermissions', 'User migrated successfully', { email, carersCount: carerIds.length });
           }
         } catch (error: any) {
           this.results.push({
@@ -174,10 +175,12 @@ export class MigratePermissionsComponent {
         this.processedCount++;
       }
 
-      console.log('[Migration] 🏁 Complete!');
-      console.log(`  ✅ Success: ${this.successCount}`);
-      console.log(`  ⏭️ Skipped: ${this.skippedCount}`);
-      console.log(`  ❌ Errors: ${this.errorCount}`);
+      this.logService.info('MigratePermissions', 'Migration complete', {
+        success: this.successCount,
+        skipped: this.skippedCount,
+        errors: this.errorCount,
+        total: this.totalCount
+      });
 
     } catch (error) {
       console.error('[Migration] 💥 Failed:', error);

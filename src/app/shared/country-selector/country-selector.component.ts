@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { IonSearchbar, IonList, IonItem, IonLabel, IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,7 +15,6 @@ export interface Country {
   selector: 'app-country-selector',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     IonSearchbar,
@@ -29,7 +28,7 @@ export interface Country {
     IonButtons,
     IonButton,
     IonContent
-  ],
+],
   template: `
     <div class="country-selector-container">
       <button 

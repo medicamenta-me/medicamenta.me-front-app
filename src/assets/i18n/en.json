@@ -36,7 +36,10 @@
     "DAYS": "Days",
     "WEEKS": "Weeks",
     "MONTHS": "Months",
-    "YEARS": "Years"
+    "YEARS": "Years",
+    "PULL_TO_REFRESH": "Pull to refresh",
+    "REFRESHING": "Refreshing...",
+    "RETRY": "Retry"
   },
   "AUTH": {
     "LOGIN": "Login",
@@ -1509,6 +1512,63 @@
   "ONBOARDING_PLANS_EXTRA": {
     "FOREVER": "forever",
     "MAIN_FEATURES": "Main Features"
+  },
+  "MARKETPLACE_ORDERS": {
+    "TITLE": "My Orders",
+    "FILTERS": "Filters",
+    "ALL": "All",
+    "ACTIVE": "Active",
+    "COMPLETED": "Completed",
+    "SEARCH_PLACEHOLDER": "Search order or pharmacy...",
+    "REALTIME_ACTIVE": "Real-time updates",
+    "LOADING": "Loading orders...",
+    "LOADING_MORE": "Loading more orders...",
+    "ERROR_TITLE": "Error loading orders",
+    "EMPTY_NO_ORDERS": "No orders found",
+    "EMPTY_NO_ACTIVE": "No active orders",
+    "EMPTY_NO_COMPLETED": "No completed orders",
+    "EMPTY_SEARCH_NO_RESULTS": "No results for this search",
+    "EMPTY_HINT": "Your marketplace orders will appear here",
+    "CLEAR_FILTERS": "Clear filters",
+    "TAP_FOR_DETAILS": "Tap for details",
+    "LAST_UPDATED": "Last updated:",
+    "ITEMS_SINGULAR": "1 item",
+    "ITEMS_PLURAL": "{{count}} items",
+    "STATUS": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "PREPARING": "Preparing",
+      "READY_FOR_PICKUP": "Ready for Pickup",
+      "OUT_FOR_DELIVERY": "Out for Delivery",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "REFUNDED": "Refunded",
+      "DELIVERY": "Delivery"
+    },
+    "STATS": {
+      "TOTAL": "Total",
+      "PENDING": "Pending",
+      "COMPLETED": "Completed",
+      "TOTAL_SPENT": "Total Spent"
+    },
+    "CARD": {
+      "ITEM": "item",
+      "ITEMS": "items",
+      "TOTAL": "Total",
+      "ORDERED_AT": "Ordered at",
+      "ESTIMATED_DELIVERY": "Estimated delivery",
+      "TRACKING": "Tracking"
+    },
+    "ACTIONS": {
+      "VIEW_DETAILS": "View Details",
+      "TRACK": "Track",
+      "REORDER": "Reorder",
+      "CONTACT": "Contact"
+    },
+    "MESSAGES": {
+      "DELIVERED_SUCCESS": "Order delivered successfully!",
+      "ORDER_CANCELLED": "This order was cancelled",
+      "ORDER_REFUNDED": "This order was refunded"
+    }
   }
 }
-

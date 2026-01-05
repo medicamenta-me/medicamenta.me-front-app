@@ -21,7 +21,8 @@
   </ion-refresher>
 
   <!-- Estatísticas Agregadas -->
-  <div class="stats-cards" *ngIf="stats()">
+  @if (stats()) {
+<div class="stats-cards">
     <ion-card class="stat-card">
       <ion-card-content>
         <div class="stat-value">{{ stats()!.totalPatients }}</div>
@@ -52,14 +53,17 @@
       </ion-card-content>
     </ion-card>
 
-    <ion-card class="stat-card" *ngIf="stats()!.criticalStockAlerts > 0">
+    @if (stats()!.criticalStockAlerts > 0) {
+<ion-card class="stat-card">
       <ion-card-content>
         <div class="stat-value critical">{{ stats()!.criticalStockAlerts }}</div>
         <div class="stat-label">{{ 'ENTERPRISE_DASHBOARD_STATS.CRITICAL_ALERTS' | translate }}</div>
         <div class="stat-detail">{{ 'ENTERPRISE_DASHBOARD_STATS.LOW_STOCK' | translate }}</div>
       </ion-card-content>
     </ion-card>
+}
   </div>
+}
 
   <!-- Filtros -->
   <ion-card class="filters-card">
@@ -67,9 +71,11 @@
       <ion-card-title>
         <ion-icon name="filter-outline"></ion-icon>
         Filtros
-        <ion-badge color="primary" *ngIf="hasActiveFilters()">
+        @if (hasActiveFilters()) {
+<ion-badge color="primary">
           {{ hasActiveFilters() ? 'Ativos' : '' }}
         </ion-badge>
+}
       </ion-card-title>
     </ion-card-header>
     <ion-card-content>
@@ -91,9 +97,11 @@
             [placeholder]="'ENTERPRISE_DASHBOARD.ALL_DEPARTMENTS' | translate"
             interface="popover">
             <ion-select-option [value]="undefined">{{ 'ENTERPRISE_DASHBOARD.ALL_DEPARTMENTS' | translate }}</ion-select-option>
-            <ion-select-option *ngFor="let dept of departments()" [value]="dept">
+            @for (dept of departments(); track dept) {
+<ion-select-option [value]="dept">
               {{ dept }}
             </ion-select-option>
+}
           </ion-select>
         </ion-item>
 
@@ -105,9 +113,11 @@
             [placeholder]="'ENTERPRISE_DASHBOARD.ALL_TEAMS' | translate"
             interface="popover">
             <ion-select-option [value]="undefined">{{ 'ENTERPRISE_DASHBOARD.ALL_TEAMS' | translate }}</ion-select-option>
-            <ion-select-option *ngFor="let member of teamMembers()" [value]="member.id">
+            @for (member of teamMembers(); track member) {
+<ion-select-option [value]="member.id">
               {{ member.name }} ({{ member.role }})
             </ion-select-option>
+}
           </ion-select>
         </ion-item>
       </div>
@@ -150,14 +160,16 @@
 
       <!-- Actions -->
       <div class="filter-actions">
-        <ion-button
-          *ngIf="hasActiveFilters()"
+        @if (hasActiveFilters()) {
+<ion-button
+         
           fill="clear"
           size="small"
           (click)="clearFilters()">
           <ion-icon slot="start" name="close-circle"></ion-icon>
           Limpar Filtros
         </ion-button>
+}
       </div>
     </ion-card-content>
   </ion-card>
@@ -165,24 +177,33 @@
   <!-- Lista de Pacientes -->
   <div class="patients-list">
     <!-- Loading -->
-    <div *ngIf="isLoading()" class="loading-container">
+    @if (isLoading()) {
+<div class="loading-container">
       <ion-spinner name="crescent"></ion-spinner>
       <p>Carregando pacientes...</p>
     </div>
+}
 
     <!-- Empty State -->
-    <ion-card *ngIf="!isLoading() && patients().length === 0" class="empty-state">
+    @if (!isLoading() && patients().length === 0) {
+<ion-card class="empty-state">
       <ion-card-content>
         <ion-icon name="people-outline" size="large"></ion-icon>
         <h3>{{ 'ENTERPRISE_DASHBOARD_STATS.NO_PATIENTS' | translate }}</h3>
-        <p *ngIf="hasActiveFilters()">{{ 'ENTERPRISE_DASHBOARD_STATS.ADJUST_FILTERS' | translate }}</p>
-        <p *ngIf="!hasActiveFilters()">{{ 'ENTERPRISE_DASHBOARD_STATS.ADD_PATIENTS' | translate }}</p>
+        @if (hasActiveFilters()) {
+<p>{{ 'ENTERPRISE_DASHBOARD_STATS.ADJUST_FILTERS' | translate }}</p>
+}
+        @if (!hasActiveFilters()) {
+<p>{{ 'ENTERPRISE_DASHBOARD_STATS.ADD_PATIENTS' | translate }}</p>
+}
       </ion-card-content>
     </ion-card>
+}
 
     <!-- Patient Cards -->
-    <ion-card
-      *ngFor="let patient of patients()"
+    @for (patient of patients(); track patient) {
+<ion-card
+     
       class="patient-card"
       button
       (click)="viewPatient(patient)">
@@ -195,7 +216,9 @@
             <ion-card-title>{{ patient.patient.name }}</ion-card-title>
             <ion-card-subtitle>
               {{ patient.patient.age }} anos
-              <span *ngIf="patient.patient.department"> • {{ patient.patient.department }}</span>
+              @if (patient.patient.department) {
+<span> • {{ patient.patient.department }}</span>
+}
             </ion-card-subtitle>
           </div>
           <ion-badge
@@ -217,13 +240,15 @@
             <ion-icon name="fitness-outline"></ion-icon>
             <span>{{ patient.medications.total }} medicamentos</span>
           </div>
-          <div class="metric" *ngIf="patient.alerts.count > 0">
+          @if (patient.alerts.count > 0) {
+<div class="metric">
             <ion-icon
               name="alert-circle-outline"
               [color]="getSeverityColor(patient.alerts.highestSeverity)">
             </ion-icon>
             <span>{{ patient.alerts.count }} alertas</span>
           </div>
+}
         </div>
 
         <!-- Today's Doses -->
@@ -236,26 +261,32 @@
             <div class="dose-count">{{ patient.todayDoses.pending }}</div>
             <div class="dose-label">Pendentes</div>
           </div>
-          <div class="dose-stat danger" *ngIf="patient.todayDoses.missed > 0">
+          @if (patient.todayDoses.missed > 0) {
+<div class="dose-stat danger">
             <div class="dose-count">{{ patient.todayDoses.missed }}</div>
             <div class="dose-label">Perdidas</div>
           </div>
+}
         </div>
 
         <!-- Next Dose -->
-        <div class="next-dose" *ngIf="patient.todayDoses.nextDose">
+        @if (patient.todayDoses.nextDose) {
+<div class="next-dose">
           <ion-icon name="time-outline"></ion-icon>
           <span>
             Próxima: {{ patient.todayDoses.nextDose.medicationName }}
             às {{ patient.todayDoses.nextDose.scheduledTime | date:'HH:mm' }}
           </span>
         </div>
+}
 
         <!-- Assigned Team -->
-        <div class="assigned-team" *ngIf="patient.assignedTeam.length > 0">
+        @if (patient.assignedTeam.length > 0) {
+<div class="assigned-team">
           <div class="team-label">Equipe:</div>
           <div class="team-members">
-            <ion-chip *ngFor="let member of patient.assignedTeam" size="small">
+            @for (member of patient.assignedTeam; track member) {
+<ion-chip size="small">
               <ion-avatar>
                 <img [src]="member.avatar || 'assets/default-avatar.png'" alt="{{ member.name }}">
               </ion-avatar>
@@ -264,24 +295,32 @@
                 <ion-icon [name]="getRoleIcon(member.role)" size="small"></ion-icon>
               </ion-label>
             </ion-chip>
+}
           </div>
         </div>
+}
 
         <!-- Alerts -->
-        <div class="alerts-list" *ngIf="patient.alerts.count > 0">
-          <ion-badge
-            *ngFor="let alertType of patient.alerts.types"
+        @if (patient.alerts.count > 0) {
+<div class="alerts-list">
+          @for (alertType of patient.alerts.types; track alertType) {
+<ion-badge
+           
             [color]="getSeverityColor(patient.alerts.highestSeverity)"
             class="alert-badge">
             {{ alertType }}
           </ion-badge>
+}
         </div>
+}
       </ion-card-content>
     </ion-card>
+}
   </div>
 
   <!-- Pagination -->
-  <div class="pagination" *ngIf="!isLoading() && patients().length > 0">
+  @if (!isLoading() && patients().length > 0) {
+<div class="pagination">
     <ion-button
       fill="clear"
       [disabled]="currentPage() === 1"
@@ -302,4 +341,5 @@
       <ion-icon slot="end" name="chevron-forward"></ion-icon>
     </ion-button>
   </div>
+}
 </ion-content>

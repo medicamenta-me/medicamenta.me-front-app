@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+// LogService is the implementation of logging - console methods are intentional here
+
 import { Injectable, signal, effect, inject } from '@angular/core';
 import { LogEntry, LogEventType, LogLevel, StructuredLog } from '../models/log-entry.model';
 import { FirebaseService } from './firebase.service';
@@ -21,9 +24,9 @@ import { collection, Firestore, addDoc, query, orderBy, onSnapshot, Unsubscribe,
 })
 export class LogService {
   private readonly firebaseService = inject(FirebaseService);
-  private readonly authService = inject(AuthService);
-  private readonly patientSelectorService = inject(PatientSelectorService);
-  private readonly careNetworkService = inject(CareNetworkService);
+  private readonly authService = inject(AuthService, { optional: true });
+  private readonly patientSelectorService = inject(PatientSelectorService, { optional: true });
+  private readonly careNetworkService = inject(CareNetworkService, { optional: true });
   private readonly indexedDB = inject(IndexedDBService);
   private readonly offlineSync = inject(OfflineSyncService);
   private readonly firestore: Firestore;
@@ -43,8 +46,8 @@ export class LogService {
 
     // Listen to active patient changes and load their logs
     effect((onCleanup) => {
-        const activePatientId = this.patientSelectorService.activePatientId();
-        const permissionsSynced = this.careNetworkService.permissionsSynced();
+        const activePatientId = this.patientSelectorService?.activePatientId();
+        const permissionsSynced = this.careNetworkService?.permissionsSynced();
         const isOnline = this.offlineSync.isOnline();
         
         this.debug('LogService', `Effect triggered - activePatientId: ${activePatientId}, permissionsSynced: ${permissionsSynced}, isOnline: ${isOnline}`);
@@ -150,7 +153,7 @@ export class LogService {
       level,
       message,
       context,
-      userId: this.authService.currentUser()?.uid,
+      userId: this.authService?.currentUser()?.uid,
       sessionId: this.sessionId,
       metadata: sanitizedMetadata,
       stackTrace: error?.stack,
@@ -272,7 +275,7 @@ export class LogService {
    * @param patientId Optional patient ID. If not provided, uses active patient
    */
   async addLog(eventType: LogEventType, message: string, patientId?: string) {
-    const targetPatientId = patientId || this.patientSelectorService.activePatientId();
+    const targetPatientId = patientId || this.patientSelectorService?.activePatientId();
     if (!targetPatientId) return; // Don't log if no patient selected
 
     const isOnline = this.offlineSync.isOnline();
@@ -324,8 +327,8 @@ export class LogService {
    * @param viewType What was viewed (dashboard, medications, history, etc)
    */
   async logCaregiversView(viewType: 'dashboard' | 'medications' | 'medication-detail' | 'history') {
-    const currentUserId = this.authService.currentUser()?.uid;
-    const activePatientId = this.patientSelectorService.activePatientId();
+    const currentUserId = this.authService?.currentUser()?.uid;
+    const activePatientId = this.patientSelectorService?.activePatientId();
 
     if (!currentUserId || !activePatientId) return;
     
@@ -333,8 +336,8 @@ export class LogService {
     if (currentUserId === activePatientId) return;
 
     // Get caregiver name
-    const careNetwork = this.careNetworkService.iCareFor();
-    const patient = careNetwork.find(p => p.userId === activePatientId);
+    const careNetwork = this.careNetworkService?.iCareFor();
+    const patient = careNetwork?.find(p => p.userId === activePatientId);
     if (!patient) return;
 
     const viewTypeTranslations = {

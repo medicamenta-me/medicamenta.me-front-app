@@ -27,7 +27,8 @@
 
 <ion-content>
   <!-- Tab: Wearable -->
-  <div *ngIf="selectedTab === 'wearable'" class="tab-content">
+  @if (selectedTab === 'wearable') {
+<div class="tab-content">
     <!-- Status Card -->
     <ion-card>
       <ion-card-header>
@@ -130,9 +131,11 @@
       </ion-card>
     }
   </div>
+}
 
   <!-- Tab: Health -->
-  <div *ngIf="selectedTab === 'health'" class="tab-content">
+  @if (selectedTab === 'health') {
+<div class="tab-content">
     <!-- Health Status Card -->
     <ion-card>
       <ion-card-header>
@@ -271,9 +274,11 @@
       </ion-card>
     }
   </div>
+}
 
   <!-- Tab: Haptic -->
-  <div *ngIf="selectedTab === 'haptic'" class="tab-content">
+  @if (selectedTab === 'haptic') {
+<div class="tab-content">
     <ion-card>
       <ion-card-header>
         <ion-card-title>
@@ -303,4 +308,5 @@
       </ion-card-content>
     </ion-card>
   </div>
+}
 </ion-content>

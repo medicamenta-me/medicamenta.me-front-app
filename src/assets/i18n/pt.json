@@ -36,7 +36,10 @@
     "DAYS": "Dias",
     "WEEKS": "Semanas",
     "MONTHS": "Meses",
-    "YEARS": "Anos"
+    "YEARS": "Anos",
+    "PULL_TO_REFRESH": "Puxe para atualizar",
+    "REFRESHING": "Atualizando...",
+    "RETRY": "Tentar novamente"
   },
   "AUTH": {
     "LOGIN": "Entrar",
@@ -1683,6 +1686,63 @@
   "ONBOARDING_PLANS_EXTRA": {
     "FOREVER": "para sempre",
     "MAIN_FEATURES": "Recursos Principais"
+  },
+  "MARKETPLACE_ORDERS": {
+    "TITLE": "Meus Pedidos",
+    "FILTERS": "Filtros",
+    "ALL": "Todos",
+    "ACTIVE": "Ativos",
+    "COMPLETED": "Concluídos",
+    "SEARCH_PLACEHOLDER": "Buscar pedido ou farmácia...",
+    "REALTIME_ACTIVE": "Atualizações em tempo real",
+    "LOADING": "Carregando pedidos...",
+    "LOADING_MORE": "Carregando mais pedidos...",
+    "ERROR_TITLE": "Erro ao carregar pedidos",
+    "EMPTY_NO_ORDERS": "Nenhum pedido encontrado",
+    "EMPTY_NO_ACTIVE": "Nenhum pedido ativo",
+    "EMPTY_NO_COMPLETED": "Nenhum pedido concluído",
+    "EMPTY_SEARCH_NO_RESULTS": "Nenhum resultado para esta busca",
+    "EMPTY_HINT": "Seus pedidos do marketplace aparecerão aqui",
+    "CLEAR_FILTERS": "Limpar filtros",
+    "TAP_FOR_DETAILS": "Toque para ver detalhes",
+    "LAST_UPDATED": "Última atualização:",
+    "ITEMS_SINGULAR": "1 item",
+    "ITEMS_PLURAL": "{{count}} itens",
+    "STATUS": {
+      "PENDING": "Pendente",
+      "CONFIRMED": "Confirmado",
+      "PREPARING": "Preparando",
+      "READY_FOR_PICKUP": "Pronto p/ Retirada",
+      "OUT_FOR_DELIVERY": "Em Entrega",
+      "DELIVERED": "Entregue",
+      "CANCELLED": "Cancelado",
+      "REFUNDED": "Reembolsado",
+      "DELIVERY": "Entrega"
+    },
+    "STATS": {
+      "TOTAL": "Total",
+      "PENDING": "Pendentes",
+      "COMPLETED": "Concluídos",
+      "TOTAL_SPENT": "Total Gasto"
+    },
+    "CARD": {
+      "ITEM": "item",
+      "ITEMS": "itens",
+      "TOTAL": "Total",
+      "ORDERED_AT": "Pedido em",
+      "ESTIMATED_DELIVERY": "Previsão de entrega",
+      "TRACKING": "Rastreio"
+    },
+    "ACTIONS": {
+      "VIEW_DETAILS": "Ver Detalhes",
+      "TRACK": "Rastrear",
+      "REORDER": "Pedir Novamente",
+      "CONTACT": "Contato"
+    },
+    "MESSAGES": {
+      "DELIVERED_SUCCESS": "Pedido entregue com sucesso!",
+      "ORDER_CANCELLED": "Este pedido foi cancelado",
+      "ORDER_REFUNDED": "Este pedido foi reembolsado"
+    }
   }
 }
-

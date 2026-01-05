@@ -24,10 +24,12 @@
           color="success">
         </ion-toggle>
         <span [class.active]="isYearly()">{{ 'ONBOARDING_PLANS.BILLING.YEARLY' | translate }}</span>
-        <ion-badge *ngIf="isYearly()" color="success" class="savings-badge">
+        @if (isYearly()) {
+<ion-badge color="success" class="savings-badge">
           <ion-icon name="trending-down-outline"></ion-icon>
           {{ 'ONBOARDING_PLANS.BILLING.SAVE' | translate }} {{ savings() }}%
         </ion-badge>
+}
       </div>
 
       <!-- Trust Indicators -->
@@ -52,8 +54,9 @@
   <div class="plans-container">
     <ion-grid>
       <ion-row class="plans-row">
-        <ion-col 
-          *ngFor="let plan of displayedPlans()" 
+        @for (plan of displayedPlans(); track plan) {
+<ion-col 
+          
           size="12" 
           size-md="6" 
           size-lg="4">
@@ -67,10 +70,12 @@
             (click)="selectPlan(plan)">
             
             <!-- Badge -->
-            <div *ngIf="plan.badge" class="plan-badge" [style.background]="'var(--ion-color-' + plan.color + ')'">
+            @if (plan.badge) {
+<div class="plan-badge" [style.background]="'var(--ion-color-' + plan.color + ')'">
               <ion-icon name="trophy"></ion-icon>
               {{ plan.badge }}
             </div>
+}
 
             <ion-card-header>
               <!-- Icon -->
@@ -86,44 +91,56 @@
 
               <!-- Pricing -->
               <div class="plan-pricing">
-                <div class="price" *ngIf="plan.price > 0">
+                @if (plan.price > 0) {
+<div class="price">
                   <span class="currency">R$</span>
                   <span class="amount">{{ getPrice(plan) }}</span>
                   <span class="period">/mês</span>
                 </div>
-                <div class="price free-price" *ngIf="plan.price === 0">
+}
+                @if (plan.price === 0) {
+<div class="price free-price">
                   <span class="amount">{{ 'ONBOARDING_PLANS.PRICING.FREE_LABEL' | translate }}</span>
                   <span class="period">{{ 'ONBOARDING_PLANS_EXTRA.FOREVER' | translate }}</span>
                 </div>
+}
                 
-                <p class="savings-text" *ngIf="isYearly() && plan.price > 0">
+                @if (isYearly() && plan.price > 0) {
+<p class="savings-text">
                   💰 Economize R$ {{ (plan.price - plan.priceYearly) * 12 | number:'1.2-2' }}/ano
                 </p>
+}
               </div>
             </ion-card-header>
 
             <ion-card-content>
               <!-- Quick Highlights -->
               <div class="highlights-list">
-                <div *ngFor="let highlight of plan.highlights" class="highlight-item">
+                @for (highlight of plan.highlights; track highlight) {
+<div class="highlight-item">
                   <ion-icon name="checkmark-circle" [color]="plan.color"></ion-icon>
                   <span>{{ highlight }}</span>
                 </div>
+}
               </div>
 
               <!-- Popular Features -->
               <div class="features-section">
                 <h4 class="features-title">{{ 'ONBOARDING_PLANS_EXTRA.MAIN_FEATURES' | translate }}</h4>
                 <div class="features-grid">
-                  <div *ngFor="let feature of plan.popularFeatures" class="feature-item">
+                  @for (feature of plan.popularFeatures; track feature) {
+<div class="feature-item">
                     <ion-icon [name]="feature.icon" [color]="plan.color"></ion-icon>
                     <span [class.exclusive]="feature.exclusive">
                       {{ feature.text }}
-                      <ion-badge *ngIf="feature.exclusive" color="warning" class="exclusive-badge">
+                      @if (feature.exclusive) {
+<ion-badge color="warning" class="exclusive-badge">
                         Premium
                       </ion-badge>
+}
                     </span>
                   </div>
+}
                 </div>
               </div>
 
@@ -134,19 +151,26 @@
                 size="large"
                 class="cta-button"
                 [class.pulse-animation]="plan.id === 'premium'">
-                <ion-icon *ngIf="plan.price > 0" name="rocket" slot="start"></ion-icon>
-                <ion-icon *ngIf="plan.price === 0" name="play" slot="start"></ion-icon>
+                @if (plan.price > 0) {
+<ion-icon name="rocket" slot="start"></ion-icon>
+}
+                @if (plan.price === 0) {
+<ion-icon name="play" slot="start"></ion-icon>
+}
                 {{ plan.ctaText }}
               </ion-button>
 
               <!-- Free Trial Notice -->
-              <p class="trial-notice" *ngIf="plan.price > 0">
+              @if (plan.price > 0) {
+<p class="trial-notice">
                 <ion-icon name="gift-outline"></ion-icon>
                 7 dias grátis • Sem compromisso
               </p>
+}
             </ion-card-content>
           </ion-card>
         </ion-col>
+}
       </ion-row>
     </ion-grid>
   </div>

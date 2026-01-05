@@ -42,10 +42,12 @@
       <div class="benefits">
         <h4>O que você ganha:</h4>
         <ul>
-          <li *ngFor="let benefit of benefits">
+          @for (benefit of benefits; track benefit) {
+<li>
             <ion-icon name="checkmark-circle" color="success"></ion-icon>
             {{ benefit }}
           </li>
+}
         </ul>
       </div>
 

@@ -1,4 +1,4 @@
-import { Component, inject, computed, OnInit } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { SubscriptionService } from '../../services/subscription.service';
@@ -27,60 +27,60 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-subscription-card',
   template: `
-    <ion-card>
+    <ion-card data-cy="subscription-card">
       <ion-card-header>
         <div class="header-row">
           <ion-card-title>Minha Assinatura</ion-card-title>
           @if (isPremiumOrHigher()) {
-            <ion-badge [color]="badgeColor()">{{ planBadge() }}</ion-badge>
+            <ion-badge [color]="badgeColor()" data-cy="plan-badge">{{ planBadge() }}</ion-badge>
           }
         </div>
       </ion-card-header>
 
       <ion-card-content>
         @if (isLoading()) {
-          <div class="loading">
+          <div class="loading" data-cy="subscription-loading">
             <ion-spinner></ion-spinner>
             <p>Carregando...</p>
           </div>
         } @else {
-          <div class="subscription-info">
+          <div class="subscription-info" data-cy="subscription-info">
             <!-- Current Plan -->
-            <div class="info-item">
+            <div class="info-item" data-cy="current-plan">
               <ion-icon name="trophy-outline"></ion-icon>
               <div class="info-content">
                 <span class="label">Plano Atual</span>
-                <span class="value">{{ planName() }}</span>
+                <span class="value" data-cy="plan-name">{{ planName() }}</span>
               </div>
             </div>
 
             @if (isPremiumOrHigher()) {
               <!-- Billing Cycle -->
-              <div class="info-item">
+              <div class="info-item" data-cy="billing-cycle">
                 <ion-icon name="calendar-outline"></ion-icon>
                 <div class="info-content">
                   <span class="label">Ciclo de Cobrança</span>
-                  <span class="value">{{ billingCycleName() }}</span>
+                  <span class="value" data-cy="billing-cycle-name">{{ billingCycleName() }}</span>
                 </div>
               </div>
 
               <!-- Next Payment -->
               @if (nextPaymentDate()) {
-                <div class="info-item">
+                <div class="info-item" data-cy="next-billing">
                   <ion-icon name="card-outline"></ion-icon>
                   <div class="info-content">
                     <span class="label">Próxima Cobrança</span>
-                    <span class="value">{{ nextPaymentDate() | date: 'dd/MM/yyyy' }}</span>
+                    <span class="value" data-cy="next-billing-date">{{ nextPaymentDate() | date: 'dd/MM/yyyy' }}</span>
                   </div>
                 </div>
               }
 
               <!-- Status -->
               @if (subscriptionStatus()) {
-                <div class="info-item">
+                <div class="info-item" data-cy="subscription-status-item">
                   <div class="info-content">
                     <span class="label">Status</span>
-                    <span class="value">{{ statusName() }}</span>
+                    <span class="value" data-cy="subscription-status">{{ statusName() }}</span>
                   </div>
                 </div>
               }
@@ -90,12 +90,12 @@ import { DatePipe } from '@angular/common';
           <!-- Actions -->
           <div class="actions">
             @if (currentPlan() === 'free') {
-              <ion-button expand="block" color="primary" (click)="upgrade()">
+              <ion-button expand="block" color="primary" (click)="upgrade()" data-cy="upgrade-btn">
                 <ion-icon name="arrow-up-outline" slot="start"></ion-icon>
                 Fazer Upgrade
               </ion-button>
             } @else {
-              <ion-button expand="block" fill="outline" (click)="manageBilling()">
+              <ion-button expand="block" fill="outline" (click)="manageBilling()" data-cy="manage-subscription-btn">
                 <ion-icon name="settings-outline" slot="start"></ion-icon>
                 Gerenciar Assinatura
               </ion-button>
@@ -104,7 +104,8 @@ import { DatePipe } from '@angular/common';
                 expand="block" 
                 fill="clear" 
                 color="danger"
-                (click)="confirmCancel()">
+                (click)="confirmCancel()"
+                data-cy="cancel-subscription-btn">
                 Cancelar Assinatura
               </ion-button>
             }
@@ -197,7 +198,7 @@ import { DatePipe } from '@angular/common';
     DatePipe
   ]
 })
-export class SubscriptionCardComponent implements OnInit {
+export class SubscriptionCardComponent {
   private readonly router = inject(Router);
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly stripeService = inject(StripeService);
@@ -280,10 +281,6 @@ export class SubscriptionCardComponent implements OnInit {
       arrowUpOutline,
       settingsOutline
     });
-  }
-
-  ngOnInit() {
-    console.log('[SubscriptionCard] Current plan:', this.currentPlan());
   }
 
   upgrade() {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule } from '@ionic/angular';
 import { AchievementListComponent } from '../../components/achievement-list/achievement-list.component';
 
@@ -10,7 +10,7 @@ import { AchievementListComponent } from '../../components/achievement-list/achi
 @Component({
   selector: 'app-achievements-page',
   standalone: true,
-  imports: [CommonModule, IonicModule, AchievementListComponent],
+  imports: [IonicModule, AchievementListComponent],
   template: `
     <ion-header>
       <ion-toolbar color="primary">

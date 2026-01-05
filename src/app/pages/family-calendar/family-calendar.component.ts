@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import {
   IonHeader,
@@ -44,7 +44,6 @@ import { CalendarIntegrationService } from '../../services/calendar-integration.
   styleUrls: ['./family-calendar.component.css'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     IonHeader,
     IonToolbar,
@@ -66,7 +65,7 @@ import { CalendarIntegrationService } from '../../services/calendar-integration.
     IonLabel,
     IonNote,
     IonSpinner
-  ]
+]
 })
 export class FamilyCalendarComponent {
   calendarService = inject(FamilyCalendarService);

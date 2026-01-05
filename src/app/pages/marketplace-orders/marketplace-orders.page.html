@@ -1,0 +1,259 @@
+<!-- 
+  📦 Marketplace Orders Page Template
+  
+  Layout responsivo com:
+  - Header com título e botão de filtros
+  - Segment para filtrar por status
+  - Lista de pedidos com cards
+  - Pull-to-refresh
+  - Infinite scroll
+  - Estados: loading, empty, error
+-->
+
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'MARKETPLACE_ORDERS.TITLE' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFilters()" [attr.aria-label]="'MARKETPLACE_ORDERS.FILTERS' | translate">
+        <ion-icon slot="icon-only" name="filter-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Segment para filtros rápidos -->
+  <ion-toolbar color="light">
+    <ion-segment [value]="currentView()" (ionChange)="onViewChange($event)">
+      <ion-segment-button value="all">
+        <ion-label>
+          {{ 'MARKETPLACE_ORDERS.ALL' | translate }}
+          @if (totalCount() > 0) {
+            <ion-badge color="medium">{{ totalCount() }}</ion-badge>
+          }
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="active">
+        <ion-label>
+          {{ 'MARKETPLACE_ORDERS.ACTIVE' | translate }}
+          @if (activeCount() > 0) {
+            <ion-badge color="warning">{{ activeCount() }}</ion-badge>
+          }
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="completed">
+        <ion-label>
+          {{ 'MARKETPLACE_ORDERS.COMPLETED' | translate }}
+          @if (completedCount() > 0) {
+            <ion-badge color="success">{{ completedCount() }}</ion-badge>
+          }
+        </ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+
+  <!-- Barra de busca -->
+  <ion-toolbar color="light" class="search-toolbar">
+    <ion-searchbar
+      [placeholder]="'MARKETPLACE_ORDERS.SEARCH_PLACEHOLDER' | translate"
+      [value]="filters().searchQuery"
+      (ionInput)="onSearchChange($event)"
+      debounce="300"
+      animated
+      showClearButton="focus"
+    ></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Pull to refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="{{ 'COMMON.PULL_TO_REFRESH' | translate }}"
+      refreshingSpinner="circles"
+      refreshingText="{{ 'COMMON.REFRESHING' | translate }}"
+    ></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Indicador de conexão real-time -->
+  @if (isListening()) {
+    <div class="realtime-indicator">
+      <ion-icon name="radio-outline" color="success"></ion-icon>
+      <ion-text color="medium">
+        <small>{{ 'MARKETPLACE_ORDERS.REALTIME_ACTIVE' | translate }}</small>
+      </ion-text>
+    </div>
+  }
+
+  <!-- Estatísticas rápidas -->
+  @if (stats()) {
+    <div class="stats-summary">
+      <div class="stat-item">
+        <ion-icon name="bag-outline" color="primary"></ion-icon>
+        <div class="stat-value">{{ stats()!.totalOrders }}</div>
+        <div class="stat-label">{{ 'MARKETPLACE_ORDERS.STATS.TOTAL' | translate }}</div>
+      </div>
+      <div class="stat-item">
+        <ion-icon name="time-outline" color="warning"></ion-icon>
+        <div class="stat-value">{{ stats()!.pendingOrders }}</div>
+        <div class="stat-label">{{ 'MARKETPLACE_ORDERS.STATS.PENDING' | translate }}</div>
+      </div>
+      <div class="stat-item">
+        <ion-icon name="checkmark-done-circle-outline" color="success"></ion-icon>
+        <div class="stat-value">{{ stats()!.deliveredOrders }}</div>
+        <div class="stat-label">{{ 'MARKETPLACE_ORDERS.STATS.COMPLETED' | translate }}</div>
+      </div>
+      <div class="stat-item">
+        <ion-icon name="cash-outline" color="tertiary"></ion-icon>
+        <div class="stat-value">{{ formatCurrency(stats()!.totalSpent) }}</div>
+        <div class="stat-label">{{ 'MARKETPLACE_ORDERS.STATS.TOTAL_SPENT' | translate }}</div>
+      </div>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading() && displayedOrders().length === 0) {
+    <div class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <ion-text color="medium">
+        <p>{{ 'MARKETPLACE_ORDERS.LOADING' | translate }}</p>
+      </ion-text>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-container">
+      <ion-icon name="alert-circle-outline" color="danger" size="large"></ion-icon>
+      <ion-text color="danger">
+        <h3>{{ 'MARKETPLACE_ORDERS.ERROR_TITLE' | translate }}</h3>
+        <p>{{ error() }}</p>
+      </ion-text>
+      <ion-button fill="outline" color="primary" (click)="retry()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        {{ 'COMMON.RETRY' | translate }}
+      </ion-button>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (isEmpty() && !error()) {
+    <div class="empty-container">
+      <ion-icon name="bag-outline" color="medium" size="large"></ion-icon>
+      <ion-text color="medium">
+        <h3>{{ emptyMessage() | translate }}</h3>
+        <p>{{ 'MARKETPLACE_ORDERS.EMPTY_HINT' | translate }}</p>
+      </ion-text>
+      @if (filters().searchQuery) {
+        <ion-button fill="outline" color="medium" (click)="clearFilters()">
+          {{ 'MARKETPLACE_ORDERS.CLEAR_FILTERS' | translate }}
+        </ion-button>
+      }
+    </div>
+  }
+
+  <!-- Orders List -->
+  @if (!isEmpty() && !error()) {
+    <ion-list lines="none" class="orders-list">
+      @for (summary of orderSummaries(); track trackBySummaryId($index, summary)) {
+        <ion-card 
+          class="order-card" 
+          [button]="true" 
+          (click)="viewOrderDetails(summary.id)"
+          [attr.data-cy]="'order-card-' + summary.id"
+        >
+          <ion-card-header>
+            <div class="order-header">
+              <div class="order-info">
+                <ion-card-subtitle>
+                  <ion-icon name="receipt-outline"></ion-icon>
+                  {{ summary.id | slice:0:8 }}...
+                </ion-card-subtitle>
+                <ion-card-title>{{ summary.pharmacyName }}</ion-card-title>
+              </div>
+              <ion-badge [color]="getStatusColor(summary.status)">
+                <ion-icon [name]="getStatusIcon(summary.status)"></ion-icon>
+                {{ getStatusText(summary.status) }}
+              </ion-badge>
+            </div>
+          </ion-card-header>
+
+          <ion-card-content>
+            <div class="order-details">
+              <div class="detail-row">
+                <ion-icon name="bag-outline" color="medium"></ion-icon>
+                <span>{{ getItemCountText(summary) }}</span>
+              </div>
+              <div class="detail-row">
+                <ion-icon name="cash-outline" color="medium"></ion-icon>
+                <span class="order-total">{{ formatCurrency(summary.total) }}</span>
+              </div>
+              <div class="detail-row">
+                <ion-icon name="calendar-outline" color="medium"></ion-icon>
+                <span>{{ formatRelativeDate(summary.createdAt) }}</span>
+              </div>
+            </div>
+
+            <!-- Progress indicator para pedidos ativos -->
+            @if (!['delivered', 'cancelled', 'refunded'].includes(summary.status)) {
+              <div class="order-progress">
+                <div class="progress-step" [class.active]="true" [class.completed]="summary.status !== 'pending'">
+                  <div class="step-dot"></div>
+                  <span>{{ 'MARKETPLACE_ORDERS.STATUS.PENDING' | translate }}</span>
+                </div>
+                <div class="progress-line" [class.active]="summary.status !== 'pending'"></div>
+                <div class="progress-step" [class.active]="['confirmed', 'preparing', 'ready_for_pickup', 'out_for_delivery'].includes(summary.status)">
+                  <div class="step-dot"></div>
+                  <span>{{ 'MARKETPLACE_ORDERS.STATUS.CONFIRMED' | translate }}</span>
+                </div>
+                <div class="progress-line" [class.active]="['preparing', 'ready_for_pickup', 'out_for_delivery'].includes(summary.status)"></div>
+                <div class="progress-step" [class.active]="['preparing', 'ready_for_pickup', 'out_for_delivery'].includes(summary.status)">
+                  <div class="step-dot"></div>
+                  <span>{{ 'MARKETPLACE_ORDERS.STATUS.PREPARING' | translate }}</span>
+                </div>
+                <div class="progress-line" [class.active]="['out_for_delivery'].includes(summary.status)"></div>
+                <div class="progress-step" [class.active]="summary.status === 'out_for_delivery'">
+                  <div class="step-dot"></div>
+                  <span>{{ 'MARKETPLACE_ORDERS.STATUS.DELIVERY' | translate }}</span>
+                </div>
+              </div>
+            }
+
+            <div class="order-footer">
+              <ion-text color="medium">
+                <small>{{ 'MARKETPLACE_ORDERS.TAP_FOR_DETAILS' | translate }}</small>
+              </ion-text>
+              <ion-icon name="chevron-forward-outline" color="medium"></ion-icon>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      }
+    </ion-list>
+
+    <!-- Infinite Scroll -->
+    <ion-infinite-scroll 
+      [disabled]="!hasMorePages()" 
+      (ionInfinite)="onLoadMore($event)"
+      threshold="100px"
+    >
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="{{ 'MARKETPLACE_ORDERS.LOADING_MORE' | translate }}"
+      ></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  }
+
+  <!-- Last Updated -->
+  @if (lastUpdated()) {
+    <div class="last-updated">
+      <ion-text color="medium">
+        <small>
+          {{ 'MARKETPLACE_ORDERS.LAST_UPDATED' | translate }}
+          {{ lastUpdated() | date:'HH:mm:ss' }}
+        </small>
+      </ion-text>
+    </div>
+  }
+</ion-content>

@@ -19,39 +19,20 @@ module.exports = function (config) {
         // for example, you can disable the random execution with `random: false`
         // or set a specific seed with `seed: 4321`
       },
-      clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
     jasmineHtmlReporter: {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/medicamenta.me'),
+      dir: require('path').join(__dirname, './coverage/app'),
       subdir: '.',
       reporters: [
         { type: 'html' },
-        { type: 'text-summary' },
-        { type: 'lcovonly' }
+        { type: 'text-summary' }
       ]
     },
     reporters: ['progress', 'kjhtml'],
-    browsers: ['ChromeHeadless'],
-    restartOnFileChange: true,
-    singleRun: false,
-    browserNoActivityTimeout: 120000, // Increased to 2 minutes
-    browserDisconnectTimeout: 30000, // Increased to 30 seconds
-    browserDisconnectTolerance: 3,
-    captureTimeout: 120000, // Added capture timeout
-    customLaunchers: {
-      ChromeHeadlessCI: {
-        base: 'ChromeHeadless',
-        flags: [
-          '--no-sandbox',
-          '--disable-gpu',
-          '--disable-dev-shm-usage',
-          '--disable-software-rasterizer',
-          '--disable-extensions'
-        ]
-      }
-    }
+    browsers: ['Chrome'],
+    restartOnFileChange: true
   });
 };

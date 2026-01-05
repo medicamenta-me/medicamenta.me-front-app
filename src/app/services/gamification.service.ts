@@ -256,7 +256,7 @@ export class GamificationService {
           m.currentStock > 0
         ).length;
 
-      case 'organizer_master':
+      case 'organizer_master': {
         // Check if all medications have adequate stock for 30 days
         const allAdequate = medications.every(m => {
           if (m.isArchived || m.isCompleted) return true;
@@ -264,28 +264,32 @@ export class GamificationService {
           return (m.currentStock || 0) >= threshold;
         });
         return allAdequate ? 30 : 0;
+      }
 
       case 'adherence_90':
       case 'adherence_95':
         return currentData?.weeklyProgress.adherenceRate || 0;
 
-      case 'first_dose':
+      case 'first_dose': {
         const takenLogs = logs.filter(l => l.eventType === 'taken');
         return takenLogs.length > 0 ? 1 : 0;
+      }
 
-      case 'early_bird':
+      case 'early_bird': {
         const morningDoses = logs.filter(l => {
           const hour = new Date(l.timestamp).getHours();
           return l.eventType === 'taken' && hour < 8;
         });
         return morningDoses.length;
+      }
 
-      case 'night_owl':
+      case 'night_owl': {
         const nightDoses = logs.filter(l => {
           const hour = new Date(l.timestamp).getHours();
           return l.eventType === 'taken' && hour >= 22;
         });
         return nightDoses.length;
+      }
 
       default:
         return 0;
@@ -346,7 +350,7 @@ export class GamificationService {
     let newCurrentStreak = currentStreak.currentStreak;
     let newLongestStreak = currentStreak.longestStreak;
     let newStreakStartDate = currentStreak.streakStartDate;
-    let isActive = !hasMissedRecently;
+    const isActive = !hasMissedRecently;
 
     if (hasMissedRecently) {
       // Streak broken

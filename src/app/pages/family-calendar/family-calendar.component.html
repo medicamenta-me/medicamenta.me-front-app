@@ -74,7 +74,12 @@
       @for (day of monthData().days; track day.date.getTime()) {
         <div
           [class]="getDayClass(day)"
-          (click)="openDayDetails(day)">
+          (click)="openDayDetails(day)"
+          (keyup.enter)="openDayDetails(day)"
+          (keyup.space)="openDayDetails(day)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'Day ' + day.dayNumber + ' details'">
           
           <!-- Número do dia -->
           <div class="day-number">{{ day.dayNumber }}</div>

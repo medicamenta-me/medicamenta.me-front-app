@@ -5,7 +5,8 @@
 </ion-header>
 
 <ion-content class="terms-modal-content">
-  <div class="terms-container" *ngIf="terms()">
+  @if (terms()) {
+<div class="terms-container">
     <!-- Terms Header -->
     <div class="terms-header">
       <h1>{{ (terms()!.summary || '').split('\n')[0] || 'Termos de Uso' }}</h1>
@@ -32,7 +33,8 @@
     </div>
 
     <!-- Scroll Instructions -->
-    <div class="scroll-instructions" *ngIf="!hasScrolledToBottom()">
+    @if (!hasScrolledToBottom()) {
+<div class="scroll-instructions">
       <ion-text color="warning">
         <p>
           <ion-icon name="alert-circle-outline"></ion-icon>
@@ -40,6 +42,7 @@
         </p>
       </ion-text>
     </div>
+}
 
     <!-- Terms Content (scrollable) -->
     <div 
@@ -51,12 +54,14 @@
       
       <!-- Bottom marker -->
       <div class="scroll-marker">
-        <ion-text color="success" *ngIf="hasScrolledToBottom()">
+        @if (hasScrolledToBottom()) {
+<ion-text color="success">
           <p>
             <ion-icon name="checkmark-circle-outline"></ion-icon>
             {{ 'TERMS.MODAL.SCROLLED_COMPLETE' | translate }}
           </p>
         </ion-text>
+}
       </div>
     </div>
 
@@ -82,8 +87,12 @@
         (click)="acceptTerms()"
         class="accept-button"
       >
-        <ion-spinner *ngIf="isAccepting()" name="crescent"></ion-spinner>
-        <span *ngIf="!isAccepting()">{{ 'TERMS.MODAL.ACCEPT_BUTTON' | translate }}</span>
+        @if (isAccepting()) {
+<ion-spinner name="crescent"></ion-spinner>
+}
+        @if (!isAccepting()) {
+<span>{{ 'TERMS.MODAL.ACCEPT_BUTTON' | translate }}</span>
+}
       </ion-button>
 
       <!-- Cannot close message -->
@@ -95,10 +104,13 @@
       </ion-text>
     </div>
   </div>
+}
 
   <!-- Loading state -->
-  <div class="loading-container" *ngIf="!terms()">
+  @if (!terms()) {
+<div class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
     <p>{{ 'COMMON.LOADING' | translate }}</p>
   </div>
+}
 </ion-content>

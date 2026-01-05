@@ -36,14 +36,18 @@ import {
   ribbonOutline,
   calendarOutline
 } from 'ionicons/icons';
-import { Chart, registerables } from 'chart.js';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import type { Chart as ChartType } from 'chart.js';
 import { FamilyReportsService, PeriodFilter } from '../../services/family-reports.service';
 import { FamilyService } from '../../services/family.service';
 
-// Register Chart.js components
-Chart.register(...registerables);
+// Dynamic imports for heavy libraries (bundle optimization)
+const loadChartJS = async () => {
+  const { Chart, registerables } = await import('chart.js');
+  Chart.register(...registerables);
+  return Chart;
+};
+const loadJsPDF = () => import('jspdf').then(m => m.default);
+const loadHtml2Canvas = () => import('html2canvas').then(m => m.default);
 
 @Component({
   selector: 'app-family-reports',
@@ -86,9 +90,10 @@ export class FamilyReportsComponent implements AfterViewInit, OnDestroy {
   @ViewChild('comparisonChart') comparisonChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('reportContent') reportContentRef!: ElementRef<HTMLDivElement>;
 
-  private adherenceChart?: Chart;
-  private distributionChart?: Chart;
-  private comparisonChart?: Chart;
+  private adherenceChart?: ChartType;
+  private distributionChart?: ChartType;
+  private comparisonChart?: ChartType;
+  private ChartJS?: typeof ChartType;
 
   isExporting = false;
 
@@ -117,9 +122,14 @@ export class FamilyReportsComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Initialize all charts
+   * Initialize all charts (with lazy loading)
    */
-  private initializeCharts() {
+  private async initializeCharts() {
+    // Lazy load Chart.js for bundle optimization
+    if (!this.ChartJS) {
+      this.ChartJS = await loadChartJS();
+    }
+    
     this.createAdherenceChart();
     this.createDistributionChart();
     this.createComparisonChart();
@@ -138,7 +148,7 @@ export class FamilyReportsComponent implements AfterViewInit, OnDestroy {
    * Create Adherence Timeline Chart
    */
   private createAdherenceChart() {
-    if (!this.adherenceChartRef) return;
+    if (!this.adherenceChartRef || !this.ChartJS) return;
 
     const timeline = this.reportsService.adherenceTimeline();
     const members = this.familyService.familyMembers();
@@ -152,7 +162,7 @@ export class FamilyReportsComponent implements AfterViewInit, OnDestroy {
       fill: true
     }));
 
-    this.adherenceChart = new Chart(this.adherenceChartRef.nativeElement, {
+    this.adherenceChart = new this.ChartJS!(this.adherenceChartRef.nativeElement, {
       type: 'line',
       data: {
         labels: timeline.map(point => {
@@ -195,11 +205,11 @@ export class FamilyReportsComponent implements AfterViewInit, OnDestroy {
    * Create Dose Distribution Chart
    */
   private createDistributionChart() {
-    if (!this.distributionChartRef) return;
+    if (!this.distributionChartRef || !this.ChartJS) return;
 
     const distribution = this.reportsService.doseDistribution();
 
-    this.distributionChart = new Chart(this.distributionChartRef.nativeElement, {
+    this.distributionChart = new this.ChartJS!(this.distributionChartRef.nativeElement, {
       type: 'doughnut',
       data: {
         labels: distribution.map(d => d.period),
@@ -244,11 +254,11 @@ export class FamilyReportsComponent implements AfterViewInit, OnDestroy {
    * Create Medication Comparison Chart
    */
   private createComparisonChart() {
-    if (!this.comparisonChartRef) return;
+    if (!this.comparisonChartRef || !this.ChartJS) return;
 
     const comparison = this.reportsService.medicationComparison();
 
-    this.comparisonChart = new Chart(this.comparisonChartRef.nativeElement, {
+    this.comparisonChart = new this.ChartJS!(this.comparisonChartRef.nativeElement, {
       type: 'bar',
       data: {
         labels: comparison.map(m => m.memberName),
@@ -308,6 +318,12 @@ export class FamilyReportsComponent implements AfterViewInit, OnDestroy {
 
     try {
       const content = this.reportContentRef.nativeElement;
+      
+      // Dynamic imports for bundle optimization
+      const [html2canvas, jsPDF] = await Promise.all([
+        loadHtml2Canvas(),
+        loadJsPDF()
+      ]);
       
       // Capture the content as canvas
       const canvas = await html2canvas(content, {

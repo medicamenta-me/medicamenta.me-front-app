@@ -20,8 +20,6 @@ export function initializeAdvancedFeatures() {
     const offlineMode = inject(ExtendedOfflineModeService);
     const analytics = inject(OfflineAnalyticsService);
 
-    console.log('[Advanced Features] Initializing...');
-
     // Start automatic backup
     backupService.startAutoBackup();
 
@@ -30,8 +28,6 @@ export function initializeAdvancedFeatures() {
     syncService.start();
 
     // Extended offline mode and analytics are auto-initialized in constructors
-
-    console.log('[Advanced Features] Initialization complete');
 
     return Promise.resolve();
   };

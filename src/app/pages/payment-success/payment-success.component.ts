@@ -141,9 +141,6 @@ export class PaymentSuccessComponent implements OnInit {
     } else {
       this.planName = 'Plano Pago';
     }
-
-    // Optional: Track analytics event
-    console.log('[PaymentSuccess] Subscription activated:', currentPlan);
   }
 
   goToDashboard() {

@@ -174,7 +174,6 @@ export class OnboardingPlansPage implements OnInit {
   }
 
   trackPageView() {
-    console.log('Onboarding Plans Page Viewed');
   }
 
   getPrice(plan: OnboardingPlan): number {

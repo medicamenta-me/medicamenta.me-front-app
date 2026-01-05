@@ -188,10 +188,10 @@ export class HistoryStatsService {
       log.eventType === 'missed'
     );
 
-    let morning = { taken: 0, total: 0 };
-    let afternoon = { taken: 0, total: 0 };
-    let evening = { taken: 0, total: 0 };
-    let night = { taken: 0, total: 0 };
+    const morning = { taken: 0, total: 0 };
+    const afternoon = { taken: 0, total: 0 };
+    const evening = { taken: 0, total: 0 };
+    const night = { taken: 0, total: 0 };
 
     for (const log of doseLogs) {
       const logDate = log.timestamp instanceof Date ? log.timestamp : (log.timestamp as any).toDate();

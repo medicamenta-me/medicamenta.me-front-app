@@ -8,19 +8,25 @@
 import { TestBed } from '@angular/core/testing';
 import { Analytics } from '@angular/fire/analytics';
 import { AnalyticsService, ANALYTICS_EVENTS } from './analytics.service';
+import { LogService } from './log.service';
 
 describe('AnalyticsService', () => {
   let service: AnalyticsService;
   let mockAnalytics: jasmine.SpyObj<Analytics>;
+  let mockLogService: jasmine.SpyObj<LogService>;
 
   beforeEach(() => {
     // Create mock Analytics
     mockAnalytics = jasmine.createSpyObj('Analytics', ['app']);
+    
+    // Create mock LogService to break circular dependency
+    mockLogService = jasmine.createSpyObj('LogService', ['debug', 'error', 'warn', 'info']);
 
     TestBed.configureTestingModule({
       providers: [
         AnalyticsService,
-        { provide: Analytics, useValue: mockAnalytics }
+        { provide: Analytics, useValue: mockAnalytics },
+        { provide: LogService, useValue: mockLogService }
       ]
     });
 
@@ -33,42 +39,44 @@ describe('AnalyticsService', () => {
 
   describe('logEvent', () => {
     it('should log simple event without parameters', () => {
-      spyOn(console, 'log');
-
       service.logEvent('test_event');
 
-      // Firebase analytics throws error in test env, so fallback is used
-      expect(console.log).toHaveBeenCalledWith(
-        jasmine.stringContaining('[Analytics] Fallback: test_event'),
-        jasmine.objectContaining({ timestamp: jasmine.any(String) })
+      // Firebase analytics not available in test, so fallback is used
+      expect(mockLogService.debug).toHaveBeenCalledWith(
+        'AnalyticsService',
+        'Fallback event logged',
+        jasmine.objectContaining({
+          eventName: 'test_event',
+          timestamp: jasmine.any(String)
+        })
       );
     });
 
     it('should log event with parameters', () => {
-      spyOn(console, 'log');
-
       service.logEvent('test_event', { param1: 'value1', param2: 123 });
 
-      // Firebase analytics throws error in test env, so fallback is used
-      expect(console.log).toHaveBeenCalledWith(
-        jasmine.stringContaining('[Analytics] Fallback: test_event'),
+      // Firebase analytics not available in test, so fallback is used
+      expect(mockLogService.debug).toHaveBeenCalledWith(
+        'AnalyticsService',
+        'Fallback event logged',
         jasmine.objectContaining({
-          timestamp: jasmine.any(String),
-          param1: 'value1',
-          param2: 123
+          eventName: 'test_event',
+          timestamp: jasmine.any(String)
         })
       );
     });
 
     it('should handle null parameters', () => {
-      spyOn(console, 'log');
-
       service.logEvent('test_event', undefined);
 
-      // Firebase analytics throws error in test env, so fallback is used
-      expect(console.log).toHaveBeenCalledWith(
-        jasmine.stringContaining('[Analytics] Fallback: test_event'),
-        jasmine.objectContaining({ timestamp: jasmine.any(String) })
+      // Firebase analytics not available in test, so fallback is used
+      expect(mockLogService.debug).toHaveBeenCalledWith(
+        'AnalyticsService',
+        'Fallback event logged',
+        jasmine.objectContaining({
+          eventName: 'test_event',
+          timestamp: jasmine.any(String)
+        })
       );
     });
   });
@@ -151,43 +159,37 @@ describe('AnalyticsService', () => {
 
   describe('setUserId', () => {
     it('should set user ID', () => {
-      spyOn(console, 'log');
-      spyOn(console, 'error'); // Firebase throws error in test env
-
       service.setUserId('user-123');
 
-      // In test env, Firebase throws error, so we check error was logged
-      expect(console.error).toHaveBeenCalledWith(
-        '[Analytics] Error setting user ID:',
-        jasmine.any(TypeError)
+      // In test env, Firebase throws error, so error should be logged
+      expect(mockLogService.error).toHaveBeenCalledWith(
+        'AnalyticsService',
+        'Error setting user ID',
+        jasmine.any(Error)
       );
     });
 
     it('should clear user ID when null', () => {
-      spyOn(console, 'log');
-      spyOn(console, 'error'); // Firebase throws error in test env
-
       service.setUserId(null);
 
-      // In test env, Firebase throws error, so we check error was logged
-      expect(console.error).toHaveBeenCalledWith(
-        '[Analytics] Error setting user ID:',
-        jasmine.any(TypeError)
+      // In test env, Firebase throws error, so error should be logged
+      expect(mockLogService.error).toHaveBeenCalledWith(
+        'AnalyticsService',
+        'Error setting user ID',
+        jasmine.any(Error)
       );
     });
   });
 
   describe('setUserProperties', () => {
     it('should set user properties', () => {
-      spyOn(console, 'log');
-      spyOn(console, 'error'); // Firebase throws error in test env
-
       service.setUserProperties({ plan: 'premium', country: 'BR' });
 
-      // In test env, Firebase throws error, so we check error was logged
-      expect(console.error).toHaveBeenCalledWith(
-        '[Analytics] Error setting user properties:',
-        jasmine.any(TypeError)
+      // In test env, Firebase throws error, so error should be logged
+      expect(mockLogService.error).toHaveBeenCalledWith(
+        'AnalyticsService',
+        'Error setting user properties',
+        jasmine.any(Error)
       );
     });
   });

@@ -19,8 +19,6 @@ export const onboardingGuard = () => {
   const userService = inject(UserService);
   const router = inject(Router);
 
-  console.log('[OnboardingGuard] Checking user data...');
-
   return toObservable(userService.currentUser).pipe(
     // Wait for non-null user (Firestore data loaded)
     filter(user => user !== null),
@@ -30,16 +28,12 @@ export const onboardingGuard = () => {
     map(currentUser => {
       if (!currentUser) {
         // Should not happen due to filter, but safety check
-        console.log('[OnboardingGuard] No user found, redirecting to onboarding');
         router.navigate(['/onboarding']);
         return false;
       }
 
-      console.log('[OnboardingGuard] Current user:', currentUser);
-
       // Check if onboarding is completed
       if (!currentUser.onboardingCompleted) {
-        console.log('[OnboardingGuard] Onboarding not completed, redirecting to onboarding');
         router.navigate(['/onboarding']);
         return false;
       }
@@ -47,13 +41,11 @@ export const onboardingGuard = () => {
       // Validate required fields (double validation as per requirements)
       const hasRequiredFields = validateRequiredFields(currentUser);
       if (!hasRequiredFields) {
-        console.log('[OnboardingGuard] Missing required fields, redirecting to onboarding');
         router.navigate(['/onboarding']);
         return false;
       }
 
       // All checks passed
-      console.log('[OnboardingGuard] Onboarding completed, allowing access');
       return true;
     }),
     // Handle timeout or errors
@@ -63,12 +55,10 @@ export const onboardingGuard = () => {
       // On timeout/error, check if we have cached user data with required fields
       const currentUser = userService.currentUser();
       if (currentUser?.onboardingCompleted && validateRequiredFields(currentUser)) {
-        console.log('[OnboardingGuard] Using cached data, allowing access');
         return of(true);
       }
 
       // No valid cached data, show connection error and redirect
-      console.log('[OnboardingGuard] No valid cached data, redirecting to onboarding');
       router.navigate(['/onboarding'], {
         queryParams: { connectionError: 'true' }
       });
@@ -89,13 +79,11 @@ export const onboardingGuard = () => {
 function validateRequiredFields(user: any): boolean {
   // Step 1: Personal Data (all required)
   if (!user.country || !user.name || !user.birthDate || !user.gender || !user.document || !user.phone) {
-    console.log('[OnboardingGuard] Missing personal data fields');
     return false;
   }
 
   // Step 5: Terms acceptance (must have at least one accepted version)
   if (!user.termsAcceptance || user.termsAcceptance.length === 0) {
-    console.log('[OnboardingGuard] No terms accepted');
     return false;
   }
 

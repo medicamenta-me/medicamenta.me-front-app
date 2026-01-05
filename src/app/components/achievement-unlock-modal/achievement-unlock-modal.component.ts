@@ -1,5 +1,5 @@
 import { Component, input, inject, OnInit, OnDestroy, signal, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule, ModalController } from '@ionic/angular';
 import { Achievement } from '../../models/achievement.model';
 import { AudioService } from '../../services/audio.service';
@@ -17,7 +17,7 @@ import type { AnimationItem } from 'lottie-web';
 @Component({
   selector: 'app-achievement-unlock-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [IonicModule],
   animations: [
     trigger('scaleIn', [
       state('void', style({ transform: 'scale(0.5)', opacity: 0 })),
@@ -50,8 +50,13 @@ import type { AnimationItem } from 'lottie-web';
            #lottieContainer
            [class.replaying]="isReplaying()"
            (click)="replayAnimation()"
+           (keyup.enter)="replayAnimation()"
+           (keyup.space)="replayAnimation()"
            (press)="startSlowMotion()"
-           (pressup)="endSlowMotion()">
+           (pressup)="endSlowMotion()"
+           tabindex="0"
+           role="button"
+           aria-label="Replay achievement animation">
       </div>
 
       <!-- Animation Controls -->
@@ -469,7 +474,7 @@ export class AchievementUnlockModalComponent implements OnInit, OnDestroy {
     let animationPath = 'assets/animations/confetti.json'; // Default
 
     // Level up achievements get starburst
-    if (achievement.id.includes('level_')) {
+    if (achievement.id?.includes('level_')) {
       animationPath = 'assets/animations/starburst.json';
     }
     // Perfect week/month gets fireworks

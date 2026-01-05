@@ -63,7 +63,7 @@ interface PlanCard {
     <ion-header>
       <ion-toolbar [color]="'primary'">
         <ion-title>{{ lockedFeature() ? 'Recurso Premium' : 'Escolha seu Plano' }}</ion-title>
-        <ion-button slot="end" fill="clear" (click)="close()">
+        <ion-button slot="end" fill="clear" (click)="close()" data-cy="close-upgrade-btn">
           <ion-icon name="close-outline"></ion-icon>
         </ion-button>
       </ion-toolbar>
@@ -72,37 +72,38 @@ interface PlanCard {
     <ion-content>
       <div class="upgrade-container">
         @if (lockedFeature()) {
-          <div class="feature-locked-banner">
+          <div class="feature-locked-banner" data-cy="feature-locked-banner">
             <ion-icon name="lock-closed-outline"></ion-icon>
             <h2>Recurso Premium</h2>
-            <p>{{ getFeatureDescription(lockedFeature()!) }}</p>
+            <p data-cy="locked-feature-description">{{ getFeatureDescription(lockedFeature()!) }}</p>
           </div>
         }
 
         <!-- Billing Cycle Toggle -->
-        <div class="billing-toggle">
+        <div class="billing-toggle" data-cy="billing-period-toggle">
           <ion-segment [value]="billingCycle()" (ionChange)="onBillingCycleChange($event)">
-            <ion-segment-button value="monthly">
+            <ion-segment-button value="monthly" data-cy="monthly-option">
               <ion-label>Mensal</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="yearly">
+            <ion-segment-button value="yearly" data-cy="annual-option">
               <ion-label>
                 Anual
-                <ion-badge color="success">Economize 20%</ion-badge>
+                <ion-badge color="success" data-cy="discount-badge">Economize 20%</ion-badge>
               </ion-label>
             </ion-segment-button>
           </ion-segment>
         </div>
 
         <!-- Plan Cards -->
-        <div class="plans-grid">
+        <div class="plans-grid" data-cy="plans-list">
           @for (card of planCards; track card.plan) {
             <ion-card 
               [class.popular]="card.popular"
-              [class.current]="card.plan === currentPlan()">
+              [class.current]="card.plan === currentPlan()"
+              [attr.data-cy]="'plan-card-' + card.plan">
               
               @if (card.popular) {
-                <div class="popular-badge">
+                <div class="popular-badge" data-cy="recommended-badge">
                   <ion-icon name="flash-outline"></ion-icon>
                   Mais Popular
                 </div>
@@ -112,18 +113,18 @@ interface PlanCard {
                 <div class="plan-icon" [style.color]="card.color">
                   <ion-icon [name]="card.icon"></ion-icon>
                 </div>
-                <ion-card-title>{{ card.name }}</ion-card-title>
-                <p class="plan-description">{{ card.description }}</p>
+                <ion-card-title data-cy="plan-name">{{ card.name }}</ion-card-title>
+                <p class="plan-description" data-cy="plan-description">{{ card.description }}</p>
                 
                 <div class="price-container">
                   <div class="price">
                     <span class="currency">R$</span>
-                    <span class="amount">{{ getCurrentPrice(card) | number: '1.0-0' }}</span>
+                    <span class="amount" data-cy="plan-price">{{ getCurrentPrice(card) | number: '1.0-0' }}</span>
                     <span class="period">/{{ billingCycle() === 'monthly' ? 'mês' : 'ano' }}</span>
                   </div>
                   
                   @if (billingCycle() === 'yearly' && card.savings) {
-                    <div class="savings">
+                    <div class="savings" data-cy="plan-savings">
                       Economize R$ {{ card.savings | number: '1.2-2' }}/ano
                     </div>
                   }
@@ -131,9 +132,9 @@ interface PlanCard {
               </ion-card-header>
 
               <ion-card-content>
-                <ion-list lines="none">
+                <ion-list lines="none" data-cy="plan-features">
                   @for (feature of card.features; track feature.name) {
-                    <ion-item>
+                    <ion-item data-cy="plan-feature-item">
                       <ion-icon 
                         slot="start" 
                         [name]="feature.included ? 'checkmark-circle' : 'close-outline'"
@@ -150,7 +151,8 @@ interface PlanCard {
                   expand="block" 
                   [color]="card.popular ? 'primary' : 'medium'"
                   [disabled]="card.plan === currentPlan() || isProcessing()"
-                  (click)="selectPlan(card.plan)">
+                  (click)="selectPlan(card.plan)"
+                  [attr.data-cy]="'select-' + card.plan + '-btn'">
                   {{ getPlanButtonText(card.plan) }}
                 </ion-button>
               </ion-card-content>
@@ -175,7 +177,7 @@ interface PlanCard {
             <ion-card-header>
               <ion-card-title>Como funciona o período de teste?</ion-card-title>
             </ion-card-header>
-            <ion-card-content>
+            <ion-card-content data-cy="trial-info">
               Novos usuários têm 7 dias grátis para testar todos os recursos premium. Você pode cancelar antes do fim do período de teste sem nenhuma cobrança.
             </ion-card-content>
           </ion-card>
@@ -188,6 +190,12 @@ interface PlanCard {
               Sim! Você pode fazer upgrade ou downgrade a qualquer momento. Faremos o ajuste proporcional no valor.
             </ion-card-content>
           </ion-card>
+        </div>
+        
+        <div style="text-align: center; margin: 2rem 0;">
+          <a href="/terms" data-cy="terms-link" style="color: var(--ion-color-medium); text-decoration: none;">
+            Termos e Condições
+          </a>
         </div>
       </div>
     </ion-content>

@@ -1,5 +1,18 @@
+/**
+ * 🌍 Environment Configuration - Development
+ * Configuração de ambiente de desenvolvimento para o App Mobile
+ */
+
 export const environment = {
   production: false,
+  appName: 'Medicamenta.me',
+  appVersion: '1.0.0',
+  subdomain: 'app',
+  
+  // API Backend URL
+  apiUrl: 'http://localhost:5001/medicamenta-me/us-central1/api',
+  
+  // Firebase (COMPARTILHADO com todos os subdomínios)
   firebase: {
     apiKey: "AIzaSyA4uG_OSiD2l1KSonnXX8KUzglSmdGWY5w",
     authDomain: "medicamenta-me.firebaseapp.com",

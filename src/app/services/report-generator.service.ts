@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { Chart } from 'chart.js/auto';
+import type { jsPDF } from 'jspdf';
 import { ReportTemplate, REPORT_SECTIONS } from './report-templates.service';
 import { LogService } from './log.service';
 import { Medication } from '../models/medication.model';
+
+// Dynamic imports for heavy libraries (bundle optimization)
+const loadJsPDF = () => import('jspdf').then(m => m.jsPDF);
+const loadAutoTable = () => import('jspdf-autotable').then(m => m.default);
+const loadChartJS = () => import('chart.js/auto').then(m => m.Chart);
 
 /**
  * Dados do paciente para o relatório
@@ -123,13 +126,41 @@ export class ReportGeneratorService {
   private readonly WARNING_COLOR = '#ffce00';
   private readonly DANGER_COLOR = '#f04141';
   
+  // Cached dynamic imports
+  private autoTableFn: typeof import('jspdf-autotable').default | null = null;
+  private ChartJS: typeof import('chart.js/auto').Chart | null = null;
+  
   constructor() {}
+  
+  /**
+   * Load autoTable dynamically (cached)
+   */
+  private async getAutoTable() {
+    if (!this.autoTableFn) {
+      this.autoTableFn = await loadAutoTable();
+    }
+    return this.autoTableFn;
+  }
+  
+  /**
+   * Load Chart.js dynamically (cached)
+   */
+  private async getChartJS() {
+    if (!this.ChartJS) {
+      this.ChartJS = await loadChartJS();
+    }
+    return this.ChartJS;
+  }
 
   /**
    * Gera PDF do relatório
    */
   async generatePDF(config: ProfessionalReportConfig): Promise<Blob> {
-    const doc = new jsPDF({
+    // Dynamic import of jsPDF for bundle optimization
+    const jsPDFClass = await loadJsPDF();
+    const autoTable = await this.getAutoTable();
+    
+    const doc = new jsPDFClass({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4'
@@ -146,28 +177,28 @@ export class ReportGeneratorService {
     for (const section of enabledSections) {
       switch (section.id) {
         case REPORT_SECTIONS.PATIENT_INFO:
-          currentY = await this.addPatientInfo(doc, config.patient, currentY);
+          currentY = await this.addPatientInfo(doc, autoTable, config.patient, currentY);
           break;
         case REPORT_SECTIONS.ACTIVE_MEDICATIONS:
-          currentY = await this.addActiveMedications(doc, config.medications, currentY);
+          currentY = await this.addActiveMedications(doc, autoTable, config.medications, currentY);
           break;
         case REPORT_SECTIONS.ADHERENCE_CHART:
           currentY = await this.addAdherenceChart(doc, config.adherenceData, currentY);
           break;
         case REPORT_SECTIONS.ADHERENCE_TABLE:
-          currentY = await this.addAdherenceTable(doc, config.adherenceData, currentY);
+          currentY = await this.addAdherenceTable(doc, autoTable, config.adherenceData, currentY);
           break;
         case REPORT_SECTIONS.CRITICAL_EVENTS:
-          currentY = await this.addCriticalEvents(doc, config.criticalEvents, currentY);
+          currentY = await this.addCriticalEvents(doc, autoTable, config.criticalEvents, currentY);
           break;
         case REPORT_SECTIONS.MEDICATION_CHANGES:
-          currentY = await this.addMedicationChanges(doc, config.medicationChanges, currentY);
+          currentY = await this.addMedicationChanges(doc, autoTable, config.medicationChanges, currentY);
           break;
         case REPORT_SECTIONS.CAREGIVER_NOTES:
-          currentY = await this.addCaregiverNotes(doc, config.caregiverNotes, currentY);
+          currentY = await this.addCaregiverNotes(doc, autoTable, config.caregiverNotes, currentY);
           break;
         case REPORT_SECTIONS.STATISTICS:
-          currentY = await this.addStatistics(doc, config.statistics, currentY);
+          currentY = await this.addStatistics(doc, autoTable, config.statistics, currentY);
           break;
       }
     }
@@ -225,7 +256,7 @@ export class ReportGeneratorService {
   /**
    * Adiciona informações do paciente
    */
-  private async addPatientInfo(doc: jsPDF, patient: PatientData, startY: number): Promise<number> {
+  private async addPatientInfo(doc: jsPDF, autoTable: any, patient: PatientData, startY: number): Promise<number> {
     const pageWidth = doc.internal.pageSize.getWidth();
     
     this.addSectionTitle(doc, 'Dados do Paciente', startY);
@@ -259,7 +290,7 @@ export class ReportGeneratorService {
   /**
    * Adiciona tabela de medicamentos ativos
    */
-  private async addActiveMedications(doc: jsPDF, medications: Medication[], startY: number): Promise<number> {
+  private async addActiveMedications(doc: jsPDF, autoTable: any, medications: Medication[], startY: number): Promise<number> {
     this.addSectionTitle(doc, 'Medicamentos Ativos', startY);
     startY += 10;
 
@@ -318,6 +349,9 @@ export class ReportGeneratorService {
     }
 
     try {
+      // Dynamic import Chart.js for bundle optimization
+      const Chart = await this.getChartJS();
+      
       // Criar canvas temporário para o Chart.js
       const canvas = document.createElement('canvas');
       canvas.width = 800;
@@ -394,7 +428,7 @@ export class ReportGeneratorService {
   /**
    * Adiciona tabela de aderência
    */
-  private async addAdherenceTable(doc: jsPDF, adherenceData: AdherenceData[], startY: number): Promise<number> {
+  private async addAdherenceTable(doc: jsPDF, autoTable: any, adherenceData: AdherenceData[], startY: number): Promise<number> {
     this.addSectionTitle(doc, 'Tabela de Aderência', startY);
     startY += 10;
 
@@ -437,7 +471,7 @@ export class ReportGeneratorService {
   /**
    * Adiciona eventos críticos
    */
-  private async addCriticalEvents(doc: jsPDF, events: CriticalEvent[], startY: number): Promise<number> {
+  private async addCriticalEvents(doc: jsPDF, autoTable: any, events: CriticalEvent[], startY: number): Promise<number> {
     this.addSectionTitle(doc, 'Eventos Críticos', startY);
     startY += 10;
 
@@ -482,7 +516,7 @@ export class ReportGeneratorService {
   /**
    * Adiciona alterações de medicamentos
    */
-  private async addMedicationChanges(doc: jsPDF, changes: MedicationChange[], startY: number): Promise<number> {
+  private async addMedicationChanges(doc: jsPDF, autoTable: any, changes: MedicationChange[], startY: number): Promise<number> {
     this.addSectionTitle(doc, 'Alterações de Medicamentos', startY);
     startY += 10;
 
@@ -525,7 +559,7 @@ export class ReportGeneratorService {
   /**
    * Adiciona observações do cuidador
    */
-  private async addCaregiverNotes(doc: jsPDF, notes: CaregiverNote[], startY: number): Promise<number> {
+  private async addCaregiverNotes(doc: jsPDF, autoTable: any, notes: CaregiverNote[], startY: number): Promise<number> {
     this.addSectionTitle(doc, 'Observações do Cuidador', startY);
     startY += 10;
 
@@ -568,7 +602,7 @@ export class ReportGeneratorService {
   /**
    * Adiciona estatísticas
    */
-  private async addStatistics(doc: jsPDF, statistics: any, startY: number): Promise<number> {
+  private async addStatistics(doc: jsPDF, autoTable: any, statistics: any, startY: number): Promise<number> {
     if (!statistics) return startY;
 
     this.addSectionTitle(doc, 'Estatísticas do Período', startY);

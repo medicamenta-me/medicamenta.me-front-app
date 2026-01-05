@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import {
@@ -32,7 +32,6 @@ import { UserService } from '../../services/user.service';
   selector: 'app-critical-alert-modal',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     IonHeader,
     IonToolbar,
@@ -42,7 +41,7 @@ import { UserService } from '../../services/user.service';
     IonIcon,
     IonList,
     IonItem
-  ],
+],
   template: `
     <ion-header>
       <ion-toolbar [color]="hasCriticalAlerts() ? 'danger' : 'warning'">

@@ -44,23 +44,23 @@ export class UpdateMedicationUseCase {
 
   async execute(command: UpdateMedicationCommand): Promise<UpdateMedicationResult> {
     try {
-      // 1. Load existing medication
-      const existing = await this.repository.findById(command.medicationId, command.userId);
-      
-      if (!existing) {
-        return {
-          success: false,
-          error: 'Medicamento não encontrado'
-        };
-      }
-
-      // 2. Validate input
+      // 1. Validate input first (before loading medication)
       const inputValidation = this.validateInput(command);
       if (!inputValidation.isValid) {
         return {
           success: false,
           validation: inputValidation,
           error: 'Dados inválidos'
+        };
+      }
+
+      // 2. Load existing medication
+      const existing = await this.repository.findById(command.medicationId, command.userId);
+      
+      if (!existing) {
+        return {
+          success: false,
+          error: 'Medicamento não encontrado'
         };
       }
 

@@ -65,12 +65,14 @@ export class RecordDoseUseCase {
 
       // 3. Record dose using domain entity
       let updatedDose;
+      const shouldDecreaseStock = command.decreaseStock ?? (command.status === 'taken');
       
       if (command.status === 'taken') {
         updatedDose = medication.recordDoseTaken(
           command.time,
           command.administeredBy,
-          command.notes
+          command.notes,
+          shouldDecreaseStock
         );
       } else {
         updatedDose = medication.recordDoseMissed(
@@ -87,33 +89,21 @@ export class RecordDoseUseCase {
         };
       }
 
-      // 4. Decrease stock if dose was taken
-      const shouldDecreaseStock = command.decreaseStock ?? (command.status === 'taken');
+      // 4. Check for stock warnings (recordDoseTaken already decreased stock)
       let stockWarning: string | undefined;
 
-      if (shouldDecreaseStock && command.status === 'taken') {
-        try {
-          // Try to decrease stock
-          medication.decreaseStock(1);
+      if (command.status === 'taken') {
+        // Check if stock is low after decrease
+        if (medication.needsRestocking(5)) {
+          const analysis = StockService.analyzeStock(medication);
           
-          // Check if stock is low after decrease
-          if (medication.needsRestocking(5)) {
-            const analysis = StockService.analyzeStock(medication);
-            
-            if (analysis.daysRemaining === 0) {
-              stockWarning = 'Estoque esgotado! Reabastecer urgentemente.';
-            } else if (analysis.daysRemaining && analysis.daysRemaining <= 2) {
-              stockWarning = `Estoque baixo! Restam apenas ${analysis.daysRemaining} dias.`;
-            } else if (analysis.daysRemaining && analysis.daysRemaining <= 5) {
-              stockWarning = `Estoque baixo. Reabastecer em breve (${analysis.daysRemaining} dias restantes).`;
-            }
+          if (analysis.daysRemaining === 0) {
+            stockWarning = 'Estoque esgotado! Reabastecer urgentemente.';
+          } else if (analysis.daysRemaining && analysis.daysRemaining <= 2) {
+            stockWarning = `Estoque baixo! Restam apenas ${analysis.daysRemaining} dias.`;
+          } else if (analysis.daysRemaining && analysis.daysRemaining <= 5) {
+            stockWarning = `Estoque baixo. Reabastecer em breve (${analysis.daysRemaining} dias restantes).`;
           }
-        } catch (error) {
-          // Stock decrease failed (probably insufficient stock)
-          // Record the dose anyway but return warning
-          stockWarning = error instanceof Error 
-            ? error.message 
-            : 'Não foi possível diminuir o estoque';
         }
       }
 

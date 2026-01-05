@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { 
   IonSegment, 
   IonSegmentButton, 
@@ -16,16 +16,16 @@ import { ProfileTypeService } from '../../services/profile-type.service';
   selector: 'app-profile-type-switcher',
   standalone: true,
   imports: [
-    CommonModule,
     IonSegment,
     IonSegmentButton,
     IonLabel,
     IonIcon,
     IonChip,
     TranslateModule
-  ],
+],
   template: `
-    <div class="profile-switcher" *ngIf="profileTypeService.canSwitchProfile()">
+    @if (profileTypeService.canSwitchProfile()) {
+<div class="profile-switcher">
       <ion-segment 
         [value]="profileTypeService.activeProfileType()" 
         (ionChange)="onProfileTypeChange($event)"
@@ -49,13 +49,16 @@ import { ProfileTypeService } from '../../services/profile-type.service';
         </ion-chip>
       </div>
     </div>
+}
 
-    <div class="single-mode-message" *ngIf="!profileTypeService.canSwitchProfile()">
+    @if (!profileTypeService.canSwitchProfile()) {
+<div class="single-mode-message">
       <ion-chip color="medium">
         <ion-icon name="person-outline"></ion-icon>
         <ion-label>{{ 'PROFILE_TYPE.PATIENT_MODE_ONLY' | translate }}</ion-label>
       </ion-chip>
     </div>
+}
   `,
   styles: [`
     .profile-switcher {

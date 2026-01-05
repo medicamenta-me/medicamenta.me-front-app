@@ -1,5 +1,5 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import {
@@ -13,11 +13,10 @@ import { StockAlert } from '../../services/stock.service';
   selector: 'app-stock-alert-banner',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     RouterModule,
     IonIcon
-  ],
+],
   template: `
     @if (alerts.length > 0 && !isDismissed) {
       <div class="stock-alert-banner" [class]="'alert-' + getMostCriticalStatus()">

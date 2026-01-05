@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ViewChild, signal, inject } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { 
@@ -28,7 +28,6 @@ import { TermsOfUse } from '../../models/terms-of-use.model';
   styleUrls: ['./terms-acceptance-modal.component.css'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     IonHeader,
@@ -40,22 +39,20 @@ import { TermsOfUse } from '../../models/terms-of-use.model';
     IonSpinner,
     IonIcon,
     IonText
-  ]
+]
 })
-export class TermsAcceptanceModalComponent implements OnInit {
+export class TermsAcceptanceModalComponent {
+  private modalController = inject(ModalController);
+
   @ViewChild('termsContent', { static: false }) termsContent: any;
 
   terms = signal<TermsOfUse | null>(null);
   hasScrolledToBottom = signal(false);
   acceptanceChecked = signal(false);
   isAccepting = signal(false);
-  
-  constructor(private modalController: ModalController) {
-    addIcons({ closeCircleOutline, checkmarkCircleOutline, alertCircleOutline });
-  }
 
-  ngOnInit() {
-    // Terms will be set via setTerms() method from parent
+  constructor() {
+    addIcons({ closeCircleOutline, checkmarkCircleOutline, alertCircleOutline });
   }
 
   /**
@@ -82,7 +79,6 @@ export class TermsAcceptanceModalComponent implements OnInit {
     const isAtBottom = (scrollTop + clientHeight) >= (scrollHeight - threshold);
     
     if (isAtBottom && !this.hasScrolledToBottom()) {
-      console.log('✅ User has scrolled to bottom of terms');
       this.hasScrolledToBottom.set(true);
     }
   }

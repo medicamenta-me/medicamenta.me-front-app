@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { HeatmapService } from '../../services/heatmap.service';
 
@@ -11,7 +11,7 @@ import { HeatmapService } from '../../services/heatmap.service';
 @Component({
   selector: 'app-heatmap-debug',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     @if (isVisible()) {
       <div class="heatmap-debug-panel">

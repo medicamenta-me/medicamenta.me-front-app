@@ -19,6 +19,7 @@ import {
   IonSegmentButton,
   IonLabel,
   IonButton,
+  IonSearchbar,
   AlertController,
   ToastController,
   ActionSheetController
@@ -71,8 +72,22 @@ interface MedicationGroup {
       </ion-segment>
 
       @if (activeTab() === 'active') {
+        <!-- Search Bar -->
         @if (medicationGroups().length > 0) {
-          @for (group of medicationGroups(); track group.patient.id) {
+          <div class="search-wrapper">
+            <ion-searchbar 
+              data-cy="search-input"
+              [value]="searchQuery()"
+              (ionInput)="searchQuery.set($any($event).target.value)"
+              [placeholder]="'MEDICATIONS.SEARCH_PLACEHOLDER' | translate"
+              [attr.aria-label]="'MEDICATIONS.SEARCH' | translate">
+            </ion-searchbar>
+          </div>
+        }
+        
+        @if (filteredMedicationGroups().length > 0) {
+          <div data-cy="medication-list">
+          @for (group of filteredMedicationGroups(); track group.patient.id) {
             <div class="patient-group">
               <div class="patient-header">
                 <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
@@ -80,7 +95,7 @@ interface MedicationGroup {
               </div>
               
               @for (med of group.medications; track med.id) {
-                <div class="medication-card" role="button" tabindex="0">
+                <div class="medication-card" data-cy="medication-item" role="button" tabindex="0">
                   <div class="medication-main" [routerLink]="['/medication', med.id]">
                     <div class="medication-icon" [class.low-stock]="med.stock <= 5">
                       <ion-icon name="medical" aria-hidden="true"></ion-icon>
@@ -114,14 +129,15 @@ interface MedicationGroup {
               }
             </div>
           }
+          </div>
         } @else {
-          <div class="empty-state-accessible">
+          <div class="empty-state-accessible" data-cy="empty-state">
             <ion-icon name="medical-outline" aria-hidden="true"></ion-icon>
             <h3>{{ 'MEDICATIONS.NO_MEDICATIONS' | translate }}</h3>
             <p>{{ 'MEDICATIONS.NO_MEDICATIONS_DESC' | translate }}</p>
           </div>
         }
-      } @else {
+      } @else if (activeTab() === 'archived') {
         <!-- Phase B: Archived medications tab -->
         
         <!-- Statistics and Actions Bar -->
@@ -182,7 +198,7 @@ interface MedicationGroup {
             </div>
             
             <div class="filter-group">
-              <label>{{ 'MEDICATIONS.PERIOD' | translate }}</label>
+              <div class="section-label" role="heading" aria-level="3">{{ 'MEDICATIONS.PERIOD' | translate }}</div>
               <div class="filter-buttons">
                 <ion-button [fill]="archivedDateFilter() === 'all' ? 'solid' : 'outline'" size="small" (click)="setDateFilter('all')">
                   {{ 'MEDICATIONS.ALL' | translate }}
@@ -201,7 +217,7 @@ interface MedicationGroup {
 
             @if (patients().length > 1) {
               <div class="filter-group">
-                <label>{{ 'MEDICATIONS.PATIENT' | translate }}</label>
+                <div class="section-label" role="heading" aria-level="3">{{ 'MEDICATIONS.PATIENT' | translate }}</div>
                 <div class="filter-buttons">
                   <ion-button [fill]="archivedPatientFilter() === null ? 'solid' : 'outline'" size="small" (click)="setPatientFilter(null)">
                     {{ 'MEDICATIONS.ALL_PATIENTS' | translate }}
@@ -309,7 +325,7 @@ interface MedicationGroup {
 
       @if (canRegister()) {
         <div class="fab-button-container">
-          <button class="accessible-fab" routerLink="/medication/new" [attr.aria-label]="'MEDICATIONS.ADD' | translate">
+          <button class="accessible-fab" data-cy="add-medication" routerLink="/medication/new" [attr.aria-label]="'MEDICATIONS.ADD' | translate">
             <ion-icon name="add" aria-hidden="true"></ion-icon>
             <span>{{ 'MEDICATIONS.ADD' | translate }}</span>
           </button>
@@ -331,6 +347,7 @@ interface MedicationGroup {
     IonSegmentButton,
     IonLabel,
     IonButton,
+    IonSearchbar,
     TranslateModule,
     PersistentAlertBannerComponent
   ],
@@ -352,6 +369,9 @@ export class MedicationsComponent {
   // Phase B: Tab control for active/archived medications
   public readonly activeTab = signal<'active' | 'archived' | 'completed'>('active');
 
+  // Search functionality
+  public readonly searchQuery = signal<string>('');
+
   // Phase B Enhancement: Filters for archived medications
   public readonly archivedDateFilter = signal<'all' | 'week' | 'month' | 'year'>('all');
   public readonly archivedPatientFilter = signal<string | null>(null);
@@ -359,6 +379,7 @@ export class MedicationsComponent {
   public readonly showStats = signal(false);
 
   public readonly medicationGroups: Signal<MedicationGroup[]>;
+  public readonly filteredMedicationGroups: Signal<MedicationGroup[]>;
   public readonly archivedMedicationGroups: Signal<MedicationGroup[]>;
   public readonly completedMedicationGroups: Signal<MedicationGroup[]>;
   public readonly filteredArchivedGroups: Signal<MedicationGroup[]>;
@@ -400,8 +421,8 @@ export class MedicationsComponent {
 
       if (!medications || !patients) return [];
 
-      // Group active medications by patient (Phase B: exclude archived)
-      const activeMeds = medications.filter(m => !m.isArchived);
+      // Group active medications by patient (Phase B: exclude archived and completed)
+      const activeMeds = medications.filter(m => !m.isArchived && !m.isCompleted);
       const grouped = activeMeds.reduce((acc, med) => {
         const patientId = med.patientId;
         if (!acc[patientId]) {
@@ -416,6 +437,23 @@ export class MedicationsComponent {
         patient: patients.find(p => p.id === patientId)!,
         medications: meds,
       })).filter(group => group.patient);
+    });
+
+    // Filtered medications (search functionality)
+    this.filteredMedicationGroups = computed(() => {
+      const groups = this.medicationGroups();
+      const query = this.searchQuery().toLowerCase().trim();
+
+      if (!query) return groups;
+
+      return groups.map(group => ({
+        ...group,
+        medications: group.medications.filter(med =>
+          med.name.toLowerCase().includes(query) ||
+          med.dosage.toLowerCase().includes(query) ||
+          (med.frequency && med.frequency.toLowerCase().includes(query))
+        )
+      })).filter(group => group.medications.length > 0);
     });
 
     // Phase B: Archived medications grouped by patient

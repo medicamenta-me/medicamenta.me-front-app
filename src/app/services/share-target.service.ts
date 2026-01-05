@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LogService } from './log.service';
 
@@ -36,6 +36,8 @@ export interface ShareTargetStats {
   providedIn: 'root'
 })
 export class ShareTargetService {
+  private router = inject(Router);
+
   private readonly logService = new LogService();
   
   private readonly _pendingShare = signal<SharedData | null>(null);
@@ -53,7 +55,7 @@ export class ShareTargetService {
   readonly pendingShare = this._pendingShare.asReadonly();
   readonly stats = this._stats.asReadonly();
 
-  constructor(private router: Router) {
+  constructor() {
     this.loadStats();
   }
 

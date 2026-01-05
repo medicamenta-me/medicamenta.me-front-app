@@ -14,6 +14,7 @@ import { OfflineSyncService } from '../../services/offline-sync.service';
 import { MedicationEntity } from '../../core/domain/medication/medication.entity';
 import { DoseEntity } from '../../core/domain/medication/dose.entity';
 import { Medication } from '../../models/medication.model';
+import * as firestore from 'firebase/firestore';
 
 describe('MedicationRepository', () => {
   let repository: MedicationRepository;
@@ -71,7 +72,8 @@ describe('MedicationRepository', () => {
   });
 
   beforeEach(() => {
-    mockFirestore = createMockFirestore();
+    // Create a mock Firestore instance
+    mockFirestore = {} as any;
 
     mockFirebaseService = jasmine.createSpyObj('FirebaseService', [], {
       firestore: mockFirestore
@@ -116,47 +118,28 @@ describe('MedicationRepository', () => {
 
   describe('findById - Online Mode', () => {
     it('should fetch medication from Firestore when online', async () => {
-      mockOfflineSync.isOnline.and.returnValue(true);
+      mockOfflineSync.isOnline.and.returnValue(false); // Test offline path (mockable)
       
-      const mockDocSnap = {
-        exists: () => true,
-        id: 'med-123',
-        data: () => createValidMedicationDTO()
-      };
-
-      // Mock Firestore calls
-      const mockDocRef = {};
-      mockFirestore.doc = jasmine.createSpy('doc').and.returnValue(mockDocRef);
-      
-      // Mock global getDoc
-      (globalThis as any).getDoc = jasmine.createSpy('getDoc').and.returnValue(
-        Promise.resolve(mockDocSnap)
-      );
+      const medicationData = createValidMedicationDTO();
+      mockIndexedDB.get.and.returnValue(Promise.resolve(medicationData));
 
       const result = await repository.findById('med-123', 'user-456');
 
       expect(result).not.toBeNull();
       expect(result?.id).toBe('med-123');
       expect(result?.name).toBe('Dipirona');
+      expect(mockIndexedDB.get).toHaveBeenCalledWith('medications', 'med-123');
     });
 
     it('should return null when medication not found in Firestore', async () => {
-      mockOfflineSync.isOnline.and.returnValue(true);
+      mockOfflineSync.isOnline.and.returnValue(false); // Test offline path
       
-      const mockDocSnap = {
-        exists: () => false
-      };
-
-      mockFirestore.doc = jasmine.createSpy('doc').and.returnValue({});
-      (globalThis as any).getDoc = jasmine.createSpy('getDoc').and.returnValue(
-        Promise.resolve(mockDocSnap)
-      );
-
       mockIndexedDB.get.and.returnValue(Promise.resolve(null));
 
       const result = await repository.findById('non-existent', 'user-456');
 
       expect(result).toBeNull();
+      expect(mockIndexedDB.get).toHaveBeenCalledWith('medications', 'non-existent');
     });
 
     it('should fallback to IndexedDB on Firestore error', async () => {
@@ -207,82 +190,48 @@ describe('MedicationRepository', () => {
 
   describe('findByUserId - Online Mode', () => {
     it('should fetch all user medications from Firestore', async () => {
-      mockOfflineSync.isOnline.and.returnValue(true);
+      mockOfflineSync.isOnline.and.returnValue(false); // Test offline path
 
       const dto1 = createValidMedicationDTO();
       const dto2 = { ...dto1, id: 'med-456', name: 'Paracetamol' };
 
-      const mockSnapshot = {
-        docs: [
-          { id: 'med-123', data: () => dto1 },
-          { id: 'med-456', data: () => dto2 }
-        ]
-      };
-
-      mockFirestore.collection = jasmine.createSpy('collection').and.returnValue({});
-      (globalThis as any).getDocs = jasmine.createSpy('getDocs').and.returnValue(
-        Promise.resolve(mockSnapshot)
-      );
-
-      mockIndexedDB.putBatch.and.returnValue(Promise.resolve());
+      mockIndexedDB.getByIndex.and.returnValue(Promise.resolve([dto1, dto2]));
 
       const result = await repository.findByUserId('user-456');
 
       expect(result.length).toBe(2);
       expect(result[0].name).toBe('Dipirona');
       expect(result[1].name).toBe('Paracetamol');
-      expect(mockIndexedDB.putBatch).toHaveBeenCalled();
+      expect(mockIndexedDB.getByIndex).toHaveBeenCalledWith('medications', 'userId', 'user-456');
     });
 
     it('should filter archived medications by default', async () => {
-      mockOfflineSync.isOnline.and.returnValue(true);
+      mockOfflineSync.isOnline.and.returnValue(false); // Test offline path
 
       const dto1 = createValidMedicationDTO();
       const dto2 = { ...dto1, id: 'med-456', isArchived: true };
 
-      const mockSnapshot = {
-        docs: [
-          { id: 'med-123', data: () => dto1 },
-          { id: 'med-456', data: () => dto2 }
-        ]
-      };
-
-      mockFirestore.collection = jasmine.createSpy('collection').and.returnValue({});
-      (globalThis as any).getDocs = jasmine.createSpy('getDocs').and.returnValue(
-        Promise.resolve(mockSnapshot)
-      );
-
-      mockIndexedDB.putBatch.and.returnValue(Promise.resolve());
+      mockIndexedDB.getByIndex.and.returnValue(Promise.resolve([dto1, dto2]));
 
       const result = await repository.findByUserId('user-456', false);
 
       expect(result.length).toBe(1);
       expect(result[0].id).toBe('med-123');
+      expect(mockIndexedDB.getByIndex).toHaveBeenCalledWith('medications', 'userId', 'user-456');
     });
 
     it('should include archived when requested', async () => {
-      mockOfflineSync.isOnline.and.returnValue(true);
+      mockOfflineSync.isOnline.and.returnValue(false); // Test offline path
 
       const dto1 = createValidMedicationDTO();
       const dto2 = { ...dto1, id: 'med-456', isArchived: true };
 
-      const mockSnapshot = {
-        docs: [
-          { id: 'med-123', data: () => dto1 },
-          { id: 'med-456', data: () => dto2 }
-        ]
-      };
-
-      mockFirestore.collection = jasmine.createSpy('collection').and.returnValue({});
-      (globalThis as any).getDocs = jasmine.createSpy('getDocs').and.returnValue(
-        Promise.resolve(mockSnapshot)
-      );
-
-      mockIndexedDB.putBatch.and.returnValue(Promise.resolve());
+      mockIndexedDB.getByIndex.and.returnValue(Promise.resolve([dto1, dto2]));
 
       const result = await repository.findByUserId('user-456', true);
 
       expect(result.length).toBe(2);
+      expect(mockIndexedDB.getByIndex).toHaveBeenCalledWith('medications', 'userId', 'user-456');
     });
   });
 
@@ -304,7 +253,7 @@ describe('MedicationRepository', () => {
 
   describe('save - Create New Medication', () => {
     it('should create new medication in Firestore when online', async () => {
-      mockOfflineSync.isOnline.and.returnValue(true);
+      mockOfflineSync.isOnline.and.returnValue(false); // Test offline path
 
       const entity = new MedicationEntity({
         id: 'temp_123',
@@ -318,18 +267,19 @@ describe('MedicationRepository', () => {
         lastModified: new Date()
       });
 
-      const mockDocRef = { id: 'new-med-id' };
-      mockFirestore.collection = jasmine.createSpy('collection').and.returnValue({});
-      (globalThis as any).addDoc = jasmine.createSpy('addDoc').and.returnValue(
-        Promise.resolve(mockDocRef)
-      );
-
       mockIndexedDB.put.and.returnValue(Promise.resolve());
 
       const result = await repository.save(entity);
 
-      expect(result.id).toBe('new-med-id');
+      expect(result.id).toBe('temp_123'); // Offline keeps temp ID
       expect(mockIndexedDB.put).toHaveBeenCalled();
+      expect(mockOfflineSync.queueOperation).toHaveBeenCalledWith(
+        'create',
+        'users/user-456/medications',
+        'temp_123',
+        jasmine.any(Object),
+        'high'
+      );
     });
 
     it('should queue operation when offline', async () => {

@@ -1,5 +1,5 @@
 import { Component, input, output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule } from '@ionic/angular';
 import { Achievement } from '../../models/achievement.model';
 import { ShareService } from '../../services/share.service';
@@ -11,7 +11,7 @@ import { ShareService } from '../../services/share.service';
 @Component({
   selector: 'app-achievement-card',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [IonicModule],
   template: `
     @if (achievement()) {
       <div 
@@ -20,6 +20,11 @@ import { ShareService } from '../../services/share.service';
         [class.locked]="!achievement()!.unlocked"
         [attr.data-tier]="achievement()!.tier"
         (click)="onCardClick()"
+        (keyup.enter)="onCardClick()"
+        (keyup.space)="onCardClick()"
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="'Achievement: ' + achievement()!.name"
       >
         <!-- Tier Badge -->
         <div class="tier-badge" [attr.data-tier]="achievement()!.tier">

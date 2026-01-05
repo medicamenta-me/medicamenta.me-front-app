@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -12,11 +12,11 @@ import {
   IonInput,
   IonButton,
   IonIcon,
-  IonSpinner,
-  ToastController
+  IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { mailOutline, lockClosedOutline } from 'ionicons/icons';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -43,6 +43,7 @@ import { mailOutline, lockClosedOutline } from 'ionicons/icons';
               </label>
               <ion-input 
                 id="email-input"
+                data-cy="email-input"
                 class="accessible-input"
                 type="email" 
                 formControlName="email" 
@@ -60,6 +61,7 @@ import { mailOutline, lockClosedOutline } from 'ionicons/icons';
               </label>
               <ion-input 
                 id="password-input"
+                data-cy="password-input"
                 class="accessible-input"
                 type="password" 
                 formControlName="password" 
@@ -77,6 +79,7 @@ import { mailOutline, lockClosedOutline } from 'ionicons/icons';
             </div>
 
             <ion-button 
+              data-cy="login-button"
               expand="block" 
               type="submit" 
               color="primary" 
@@ -108,7 +111,6 @@ import { mailOutline, lockClosedOutline } from 'ionicons/icons';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     IonHeader,
@@ -120,13 +122,13 @@ import { mailOutline, lockClosedOutline } from 'ionicons/icons';
     IonIcon,
     IonSpinner,
     TranslateModule
-  ],
+],
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly toastController = inject(ToastController);
+  private readonly toastService = inject(ToastService);
   private readonly translateService = inject(TranslateService);
 
   loginForm: FormGroup;
@@ -147,20 +149,12 @@ export class LoginComponent {
     this.loading.set(true);
     try {
       const { email, password } = this.loginForm.value;
-      console.log('[LoginComponent] Attempting login...');
       await this.authService.login(email, password);
-      console.log('[LoginComponent] Login successful, navigating to /tabs');
       // Navigate to tabs, let onboardingGuard redirect to /onboarding if needed
       await this.router.navigate(['/tabs']);
-      console.log('[LoginComponent] Navigation complete');
     } catch (error) {
       console.error('[LoginComponent] Login error:', error);
-      const toast = await this.toastController.create({
-        message: this.translateService.instant('AUTH.LOGIN_ERROR'),
-        duration: 3000,
-        color: 'danger',
-      });
-      await toast.present();
+      await this.toastService.showError('AUTH.LOGIN_ERROR');
     } finally {
       this.loading.set(false);
     }

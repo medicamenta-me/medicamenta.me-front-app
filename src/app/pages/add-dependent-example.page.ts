@@ -6,7 +6,7 @@
  */
 
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -32,12 +32,11 @@ interface DependentLimitInfo {
   selector: 'app-add-dependent-example',
   standalone: true,
   imports: [
-    CommonModule,
     IonicModule,
     ReactiveFormsModule,
     HasFeatureDirective,
-    IsPremiumDirective,
-  ],
+    IsPremiumDirective
+],
   template: `
     <ion-header>
       <ion-toolbar color="primary">
@@ -58,29 +57,36 @@ interface DependentLimitInfo {
 
         <ion-card-content>
           <!-- Progress bar (only if not unlimited) -->
-          <ion-progress-bar 
-            *ngIf="!limitInfo().isUnlimited"
+          @if (!limitInfo().isUnlimited) {
+<ion-progress-bar 
+           
             [value]="limitInfo().percentage / 100"
             [color]="getProgressColor()">
           </ion-progress-bar>
+}
 
           <!-- Unlimited badge -->
-          <ion-badge *ngIf="limitInfo().isUnlimited" color="success">
+          @if (limitInfo().isUnlimited) {
+<ion-badge color="success">
             <ion-icon name="infinite"></ion-icon>
             Ilimitado
           </ion-badge>
+}
 
           <!-- Warning if near limit -->
-          <ion-note 
-            *ngIf="!limitInfo().isUnlimited && limitInfo().percentage >= 80"
+          @if (!limitInfo().isUnlimited && limitInfo().percentage >= 80) {
+<ion-note 
+           
             color="warning"
             class="ion-margin-top ion-text-center">
             <ion-icon name="warning"></ion-icon>
             Você está próximo do limite!
           </ion-note>
+}
 
           <!-- Upgrade prompt if at limit -->
-          <div *ngIf="!limitInfo().canAddMore" class="upgrade-prompt">
+          @if (!limitInfo().canAddMore) {
+<div class="upgrade-prompt">
             <ion-icon name="lock-closed" color="warning"></ion-icon>
             <p>Limite atingido!</p>
             <ion-button 
@@ -91,6 +97,7 @@ interface DependentLimitInfo {
               Fazer Upgrade
             </ion-button>
           </div>
+}
         </ion-card-content>
       </ion-card>
 
@@ -199,7 +206,8 @@ interface DependentLimitInfo {
       <!-- Current Dependents List (Premium Feature) -->
       <div *isPremium>
         <h2 class="ion-padding-start">Dependentes Cadastrados</h2>
-        <ion-card *ngFor="let dependent of mockDependents">
+        @for (dependent of mockDependents; track dependent) {
+<ion-card>
           <ion-item>
             <ion-avatar slot="start">
               <ion-icon name="person-circle"></ion-icon>
@@ -213,6 +221,7 @@ interface DependentLimitInfo {
             </ion-button>
           </ion-item>
         </ion-card>
+}
       </div>
     </ion-content>
   `,
@@ -404,17 +413,14 @@ export class AddDependentExamplePage {
 
   private async saveDependentToDatabase(dependentData: any): Promise<void> {
     // In real app, save to Firestore
-    console.log('Saving dependent:', dependentData);
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
   private async showSuccessToast() {
     // Toast implementation
-    console.log('Dependente adicionado com sucesso!');
   }
 
   private async showErrorToast() {
     // Toast implementation
-    console.log('Erro ao adicionar dependente');
   }
 }

@@ -41,9 +41,9 @@ describe('DoseEntity', () => {
     });
 
     it('should throw error for invalid time format', () => {
-      expect(() => new DoseEntity('25:00', 'upcoming')).toThrow();
-      expect(() => new DoseEntity('08:60', 'upcoming')).toThrow();
-      expect(() => new DoseEntity('', 'upcoming')).toThrow();
+      expect(() => new DoseEntity('25:00', 'upcoming')).toThrowError();
+      expect(() => new DoseEntity('08:60', 'upcoming')).toThrowError();
+      expect(() => new DoseEntity('', 'upcoming')).toThrowError();
     });
   });
 
@@ -81,7 +81,7 @@ describe('DoseEntity', () => {
     it('should throw error when marking already taken dose', () => {
       const dose = new DoseEntity('08:00', 'taken', adminUser);
 
-      expect(() => dose.markAsTaken(adminUser)).toThrow();
+      expect(() => dose.markAsTaken(adminUser)).toThrowError();
     });
   });
 
@@ -119,13 +119,13 @@ describe('DoseEntity', () => {
     it('should throw error when marking already missed dose', () => {
       const dose = new DoseEntity('08:00', 'missed', adminUser);
 
-      expect(() => dose.markAsMissed(adminUser)).toThrow();
+      expect(() => dose.markAsMissed(adminUser)).toThrowError();
     });
 
     it('should throw error when marking taken dose as missed', () => {
       const dose = new DoseEntity('08:00', 'taken', adminUser);
 
-      expect(() => dose.markAsMissed(adminUser)).toThrow();
+      expect(() => dose.markAsMissed(adminUser)).toThrowError();
     });
   });
 

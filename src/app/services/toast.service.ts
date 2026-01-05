@@ -34,33 +34,37 @@ export class ToastService {
       color: 'success',
       duration: 3000,
       icon: 'checkmark-circle'
-    });
+    }, 'success');
   }
 
   /**
    * Show an error toast
    */
   async showError(messageKey: string, params?: any): Promise<void> {
-    const message = this.translate.instant(messageKey, params);
+    const message = params !== undefined 
+      ? this.translate.instant(messageKey, params)
+      : this.translate.instant(messageKey);
     await this.show({
       message,
       color: 'danger',
       duration: 5000,
       icon: 'close-circle'
-    });
+    }, 'error');
   }
 
   /**
    * Show a warning toast
    */
   async showWarning(messageKey: string, params?: any): Promise<void> {
-    const message = this.translate.instant(messageKey, params);
+    const message = params !== undefined 
+      ? this.translate.instant(messageKey, params)
+      : this.translate.instant(messageKey);
     await this.show({
       message,
       color: 'warning',
       duration: 4000,
       icon: 'warning'
-    });
+    }, 'warning');
   }
 
   /**
@@ -73,7 +77,7 @@ export class ToastService {
       color: 'primary',
       duration: 3000,
       icon: 'information-circle'
-    });
+    }, 'info');
   }
 
   /**
@@ -123,10 +127,24 @@ export class ToastService {
   /**
    * Show generic toast with custom options
    */
-  async show(options: ToastOptions): Promise<void> {
+  async show(options: ToastOptions, type?: 'success' | 'error' | 'info' | 'warning'): Promise<void> {
+    // Determine cssClass based on type for Cypress testing
+    let cssClass = 'custom-toast';
+    if (type) {
+      cssClass = `${type}-toast`;
+    } else if (options.color === 'success') {
+      cssClass = 'success-toast';
+    } else if (options.color === 'danger') {
+      cssClass = 'error-toast';
+    } else if (options.color === 'warning') {
+      cssClass = 'warning-toast';
+    } else if (options.color === 'primary') {
+      cssClass = 'info-toast';
+    }
+
     const toast = await this.toastController.create({
       message: options.message,
-      duration: options.duration || 3000,
+      duration: options.duration ?? 3000,
       color: options.color || 'dark',
       position: options.position || 'bottom',
       icon: options.icon,
@@ -136,10 +154,49 @@ export class ToastService {
           role: 'cancel'
         }
       ],
-      cssClass: 'custom-toast'
+      cssClass
     });
 
     await toast.present();
+  }
+
+  /**
+   * Alias methods for direct usage (Cypress compatibility)
+   */
+  async success(message: string, duration = 3000): Promise<void> {
+    await this.show({
+      message,
+      color: 'success',
+      duration,
+      icon: 'checkmark-circle'
+    }, 'success');
+  }
+
+  async error(message: string, duration = 4000): Promise<void> {
+    await this.show({
+      message,
+      color: 'danger',
+      duration,
+      icon: 'close-circle'
+    }, 'error');
+  }
+
+  async info(message: string, duration = 3000): Promise<void> {
+    await this.show({
+      message,
+      color: 'primary',
+      duration,
+      icon: 'information-circle'
+    }, 'info');
+  }
+
+  async warning(message: string, duration = 3500): Promise<void> {
+    await this.show({
+      message,
+      color: 'warning',
+      duration,
+      icon: 'warning'
+    }, 'warning');
   }
 
   /**

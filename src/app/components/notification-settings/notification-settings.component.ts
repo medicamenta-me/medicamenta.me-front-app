@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationSchedulerService } from '../../services/notification-scheduler.service';
@@ -44,7 +44,6 @@ import {
   selector: 'app-notification-settings',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     IonCard,
@@ -58,7 +57,7 @@ import {
     IonLabel,
     IonSelect,
     IonSelectOption
-  ],
+],
   template: `
     <ion-card class="notification-settings-card">
       <ion-card-header>

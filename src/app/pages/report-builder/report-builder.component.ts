@@ -287,8 +287,6 @@ export class ReportBuilderPage implements OnInit {
         timestamp: doc.data()['timestamp']?.toDate() || new Date()
       }));
 
-      console.log(`[ReportBuilder] Carregados ${logs.length} logs para análise de aderência`);
-
       // Buscar medicações ativas no período
       const medications = this.medicationService.medications();
       const activeMeds = medications.filter((m: Medication) => !m.isArchived && !m.isCompleted);
@@ -331,7 +329,6 @@ export class ReportBuilderPage implements OnInit {
         });
       }
 
-      console.log(`[ReportBuilder] Calculados ${data.length} dias de aderência`);
       return data;
 
     } catch (error) {
@@ -380,7 +377,6 @@ export class ReportBuilderPage implements OnInit {
         }
       });
 
-      console.log(`[ReportBuilder] Encontrados ${events.length} eventos críticos`);
       return events;
 
     } catch (error) {
@@ -434,7 +430,6 @@ export class ReportBuilderPage implements OnInit {
         }
       });
 
-      console.log(`[ReportBuilder] Encontradas ${changes.length} mudanças de medicamentos`);
       return changes;
 
     } catch (error) {
@@ -480,7 +475,6 @@ export class ReportBuilderPage implements OnInit {
         }
       });
 
-      console.log(`[ReportBuilder] Encontradas ${notes.length} observações de cuidadores`);
       return notes;
 
     } catch (error) {

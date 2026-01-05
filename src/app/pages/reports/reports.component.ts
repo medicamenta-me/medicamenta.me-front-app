@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -47,7 +47,6 @@ import { ReportGeneratorService, ReportConfig } from '../../services/report-gene
   styleUrls: ['./reports.component.css'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     IonHeader,
     IonToolbar,
@@ -72,7 +71,7 @@ import { ReportGeneratorService, ReportConfig } from '../../services/report-gene
     IonSegmentButton,
     IonBadge,
     TranslateModule
-  ]
+]
 })
 export class ReportsComponent {
   private readonly insightsService = inject(InsightsService);

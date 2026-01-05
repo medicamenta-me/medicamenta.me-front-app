@@ -15,6 +15,10 @@ import {
 import { AuthService } from './auth.service';
 import { IndexedDBService } from './indexed-db.service';
 import { ToastService } from './toast.service';
+import { LogService } from './log.service';
+import { AnalyticsService } from './analytics.service';
+import { PatientSelectorService } from './patient-selector.service';
+import { UserService } from './user.service';
 
 describe('OfflineSyncService', () => {
   let service: OfflineSyncService;
@@ -54,12 +58,22 @@ describe('OfflineSyncService', () => {
 
     mockToastService = jasmine.createSpyObj('ToastService', ['show', 'showOnline', 'showOffline']);
 
+    // Create mocks for circular dependency chain
+    const mockLogService = jasmine.createSpyObj('LogService', ['debug', 'info', 'warn', 'error', 'log']);
+    const mockAnalyticsService = jasmine.createSpyObj('AnalyticsService', ['logEvent', 'setUserProperties']);
+    const mockPatientSelectorService = jasmine.createSpyObj('PatientSelectorService', ['getSelectedPatientId']);
+    const mockUserService = jasmine.createSpyObj('UserService', ['getCurrentUser', 'updateUser']);
+
     TestBed.configureTestingModule({
       providers: [
         OfflineSyncService,
         { provide: AuthService, useValue: mockAuthService },
         { provide: IndexedDBService, useValue: mockIndexedDBService },
-        { provide: ToastService, useValue: mockToastService }
+        { provide: ToastService, useValue: mockToastService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: AnalyticsService, useValue: mockAnalyticsService },
+        { provide: PatientSelectorService, useValue: mockPatientSelectorService },
+        { provide: UserService, useValue: mockUserService }
       ]
     });
 

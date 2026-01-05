@@ -20,7 +20,7 @@ import { SubscriptionPlan } from '../models/subscription.model';
  * </ng-template>
  */
 @Directive({
-  selector: '[hasFeature]',
+  selector: '[appHasFeature]',
   standalone: true
 })
 export class HasFeatureDirective implements OnInit, OnDestroy {
@@ -74,7 +74,7 @@ export class HasFeatureDirective implements OnInit, OnDestroy {
  * </div>
  */
 @Directive({
-  selector: '[requiresPlan]',
+  selector: '[appRequiresPlan]',
   standalone: true
 })
 export class RequiresPlanDirective implements OnInit, OnDestroy {
@@ -129,7 +129,7 @@ export class RequiresPlanDirective implements OnInit, OnDestroy {
  * </div>
  */
 @Directive({
-  selector: '[featureLocked]',
+  selector: '[appFeatureLocked]',
   standalone: true
 })
 export class FeatureLockedDirective implements OnInit, OnDestroy {
@@ -177,7 +177,7 @@ export class FeatureLockedDirective implements OnInit, OnDestroy {
  * </div>
  */
 @Directive({
-  selector: '[isPremium]',
+  selector: '[appIsPremium]',
   standalone: true
 })
 export class IsPremiumDirective implements OnInit, OnDestroy {
@@ -231,7 +231,7 @@ export class IsPremiumDirective implements OnInit, OnDestroy {
  * </div>
  */
 @Directive({
-  selector: '[isFamily]',
+  selector: '[appIsFamily]',
   standalone: true
 })
 export class IsFamilyDirective implements OnInit, OnDestroy {

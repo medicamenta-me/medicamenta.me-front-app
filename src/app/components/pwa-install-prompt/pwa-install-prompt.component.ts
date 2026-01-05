@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule } from '@ionic/angular';
 import { PwaInstallService } from '../../services/pwa-install.service';
 
@@ -12,10 +12,10 @@ import { PwaInstallService } from '../../services/pwa-install.service';
 @Component({
   selector: 'app-pwa-install-prompt',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [IonicModule],
   template: `
     @if (shouldShow()) {
-      <div class="install-prompt-banner" [@slideIn]>
+      <div class="install-prompt-banner">
         <div class="install-prompt-content">
           <!-- Ícone -->
           <div class="install-prompt-icon">
@@ -47,7 +47,7 @@ import { PwaInstallService } from '../../services/pwa-install.service';
     }
     
     @if (showIOSInstructions()) {
-      <div class="ios-install-modal" [@fadeIn]>
+      <div class="ios-install-modal">
         <div class="ios-install-content">
           <div class="ios-install-header">
             <h2>Instalar no iOS</h2>
@@ -304,11 +304,7 @@ export class PwaInstallPromptComponent implements OnInit {
       // Android/Desktop - mostrar prompt nativo
       const result = await this.pwaInstall.showInstallPrompt();
       
-      if (result === 'accepted') {
-        console.log('[PWA Install] User accepted installation');
-        this.visible.set(false);
-      } else if (result === 'dismissed') {
-        console.log('[PWA Install] User dismissed installation');
+      if (result === 'accepted' || result === 'dismissed') {
         this.visible.set(false);
       }
     }

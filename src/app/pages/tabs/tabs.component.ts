@@ -10,22 +10,22 @@ import { listOutline, personOutline, homeOutline, newspaperOutline } from 'ionic
     <ion-tabs>
       <ion-tab-bar slot="bottom">
         
-        <ion-tab-button tab="dashboard">
+        <ion-tab-button tab="dashboard" data-cy="dashboard-tab">
           <ion-icon name="home-outline"></ion-icon>
           <ion-label>{{ 'TABS.DASHBOARD' | translate }}</ion-label>
         </ion-tab-button>
         
-        <ion-tab-button tab="medications">
+        <ion-tab-button tab="medications" data-cy="medications-tab">
           <ion-icon name="list-outline"></ion-icon>
           <ion-label>{{ 'TABS.MEDICATIONS' | translate }}</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="history">
+        <ion-tab-button tab="history" data-cy="history-tab">
           <ion-icon name="newspaper-outline"></ion-icon>
           <ion-label>{{ 'TABS.HISTORY' | translate }}</ion-label>
         </ion-tab-button>
         
-        <ion-tab-button tab="profile">
+        <ion-tab-button tab="profile" data-cy="profile-tab">
           <ion-icon name="person-outline"></ion-icon>
           <ion-label>{{ 'TABS.PROFILE' | translate }}</ion-label>
         </ion-tab-button>

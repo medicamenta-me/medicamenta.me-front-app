@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, effect } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -175,7 +175,7 @@ import {
                 <ion-icon name="globe-outline" aria-hidden="true"></ion-icon>
                 <span>{{ 'ONBOARDING.PERSONAL_DATA.COUNTRY' | translate }}</span>
               </label>
-              <div class="country-select-wrapper" (click)="openCountryModal()">
+              <div class="country-select-wrapper" (click)="openCountryModal()" (keyup.enter)="openCountryModal()" tabindex="0" role="button" [attr.aria-label]="'Select country: ' + selectedCountry().name">
                 <div class="country-display">
                   <img [src]="'./assets/imgs/flags/' + selectedCountry().code.toLowerCase() + '.svg'" 
                        [alt]="selectedCountry().name + ' flag'"
@@ -712,7 +712,7 @@ import {
   `,
   styleUrls: ['./onboarding.component.css']
 })
-export class OnboardingComponent implements OnInit {
+export class OnboardingComponent {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly userService = inject(UserService);
@@ -822,17 +822,11 @@ export class OnboardingComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    console.log('[OnboardingComponent] Component initialized');
-  }
-
   /**
    * Restore onboarding progress from saved user data
    */
   private restoreOnboardingProgress(user: any) {
     this.isRestoringData = true;
-
-    console.log('[OnboardingComponent] Restoring progress for user:', user);
 
     // Restore current step based on onboardingSteps flags (new system)
     if (user.onboardingSteps) {
@@ -850,10 +844,8 @@ export class OnboardingComponent implements OnInit {
       } else if (!steps.plansAndTerms) {
         this.currentStep.set(5);
       }
-      console.log('[OnboardingComponent] Restored to step from onboardingSteps:', this.currentStep());
     } else if (user.onboardingStep !== undefined && user.onboardingStep !== null) {
       // Fallback to old checkpoint system
-      console.log('[OnboardingComponent] Restoring to step (legacy):', user.onboardingStep);
       this.currentStep.set(user.onboardingStep);
     }
 
@@ -1041,7 +1033,6 @@ export class OnboardingComponent implements OnInit {
       }
     }
 
-    console.log('[OnboardingComponent] Saving step', currentStepValue, 'with data:', updatedData);
     await this.userService.createOrUpdateUser(updatedData);
   }
 
@@ -1094,7 +1085,6 @@ export class OnboardingComponent implements OnInit {
       termsAcceptance: [termsAcceptance]
     };
 
-    console.log('[OnboardingComponent] Completing onboarding with data:', updatedData);
     await this.userService.createOrUpdateUser(updatedData);
   }
 

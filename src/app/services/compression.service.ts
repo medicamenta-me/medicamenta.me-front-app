@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import * as LZString from 'lz-string';
 import { LogService } from './log.service';
 
@@ -12,7 +12,7 @@ import { LogService } from './log.service';
   providedIn: 'root'
 })
 export class CompressionService {
-  private readonly logService = new LogService();
+  private readonly logService = inject(LogService, { optional: true });
   
   /**
    * Compress data to UTF16 string
@@ -23,7 +23,7 @@ export class CompressionService {
       const jsonString = JSON.stringify(data);
       return LZString.compressToUTF16(jsonString);
     } catch (error: any) {
-      this.logService.error('Compression', 'Failed to compress data', error as Error);
+      this.logService?.error('Compression', 'Failed to compress data', error as Error);
       // Return original data as fallback
       return JSON.stringify(data);
     }
@@ -41,7 +41,7 @@ export class CompressionService {
       }
       return JSON.parse(decompressed) as T;
     } catch (error: any) {
-      this.logService.error('Compression', 'Failed to decompress data', error as Error);
+      this.logService?.error('Compression', 'Failed to decompress data', error as Error);
       return null;
     }
   }

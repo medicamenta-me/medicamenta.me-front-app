@@ -184,7 +184,7 @@ export class NotificationStrategyService {
         },
         // Android specific
         channelId: `medication-${priority}`,
-        // @ts-ignore - Propriedades Android não tipadas
+        // @ts-expect-error - Propriedades Android não tipadas
         importance: strategy.importance,
         ongoing: strategy.ongoing,
         autoCancel: strategy.autoCancel
@@ -209,7 +209,7 @@ export class NotificationStrategyService {
             priority
           },
           channelId: `medication-${priority}`,
-          // @ts-ignore
+          // @ts-expect-error - Propriedades Android não tipadas
           importance: strategy.importance,
           ongoing: strategy.ongoing,
           autoCancel: strategy.autoCancel

@@ -200,8 +200,6 @@ export class EnterpriseDashboardComponent implements OnInit {
    * Seleciona o paciente e redireciona para o dashboard principal
    */
   async viewPatient(patient: MultiPatientDashboardItem) {
-    console.log('[EnterpriseDashboard] Viewing patient details:', patient.patientId);
-    
     try {
       // Verificar se o paciente está disponível na lista de pacientes selecionáveis
       const availablePatients = this.patientSelectorService.availablePatients();

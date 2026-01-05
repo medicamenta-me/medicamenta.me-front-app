@@ -185,12 +185,9 @@ export class SignupComponent {
     this.loading.set(true);
     try {
       const { fullName, email, password, role } = this.signupForm.value;
-      console.log('[SignupComponent] Creating account...');
       await this.authService.signup(fullName, email, password, role);
-      console.log('[SignupComponent] Account created, navigating to /tabs');
       // Navigate to tabs, onboardingGuard will redirect to /onboarding for new users
       await this.router.navigate(['/tabs']);
-      console.log('[SignupComponent] Navigation complete');
     } catch (error) {
       console.error('[SignupComponent] Signup error:', error);
       const toast = await this.toastController.create({

@@ -17,7 +17,7 @@ export class UserService {
   private readonly analyticsService = inject(AnalyticsService);
   private readonly indexedDB = inject(IndexedDBService);
   private readonly offlineSync = inject(OfflineSyncService);
-  private readonly logService = inject(LogService);
+  private readonly logService = inject(LogService, { optional: true });
   private readonly firestore: Firestore;
 
   private readonly _currentUser = signal<User | null>(null);
@@ -40,7 +40,7 @@ export class UserService {
     effect((onCleanup) => {
         const user = this.authService.currentUser();
         const isOnline = this.offlineSync.isOnline();
-        this.logService.debug('UserService', 'Auth user changed', { uid: user?.uid, isOnline });
+        this.logService?.debug('UserService', 'Auth user changed', { uid: user?.uid, isOnline });
         this.cleanupSubscription();
 
         if (user) {
@@ -49,13 +49,13 @@ export class UserService {
 
             if (isOnline) {
                 const userDocRef = doc(this.firestore, `users/${user.uid}`);
-                this.logService.debug('UserService', 'Setting up snapshot listener for user', { uid: user.uid });
+                this.logService?.debug('UserService', 'Setting up snapshot listener for user', { uid: user.uid });
                 this.userSubscription = onSnapshot(userDocRef, async (docSnap) => {
-                    this.logService.debug('UserService', 'Snapshot received', { exists: docSnap.exists() });
+                    this.logService?.debug('UserService', 'Snapshot received', { exists: docSnap.exists() });
                     if (docSnap.exists()) {
                         const userData = docSnap.data() as User;
                         userData.lastSync = new Date();
-                        this.logService.debug('UserService', 'User data loaded', { uid: userData.id });
+                        this.logService?.debug('UserService', 'User data loaded', { uid: userData.id });
                         this._currentUser.set(userData);
                         
                         // Update analytics user properties
@@ -64,19 +64,19 @@ export class UserService {
                         // Cache user data
                         await this.cacheToIndexedDB(userData);
                     } else {
-                        this.logService.warn('UserService', 'User document does not exist');
+                        this.logService?.warn('UserService', 'User document does not exist');
                         this._currentUser.set(null);
                     }
                 }, (error) => {
-                    this.logService.error('UserService', 'Snapshot error', error);
+                    this.logService?.error('UserService', 'Snapshot error', error);
                     // Fallback to cache on error
                     this.loadFromCache(user.uid);
                 });
             } else {
-                this.logService.debug('UserService', 'Offline mode - using cached user data');
+                this.logService?.debug('UserService', 'Offline mode - using cached user data');
             }
         } else {
-            this.logService.debug('UserService', 'No auth user, clearing current user');
+            this.logService?.debug('UserService', 'No auth user, clearing current user');
             this._currentUser.set(null);
         }
 
@@ -98,11 +98,11 @@ export class UserService {
     try {
       const cachedUser = await this.indexedDB.get<User>('users', userId);
       if (cachedUser) {
-        this.logService.debug('UserService', 'Loaded user from cache');
+        this.logService?.debug('UserService', 'Loaded user from cache');
         this._currentUser.set(cachedUser);
       }
     } catch (error: any) {
-      this.logService.error('UserService', 'Failed to load from cache', error);
+      this.logService?.error('UserService', 'Failed to load from cache', error);
     }
   }
 
@@ -112,9 +112,9 @@ export class UserService {
   private async cacheToIndexedDB(user: User): Promise<void> {
     try {
       await this.indexedDB.put('users', user);
-      this.logService.debug('UserService', 'Cached user to IndexedDB');
+      this.logService?.debug('UserService', 'Cached user to IndexedDB');
     } catch (error: any) {
-      this.logService.error('UserService', 'Failed to cache to IndexedDB', error);
+      this.logService?.error('UserService', 'Failed to cache to IndexedDB', error);
     }
   }
 
@@ -146,7 +146,7 @@ export class UserService {
         'normal'
       );
       
-      this.logService.debug('UserService', 'User update queued for sync');
+      this.logService?.debug('UserService', 'User update queued for sync');
     }
   }
 
@@ -268,7 +268,7 @@ export class UserService {
     }
     
     this.analyticsService.setUserProperties(properties);
-    this.logService.debug('UserService', 'Analytics user properties updated', { properties });
+    this.logService?.debug('UserService', 'Analytics user properties updated', { properties });
   }
 }
 

@@ -24,7 +24,7 @@ export class PatientSelectorService {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly careNetworkService = inject(CareNetworkService);
-  private readonly logService = inject(LogService);
+  private readonly logService = inject(LogService, { optional: true });
 
   /**
    * Currently selected patient ID
@@ -128,7 +128,7 @@ export class PatientSelectorService {
     if (patient) {
       this._activePatientId.set(userId);
     } else {
-      this.logService.error('PatientSelectorService', 'Patient not found or not available: ' + userId);
+      this.logService?.error('PatientSelectorService', 'Patient not found or not available: ' + userId);
     }
   }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule, AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { SubscriptionService } from '../../services/subscription.service';
@@ -32,7 +32,7 @@ interface UsageStats {
   templateUrl: './manage-subscription.page.html',
   styleUrls: ['./manage-subscription.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule]
+  imports: [IonicModule]
 })
 export class ManageSubscriptionPage implements OnInit {
   private readonly subscriptionService = inject(SubscriptionService);

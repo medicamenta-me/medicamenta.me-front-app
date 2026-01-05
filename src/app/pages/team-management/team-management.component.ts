@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule, ModalController, AlertController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -27,7 +27,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
   templateUrl: './team-management.component.html',
   styleUrls: ['./team-management.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, TranslateModule]
+  imports: [IonicModule, FormsModule, TranslateModule]
 })
 export class TeamManagementComponent implements OnInit {
   private readonly enterpriseService = inject(EnterpriseService);

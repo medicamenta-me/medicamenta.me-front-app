@@ -44,6 +44,8 @@ import { LogService } from './log.service';
   providedIn: 'root'
 })
 export class RemoteConfigService {
+  private readonly remoteConfigInstance = inject(RemoteConfig);
+
   // Signals for reactive state
   private readonly _isLoading = signal<boolean>(false);
   private readonly _lastFetchTime = signal<Date | null>(null);
@@ -62,7 +64,7 @@ export class RemoteConfigService {
   private refreshInterval: any;
   private readonly logService = inject(LogService);
 
-  constructor(private readonly remoteConfigInstance: RemoteConfig) {
+  constructor() {
     // Set defaults for Remote Config
     this.setDefaults();
     

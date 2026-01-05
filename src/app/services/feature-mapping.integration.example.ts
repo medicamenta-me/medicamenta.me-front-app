@@ -39,8 +39,6 @@ export class ReportGeneratorServiceExample {
       // Increment usage counter
       const userId = this.getCurrentUserId();
       await this.subscriptionService.incrementUsage(userId, 'reportsThisMonth');
-
-      console.log('[ReportGenerator] Report generated successfully');
     } catch (error) {
       console.error('[ReportGenerator] Error generating report', error);
       throw error;

@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed, Signal, effect } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MedicationServiceV2 } from '../../services/medication-v2.service';
 import { Medication, Dose } from '../../models/medication.model';
@@ -194,12 +194,16 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     FormsModule,
-    IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonSpinner,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonIcon,
+    IonSpinner,
     TranslateModule
-  ],
+],
   styleUrls: ['./medication-detail.component.css'],
 })
 export class MedicationDetailComponent {

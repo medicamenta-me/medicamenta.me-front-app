@@ -23,7 +23,7 @@
       <div class="filters-container">
         <!-- Filtro de Membros -->
         <div class="filter-section">
-          <label class="filter-label">Membros:</label>
+          <div class="filter-label section-label" role="heading" aria-level="3">Membros:</div>
           <div class="filter-chips">
             <ion-chip 
               [outline]="familyService.selectedMemberIds().length > 0"
@@ -46,7 +46,7 @@
 
         <!-- Filtro de Status -->
         <div class="filter-section">
-          <label class="filter-label">Status:</label>
+          <div class="filter-label section-label" role="heading" aria-level="3">Status:</div>
           <div class="filter-chips">
             <ion-chip 
               [outline]="!familyService.selectedStatuses().includes('pending')"

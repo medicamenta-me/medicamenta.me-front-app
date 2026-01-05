@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map, switchMap, timeout } from 'rxjs/operators';
@@ -19,13 +19,14 @@ import { LogService } from './log.service';
   providedIn: 'root'
 })
 export class GeolocationService {
+  private http = inject(HttpClient);
+  private readonly logService = inject(LogService);
   
   private readonly IP_API = 'https://api.ipify.org?format=json';
   private readonly GEO_API = 'https://ipapi.co/json/';
   private readonly TIMEOUT_MS = 5000; // 5 seconds timeout
-  private readonly logService = new LogService();
-  
-  constructor(private http: HttpClient) {}
+
+  constructor() {}
 
   /**
    * Get user's public IP address

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { LogService } from './log.service';
 
 export interface CountryDocument {
@@ -23,7 +23,7 @@ export interface CountryDocument {
     providedIn: 'root'
 })
 export class CountryService {
-    private readonly logService = new LogService();
+    private readonly logService = inject(LogService);
     
     private readonly countries: CountryDocument[] = [
         {

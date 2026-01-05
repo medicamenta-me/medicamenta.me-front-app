@@ -52,13 +52,13 @@ describe('ScheduleValueObject', () => {
     it('should validate time format', () => {
       expect(() => {
         new ScheduleValueObject('8/8h', '25:00', []); // Invalid hour
-      }).toThrow();
+      }).toThrowError();
     });
 
     it('should reject empty frequency', () => {
       expect(() => {
         new ScheduleValueObject('', '08:00', []);
-      }).toThrow();
+      }).toThrowError();
     });
 
     it('should reject duplicate dose times', () => {
@@ -69,7 +69,7 @@ describe('ScheduleValueObject', () => {
 
       expect(() => {
         new ScheduleValueObject('8/8h', '08:00', doses);
-      }).toThrow('duplicate');
+      }).toThrowError(/duplicate/);
     });
 
   });
@@ -299,7 +299,7 @@ describe('ScheduleValueObject', () => {
     });
 
     it('should return empty array if no overdue doses', () => {
-      const schedule = ScheduleValueObject.generate('8/8h', '08:00');
+      const schedule = ScheduleValueObject.generate('12/12h', '08:00'); // Generates 08:00, 20:00 (no dose before 06:00)
       const currentTime = new Date('2025-11-09T06:00:00');
 
       const overdueDoses = schedule.getOverdueDoses(currentTime);
@@ -511,7 +511,7 @@ describe('ScheduleValueObject', () => {
     it('should detect invalid time format in startTime', () => {
       expect(() => {
         new ScheduleValueObject('8/8h', '8:00', []); // Missing leading zero
-      }).toThrow();
+      }).toThrowError();
     });
 
   });

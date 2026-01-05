@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -41,7 +41,6 @@ import { SkeletonComponent } from '../../shared/skeleton/skeleton.component';
   selector: 'app-leaderboard',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     RouterLink,
     IonHeader,
@@ -61,7 +60,7 @@ import { SkeletonComponent } from '../../shared/skeleton/skeleton.component';
     IonCardContent,
     IonToggle,
     SkeletonComponent
-  ],
+],
   template: `
     <ion-header>
       <ion-toolbar color="primary">
@@ -154,10 +153,10 @@ import { SkeletonComponent } from '../../shared/skeleton/skeleton.component';
       } @else if (leaderboard()) {
         <!-- Top 3 Podium -->
         @if (leaderboard()!.entries.length >= 3) {
-          <div class="podium-container">
+          <div class="podium-container" data-cy="leaderboard-podium">
             <div class="podium">
               <!-- 2nd Place -->
-              <div class="podium-item rank-2">
+              <div class="podium-item rank-2" data-cy="podium-second">
                 <div class="podium-avatar">
                   <ion-avatar>
                     <div class="avatar-placeholder">{{ leaderboard()!.entries[1].userName.charAt(0) }}</div>
@@ -169,7 +168,7 @@ import { SkeletonComponent } from '../../shared/skeleton/skeleton.component';
               </div>
 
               <!-- 1st Place -->
-              <div class="podium-item rank-1">
+              <div class="podium-item rank-1" data-cy="podium-first">
                 <div class="podium-avatar">
                   <ion-avatar>
                     <div class="avatar-placeholder">{{ leaderboard()!.entries[0].userName.charAt(0) }}</div>
@@ -181,7 +180,7 @@ import { SkeletonComponent } from '../../shared/skeleton/skeleton.component';
               </div>
 
               <!-- 3rd Place -->
-              <div class="podium-item rank-3">
+              <div class="podium-item rank-3" data-cy="podium-third">
                 <div class="podium-avatar">
                   <ion-avatar>
                     <div class="avatar-placeholder">{{ leaderboard()!.entries[2].userName.charAt(0) }}</div>
@@ -197,9 +196,10 @@ import { SkeletonComponent } from '../../shared/skeleton/skeleton.component';
 
         <!-- Remaining Rankings (4-10) -->
         <div class="rankings-list">
-          <ion-list>
+          <ion-list data-cy="leaderboard-list">
             @for (entry of getRemainingEntries(); track entry.userId) {
               <ion-item 
+                data-cy="leaderboard-entry"
                 [class.current-user]="entry.isCurrentUser"
                 lines="full">
                 <div class="rank-number" slot="start">

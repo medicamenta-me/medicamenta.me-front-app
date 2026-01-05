@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { HistoryStatsService, PeriodStats } from '../../services/history-stats.service';
 import {
@@ -21,7 +21,6 @@ import { downloadOutline, trendingUpOutline, trendingDownOutline, removeOutline 
   selector: 'app-history-stats',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     IonCard,
     IonCardHeader,
@@ -33,7 +32,7 @@ import { downloadOutline, trendingUpOutline, trendingDownOutline, removeOutline 
     IonButton,
     IonIcon,
     IonChip
-  ],
+],
   template: `
     <div class="stats-container">
       <!-- Period Selector -->

@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule } from '@ionic/angular';
 import { GamificationService } from '../../services/gamification.service';
 
@@ -11,7 +11,7 @@ import { GamificationService } from '../../services/gamification.service';
 @Component({
   selector: 'app-level-badge',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [IonicModule],
   template: `
     <div class="level-badge" [class.compact]="compact()">
       <div class="level-circle" [style.background]="circleGradient()">

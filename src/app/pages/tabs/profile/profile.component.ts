@@ -23,7 +23,8 @@ import {
   IonAvatar,
   IonIcon,
   IonButton,
-  IonToggle
+  IonToggle,
+  AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -292,6 +293,7 @@ import { NgOptimizedImage } from '@angular/common';
         <div class="profile-section">
           <div class="settings-container">
             <ion-button 
+              data-cy="logout-button"
               expand="block" 
               fill="outline" 
               color="danger" 
@@ -1045,6 +1047,7 @@ export class ProfileComponent {
   private readonly audioService = inject(AudioService);
   private readonly hapticService = inject(HapticService);
   public readonly biometricService = inject(BiometricService);
+  private readonly alertController = inject(AlertController);
   
   // Leaderboard visibility preference (synced with Firestore)
   private readonly leaderboardVisible = signal(
@@ -1135,7 +1138,6 @@ export class ProfileComponent {
         if (firestoreValue !== localStorageValue) {
           this.leaderboardVisible.set(firestoreValue);
           localStorage.setItem('leaderboardVisible', firestoreValue.toString());
-          console.log('[Profile] Leaderboard visibility synced from Firestore:', firestoreValue);
         }
       }
     });
@@ -1204,8 +1206,29 @@ export class ProfileComponent {
   }
 
   async logout() {
-    await this.authService.logout();
-    this.router.navigate(['/login']);
+    const alert = await this.alertController.create({
+      header: this.translate.instant('AUTH.CONFIRM_LOGOUT'),
+      message: this.translate.instant('AUTH.CONFIRM_LOGOUT_MESSAGE'),
+      cssClass: 'confirm-logout-dialog',
+      buttons: [
+        {
+          text: this.translate.instant('COMMON.CANCEL'),
+          role: 'cancel',
+          cssClass: 'cancel-logout-btn'
+        },
+        {
+          text: this.translate.instant('AUTH.LOGOUT'),
+          role: 'confirm',
+          cssClass: 'confirm-logout-btn',
+          handler: async () => {
+            await this.authService.logout();
+            this.router.navigate(['/login']);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   // Toggle methods for settings
@@ -1239,7 +1262,6 @@ export class ProfileComponent {
     // Sync with Firestore
     try {
       await this.userService.updateUser({ leaderboardVisible: newValue });
-      console.log('[Profile] Leaderboard visibility synced with Firestore:', newValue);
     } catch (error) {
       console.error('[Profile] Failed to sync leaderboard visibility:', error);
       // Revert on error
@@ -1256,11 +1278,7 @@ export class ProfileComponent {
       await this.biometricService.disable();
     } else {
       // User wants to enable biometric
-      const enabled = await this.biometricService.enable();
-      if (!enabled) {
-        // User cancelled or error occurred
-        console.log('[Profile] Biometric enable cancelled');
-      }
+      await this.biometricService.enable();
     }
   }
 }

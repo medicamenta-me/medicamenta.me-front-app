@@ -272,8 +272,23 @@ export class FamilyCalendarService {
   ): DoseSummary[] {
     const doses: DoseSummary[] = [];
     
+    // Caso schedule seja array de doses (formato antigo) - verificar primeiro!
+    if (Array.isArray(medication.schedule)) {
+      for (const dose of medication.schedule) {
+        doses.push({
+          medicationId: medication.id,
+          medicationName: medication.name,
+          memberName,
+          memberColor,
+          time: dose.time,
+          status: dose.status === 'upcoming' ? 'pending' : dose.status,
+          dosage: medication.dosage,
+          notes: dose.notes
+        });
+      }
+    }
     // Verificar se há schedule como objeto indexado por data
-    if (medication.schedule && typeof medication.schedule === 'object') {
+    else if (medication.schedule && typeof medication.schedule === 'object') {
       const daySchedule = (medication.schedule as any)[dateStr];
       if (Array.isArray(daySchedule)) {
         for (const dose of daySchedule) {
@@ -288,21 +303,6 @@ export class FamilyCalendarService {
             notes: dose.notes
           });
         }
-      }
-    }
-    // Caso schedule seja array de doses (formato antigo)
-    else if (Array.isArray(medication.schedule)) {
-      for (const dose of medication.schedule) {
-        doses.push({
-          medicationId: medication.id,
-          medicationName: medication.name,
-          memberName,
-          memberColor,
-          time: dose.time,
-          status: dose.status === 'upcoming' ? 'pending' : dose.status,
-          dosage: medication.dosage,
-          notes: dose.notes
-        });
       }
     }
 

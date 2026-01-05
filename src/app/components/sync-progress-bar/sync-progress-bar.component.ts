@@ -1,5 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonProgressBar } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { OfflineSyncService } from '../../services/offline-sync.service';
@@ -14,7 +14,7 @@ import { OfflineSyncService } from '../../services/offline-sync.service';
 @Component({
   selector: 'app-sync-progress-bar',
   standalone: true,
-  imports: [CommonModule, IonProgressBar, TranslateModule],
+  imports: [IonProgressBar, TranslateModule],
   template: `
     @if (showProgress()) {
       <div class="sync-progress-container">

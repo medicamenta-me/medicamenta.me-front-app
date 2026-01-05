@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader,
@@ -62,7 +62,6 @@ import { Calendar } from '@ebarooni/capacitor-calendar';
   styleUrls: ['./calendar-sync.component.css'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     IonHeader,
     IonToolbar,
@@ -88,7 +87,7 @@ import { Calendar } from '@ebarooni/capacitor-calendar';
     IonChip,
     IonRefresher,
     IonRefresherContent
-  ]
+]
 })
 export class CalendarSyncPage implements OnInit {
   private calendarService = inject(CalendarIntegrationService);

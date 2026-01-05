@@ -179,8 +179,8 @@ export class RestoreService {
         this.logService.warn('RestoreService', 'Attempting rollback...');
         try {
           await this.rollback();
-        } catch (rollbackError) {
-          this.logService.error('RestoreService', 'Rollback failed', rollbackError);
+        } catch (rollbackError: unknown) {
+          this.logService.error('RestoreService', 'Rollback failed', rollbackError as Error);
         }
       }
 

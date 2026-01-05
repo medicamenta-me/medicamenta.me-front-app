@@ -223,7 +223,7 @@ interface TodaysDose {
 
       <!-- Reusable Dose Template -->
       <ng-template #doseTemplate let-dose>
-        <div class="dose-card" [attr.data-status]="dose.dose.status">
+        <div class="dose-card" data-cy="dose-card" [attr.data-status]="dose.dose.status">
           <div class="dose-card-header">
             <div class="dose-status-indicator" [attr.data-status]="dose.dose.status">
               <ion-icon 
@@ -260,6 +260,7 @@ interface TodaysDose {
               @if (dose.dose.status === 'upcoming') {
                 <button 
                   class="action-button action-taken" 
+                  data-cy="take-dose-btn"
                   (click)="confirmDoseStatus(dose, 'taken')"
                   [attr.aria-label]="'DASHBOARD.MARK_AS_TAKEN' | translate">
                   <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
@@ -267,6 +268,7 @@ interface TodaysDose {
                 </button>
                 <button 
                   class="action-button action-missed" 
+                  data-cy="skip-dose-btn"
                   (click)="confirmDoseStatus(dose, 'missed')"
                   [attr.aria-label]="'DASHBOARD.MARK_AS_MISSED' | translate">
                   <ion-icon name="close-circle" aria-hidden="true"></ion-icon>
@@ -275,6 +277,7 @@ interface TodaysDose {
               } @else {
                 <button 
                   class="action-button action-undo" 
+                  data-cy="undo-dose-btn"
                   (click)="updateDoseStatus(dose, 'upcoming')"
                   [attr.aria-label]="'DASHBOARD.UNDO_STATUS' | translate">
                   <ion-icon name="arrow-undo" aria-hidden="true"></ion-icon>
@@ -485,7 +488,6 @@ export class DashboardComponent {
    */
   onInsightAction(insight: any) {
     // Ações customizadas podem ser tratadas aqui
-    console.log('Insight action:', insight);
   }
 
   /**
@@ -603,7 +605,6 @@ export class DashboardComponent {
   // Phase D: Handle view details action from congratulation card
   viewCompletedDetails(medication: any): void {
     // For now, just log - will be enhanced in Phase F (Advanced Reports)
-    console.log('View completed medication details:', medication);
     // Future: Open detailed view or modal with completion history
   }
   
@@ -613,7 +614,6 @@ export class DashboardComponent {
     // but user can dismiss manually if they want
     // The card is controlled by the computed signal from CompletionDetectionService
     // We could add localStorage flag here to permanently hide specific completion notifications
-    console.log('Dismissed congratulation for:', medication);
   }
 
   // Navigate to Family Dashboard

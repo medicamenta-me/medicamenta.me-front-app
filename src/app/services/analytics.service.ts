@@ -147,7 +147,7 @@ export const USER_PROPERTIES = {
 })
 export class AnalyticsService {
   private readonly analytics = inject(Analytics, { optional: true });
-  private readonly logService = inject(LogService);
+  private readonly logService = inject(LogService, { optional: true });
   private readonly enabled = true; // Can be controlled by environment config
   
   /**
@@ -164,9 +164,9 @@ export class AnalyticsService {
     if (this.analytics) {
       try {
         logEvent(this.analytics, eventName, params);
-        this.logService.debug('AnalyticsService', 'Firebase event logged', { eventName, timestamp });
+        this.logService?.debug('AnalyticsService', 'Firebase event logged', { eventName, timestamp });
       } catch (error: any) {
-        this.logService.error('AnalyticsService', 'Error logging to Firebase', error as Error);
+        this.logService?.error('AnalyticsService', 'Error logging to Firebase', error as Error);
         this.fallbackLog(eventName, params, timestamp);
       }
     } else {
@@ -179,7 +179,7 @@ export class AnalyticsService {
    * Fallback logging when Firebase Analytics is not available
    */
   private fallbackLog(eventName: string, params?: Record<string, unknown>, timestamp?: string): void {
-    this.logService.debug('AnalyticsService', 'Fallback event logged', { 
+    this.logService?.debug('AnalyticsService', 'Fallback event logged', { 
       eventName, 
       timestamp: timestamp || new Date().toISOString() 
     });
@@ -207,7 +207,7 @@ export class AnalyticsService {
       const trimmed = events.slice(-100);
       localStorage.setItem(key, JSON.stringify(trimmed));
     } catch (error: any) {
-      this.logService.error('AnalyticsService', 'Error storing analytics event', error as Error);
+      this.logService?.error('AnalyticsService', 'Error storing analytics event', error as Error);
     }
   }
   
@@ -259,9 +259,9 @@ export class AnalyticsService {
     if (this.analytics) {
       try {
         setUserId(this.analytics, userId);
-        this.logService.debug('AnalyticsService', 'User ID set', { userId });
+        this.logService?.debug('AnalyticsService', 'User ID set', { userId });
       } catch (error: any) {
-        this.logService.error('AnalyticsService', 'Error setting user ID', error as Error);
+        this.logService?.error('AnalyticsService', 'Error setting user ID', error as Error);
       }
     }
   }
@@ -273,9 +273,9 @@ export class AnalyticsService {
     if (this.analytics) {
       try {
         setUserProperties(this.analytics, properties);
-        this.logService.debug('AnalyticsService', 'User properties set', properties);
+        this.logService?.debug('AnalyticsService', 'User properties set', properties);
       } catch (error: any) {
-        this.logService.error('AnalyticsService', 'Error setting user properties', error as Error);
+        this.logService?.error('AnalyticsService', 'Error setting user properties', error as Error);
       }
     }
   }
@@ -288,7 +288,7 @@ export class AnalyticsService {
       const stored = localStorage.getItem('analytics_events');
       return stored ? JSON.parse(stored) : [];
     } catch (error: any) {
-      this.logService.error('AnalyticsService', 'Error retrieving analytics events', error as Error);
+      this.logService?.error('AnalyticsService', 'Error retrieving analytics events', error as Error);
       return [];
     }
   }

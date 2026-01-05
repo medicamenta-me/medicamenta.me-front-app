@@ -48,7 +48,6 @@ export class AppComponent implements OnInit {
   
   constructor() {
     // Inicializa o serviço de tradução
-    console.log('[AppComponent] Translation service initialized');
     
     // Setup app lifecycle listeners
     this.setupAppLifecycle();
@@ -69,7 +68,6 @@ export class AppComponent implements OnInit {
     this.platform.ready().then(() => {
       // When app resumes (comes to foreground)
       this.platform.resume.subscribe(() => {
-        console.log('[AppComponent] App resumed - checking streak');
         this.gamificationService.checkAndNotifyStreakRisk();
       });
     });
@@ -87,7 +85,6 @@ export class AppComponent implements OnInit {
     
     // Check every 12 hours
     this.streakCheckInterval = setInterval(() => {
-      console.log('[AppComponent] Daily streak check running');
       this.gamificationService.checkAndNotifyStreakRisk();
     }, 12 * 60 * 60 * 1000); // 12 hours in milliseconds
   }
@@ -100,22 +97,16 @@ export class AppComponent implements OnInit {
     this.platform.ready().then(() => {
       // Listen for notification taps
       LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
-        console.log('[AppComponent] Notification tapped:', notification);
-        
         const extra = notification.notification.extra;
         
         if (extra && extra.deepLink) {
           // Navigate to deep link URL
-          console.log('[AppComponent] Navigating to:', extra.deepLink);
           this.router.navigateByUrl(extra.deepLink);
         } else if (extra && extra.type === 'family-dose') {
           // Family notification - navigate to family dashboard
-          console.log('[AppComponent] Family notification - navigating to /family-dashboard');
           this.router.navigate(['/family-dashboard']);
         }
       });
-
-      console.log('[AppComponent] Notification listeners setup complete');
     });
   }
 }

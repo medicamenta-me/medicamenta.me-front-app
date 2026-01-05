@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { 
   IonCard, 
   IonCardHeader, 
@@ -34,7 +34,6 @@ import { CompletionDetectionService } from '../../services/completion-detection.
   selector: 'app-treatment-congratulation-card',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     IonCard,
     IonCardHeader,
@@ -42,7 +41,7 @@ import { CompletionDetectionService } from '../../services/completion-detection.
     IonCardContent,
     IonButton,
     IonIcon
-  ],
+],
   template: `
     <ion-card 
       class="congratulation-card" 

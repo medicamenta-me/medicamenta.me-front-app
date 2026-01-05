@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { FeatureId, FEATURE_MAP, PlanLimits } from '../../models/feature-mapping.model';
@@ -14,7 +14,7 @@ import { FeatureMappingService } from '../../services/feature-mapping.service';
   templateUrl: './limit-reached-modal.component.html',
   styleUrls: ['./limit-reached-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule]
+  imports: [IonicModule]
 })
 export class LimitReachedModalComponent {
   private readonly modalController = inject(ModalController);

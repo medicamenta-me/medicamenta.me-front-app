@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule } from '@ionic/angular';
 import { GamificationService } from '../../services/gamification.service';
 
@@ -11,7 +11,7 @@ import { GamificationService } from '../../services/gamification.service';
 @Component({
   selector: 'app-streak-widget',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [IonicModule],
   template: `
     <div class="streak-widget" [class.active]="isActive()" [class.at-risk]="isAtRisk()">
       <div class="streak-icon">

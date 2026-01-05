@@ -250,5 +250,26 @@ export class NotificationService {
         return 'Desconhecido';
     }
   }
+
+  /**
+   * Show a local notification with structured data
+   * @param options Notification options with title, body, and data
+   */
+  async showLocalNotification(options: {
+    title: string;
+    body: string;
+    data?: Record<string, unknown>;
+    icon?: string;
+    badge?: string;
+    tag?: string;
+  }): Promise<void> {
+    await this.sendNotification(options.title, {
+      body: options.body,
+      icon: options.icon || '/assets/icon/icon-192x192.png',
+      badge: options.badge || '/assets/icon/icon-72x72.png',
+      tag: options.tag || 'general-notification',
+      data: options.data,
+    } as NotificationOptions);
+  }
 }
 

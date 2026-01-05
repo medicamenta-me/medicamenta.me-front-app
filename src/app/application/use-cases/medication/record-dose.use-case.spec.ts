@@ -108,7 +108,7 @@ describe('RecordDoseUseCase', () => {
     it('should warn when stock becomes low', async () => {
       const command = createValidCommand();
       const medication = createMedicationWithSchedule();
-      medication.updateStock(3); // Low stock
+      medication.updateStock(5); // Low stock - will have 4 after decrease (below threshold of 5)
 
       mockRepository.findById.and.resolveTo(medication);
       mockRepository.save.and.callFake(async (med: MedicationEntity) => med);

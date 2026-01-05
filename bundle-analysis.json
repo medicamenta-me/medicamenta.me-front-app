@@ -1,0 +1,10 @@
+﻿www/main.f525af19474a3890.js
+node.exe :   Your source map refers to generated column Infinity on line 1, but the source only contains 2717886 column(s) on 
+that line.
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\Gabriel\AppData\Roamin ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (  Your source m...) on that line.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  Check that you are using the correct source map.

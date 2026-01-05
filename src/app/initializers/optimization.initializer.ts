@@ -10,16 +10,11 @@ export function initializeOptimizations() {
     const gcService = inject(GarbageCollectionService);
     const prefetchService = inject(PrefetchService);
 
-    console.log('[Optimizations] Initializing...');
-
     // Start garbage collection
     gcService.start();
-    console.log('[Optimizations] Garbage collection started');
 
     // Initialize prefetch service
-    prefetchService.initialize().then(() => {
-      console.log('[Optimizations] Prefetch service initialized');
-    });
+    prefetchService.initialize();
 
     return Promise.resolve();
   };

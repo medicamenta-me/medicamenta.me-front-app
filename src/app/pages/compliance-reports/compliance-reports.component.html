@@ -14,7 +14,8 @@
 
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let report of reports()" lines="full">
+    @for (report of reports(); track report) {
+<ion-item lines="full">
       <ion-label>
         <h2>{{ report.startDate | date:'short' }} - {{ report.endDate | date:'short' }}</h2>
         <p>Gerado em: {{ report.generatedAt | date:'short' }}</p>
@@ -29,6 +30,7 @@
         </ion-button>
       </ion-buttons>
     </ion-item>
+}
   </ion-list>
 
   <!-- Generate Modal -->

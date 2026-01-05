@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -42,7 +42,6 @@ import { FamilyNotificationService, FamilyNotificationConfig } from '../../servi
   styleUrls: ['./family-notification-settings.component.css'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     IonHeader,
     IonToolbar,
@@ -64,7 +63,7 @@ import { FamilyNotificationService, FamilyNotificationConfig } from '../../servi
     IonCardTitle,
     IonCardContent,
     IonBadge
-  ]
+]
 })
 export class FamilyNotificationSettingsComponent implements OnInit {
   private readonly notificationService = inject(FamilyNotificationService);

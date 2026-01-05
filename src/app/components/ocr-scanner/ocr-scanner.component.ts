@@ -1,5 +1,5 @@
 import { Component, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { 
   IonContent, 
@@ -41,7 +41,6 @@ import { OcrEditDialogComponent } from '../ocr-edit-dialog/ocr-edit-dialog.compo
   selector: 'app-ocr-scanner',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     IonContent,
     IonHeader,
@@ -57,7 +56,7 @@ import { OcrEditDialogComponent } from '../ocr-edit-dialog/ocr-edit-dialog.compo
     IonSpinner,
     IonButtons,
     IonBackButton
-  ],
+],
   templateUrl: './ocr-scanner.component.html',
   styleUrls: ['./ocr-scanner.component.scss']
 })
@@ -249,11 +248,12 @@ export class OcrScannerComponent {
       // Convert OCR data to Medication format
       const medicationData: Omit<Medication, 'id'> = {
         name: extractedData.name,
+        patientId: this.auth.currentUser()?.uid || '',
         dosage: extractedData.dosage || '',
         frequency: this.parseFrequencyToString(extractedData.frequency),
-        times: this.parseTimeFromFrequency(extractedData.frequency),
+        schedule: this.parseScheduleFromFrequency(extractedData.frequency),
+        stock: 0,
         notes: this.buildNotes(extractedData),
-        active: true,
         userId: this.auth.currentUser()?.uid || '',
         lastModified: new Date(),
         // Stock info
@@ -261,8 +261,6 @@ export class OcrScannerComponent {
         stockUnit: this.parseStockUnit(extractedData.form),
         lowStockThreshold: 5,
         // Optional fields from OCR
-        manufacturer: extractedData.manufacturer,
-        activeIngredient: extractedData.activeIngredient,
       };
 
       // Save to Firestore via MedicationService
@@ -355,6 +353,17 @@ export class OcrScannerComponent {
   private parseTimeFromFrequency(frequencyText?: string): string {
     const times = this.parseFrequency(frequencyText);
     return times[0] || '08:00';
+  }
+
+  /**
+   * Parse frequency to Dose[] schedule format
+   */
+  private parseScheduleFromFrequency(frequencyText?: string): { time: string; status: 'upcoming' | 'taken' | 'missed' }[] {
+    const times = this.parseFrequency(frequencyText);
+    return times.map(time => ({
+      time,
+      status: 'upcoming' as const
+    }));
   }
 
   /**

@@ -1,5 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { createWorker, type Worker, OEM, LoggerMessage } from 'tesseract.js';
+import type { Worker, LoggerMessage } from 'tesseract.js';
 import { 
   OCRResult, 
   OCRConfig, 
@@ -20,10 +20,18 @@ import { RemoteConfigService } from './remote-config.service';
 import { Firestore, doc, getDoc, setDoc, increment } from '@angular/fire/firestore';
 import { LogService } from './log.service';
 
+// Dynamic import for Tesseract.js (bundle optimization - ~500KB)
+const loadTesseract = () => import('tesseract.js');
+
 @Injectable({
   providedIn: 'root'
 })
 export class OcrService {
+  private analytics = inject(AnalyticsService);
+  private featureFlags = inject(FeatureFlagsService);
+  private remoteConfig = inject(RemoteConfigService);
+  private firestore = inject(Firestore);
+
   private readonly logService = inject(LogService);
   
   // State Signals
@@ -39,12 +47,7 @@ export class OcrService {
   // Config
   private config: OCRConfig = DEFAULT_OCR_CONFIG;
 
-  constructor(
-    private analytics: AnalyticsService,
-    private featureFlags: FeatureFlagsService,
-    private remoteConfig: RemoteConfigService,
-    private firestore: Firestore
-  ) {
+  constructor() {
     this.loadConfig();
   }
 
@@ -91,6 +94,9 @@ export class OcrService {
       this.progress.set(0);
 
       this.logService.info('OcrService', 'Initializing Tesseract worker');
+      
+      // Dynamic import of Tesseract.js for bundle optimization
+      const { createWorker, OEM } = await loadTesseract();
       
       this.worker = await createWorker(this.config.defaultLanguage, OEM.LSTM_ONLY, {
         logger: (m: LoggerMessage) => {

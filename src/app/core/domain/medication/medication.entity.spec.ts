@@ -46,7 +46,8 @@ describe('MedicationEntity', () => {
 
       expect(medication.schedule).toBeDefined();
       expect(medication.schedule.length).toBe(3);
-      expect(medication.schedule[0].time).toBe('08:00');
+      // Schedule is sorted, so 00:00 comes first
+      expect(medication.schedule.some(d => d.time === '08:00')).toBe(true);
     });
 
     it('should set default values for optional fields', () => {
@@ -100,7 +101,7 @@ describe('MedicationEntity', () => {
         currentStock: 3
       });
 
-      expect(() => medication.decreaseStock(5)).toThrow();
+      expect(() => medication.decreaseStock(5)).toThrowError();
       expect(medication.currentStock).toBe(3); // Stock unchanged
     });
 
@@ -115,7 +116,7 @@ describe('MedicationEntity', () => {
     it('should not allow negative stock update', () => {
       const medication = new MedicationEntity(createValidMedicationData());
 
-      expect(() => medication.updateStock(-10)).toThrow();
+      expect(() => medication.updateStock(-10)).toThrowError();
     });
 
     it('should detect out of stock', () => {
@@ -392,7 +393,7 @@ describe('MedicationEntity', () => {
       expect(() => new MedicationEntity({
         ...createValidMedicationData(),
         name: ''
-      } as any)).toThrow('Medication name is required');
+      } as any)).toThrowError('Medication name is required');
     });
 
     it('should allow empty dosage for drafts', () => {

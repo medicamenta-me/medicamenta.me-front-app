@@ -11,7 +11,8 @@
 
 <ion-content [fullscreen]="true" class="pricing-content">
   <!-- Payment Configuration Warning -->
-  <ion-card *ngIf="!paymentConfigured()" class="warning-card">
+  @if (!paymentConfigured()) {
+<ion-card class="warning-card">
     <ion-card-content>
       <div class="warning-content">
         <ion-icon name="warning-outline" color="warning"></ion-icon>
@@ -23,6 +24,7 @@
       </div>
     </ion-card-content>
   </ion-card>
+}
 
   <!-- Hero Section -->
   <div class="hero-section">
@@ -57,11 +59,12 @@
   <div class="plans-container">
     <ion-grid>
       <ion-row class="ion-justify-content-center">
-        <ion-col
+        @for (plan of getAvailablePlans(); track plan) {
+<ion-col
           size="12"
           size-md="6"
           size-lg="3"
-          *ngFor="let plan of getAvailablePlans()"
+         
         >
           <ion-card
             [class]="'plan-card ' + plan.plan"
@@ -71,18 +74,24 @@
             (click)="selectPlan(plan.plan)"
           >
             <!-- Badge de Destaque -->
-            <div class="plan-badge" *ngIf="plan.popular">
+            @if (plan.popular) {
+<div class="plan-badge">
               <ion-icon name="star"></ion-icon>
               {{ 'PRICING.BADGES.POPULAR' | translate }}
             </div>
-            <div class="plan-badge recommended-badge" *ngIf="plan.recommended">
+}
+            @if (plan.recommended) {
+<div class="plan-badge recommended-badge">
               <ion-icon name="trophy"></ion-icon>
               {{ 'PRICING.BADGES.RECOMMENDED' | translate }}
             </div>
-            <div class="plan-badge current-badge" *ngIf="isCurrentPlan(plan.plan)">
+}
+            @if (isCurrentPlan(plan.plan)) {
+<div class="plan-badge current-badge">
               <ion-icon name="checkmark-circle"></ion-icon>
               {{ 'PRICING.BADGES.CURRENT' | translate }}
             </div>
+}
 
             <ion-card-header>
               <!-- Ícone do Plano -->
@@ -97,33 +106,42 @@
 
               <!-- Preço -->
               <div class="plan-pricing">
-                <div class="price" *ngIf="getPrice(plan) > 0">
+                @if (getPrice(plan) > 0) {
+<div class="price">
                   <span class="currency">R$</span>
                   <span class="amount">{{ getPrice(plan) | number:'1.2-2' }}</span>
                   <span class="period">{{ (billingCycle() === 'monthly' ? 'PRICING.BILLING.PER_MONTH' : 'PRICING.BILLING.PER_YEAR') | translate }}</span>
                 </div>
-                <div class="price free" *ngIf="getPrice(plan) === 0 && plan.plan === 'free'">
+}
+                @if (getPrice(plan) === 0 && plan.plan === 'free') {
+<div class="price free">
                   <span class="amount">{{ 'PRICING.BILLING.FREE' | translate }}</span>
                 </div>
-                <div class="price custom" *ngIf="getPrice(plan) === 0 && plan.plan === 'enterprise'">
+}
+                @if (getPrice(plan) === 0 && plan.plan === 'enterprise') {
+<div class="price custom">
                   <span class="amount">{{ 'PRICING.BILLING.CUSTOM' | translate }}</span>
                 </div>
+}
 
                 <!-- Economia Anual -->
-                <div class="savings" *ngIf="billingCycle() === 'yearly' && getPrice(plan) > 0">
+                @if (billingCycle() === 'yearly' && getPrice(plan) > 0) {
+<div class="savings">
                   <ion-text color="success">
                     <small>
                       {{ 'PRICING.BILLING.SAVE' | translate }} R$ {{ (plan.monthlyPrice * 12 - plan.yearlyPrice) | number:'1.2-2' }}
                     </small>
                   </ion-text>
                 </div>
+}
               </div>
             </ion-card-header>
 
             <ion-card-content>
               <!-- Features List -->
               <ion-list class="features-list" lines="none">
-                <ion-item *ngFor="let feature of getMainFeatures(plan.plan)">
+                @for (feature of getMainFeatures(plan.plan); track feature) {
+<ion-item>
                   <ion-icon
                     slot="start"
                     [name]="feature.included ? 'checkmark-circle' : 'close-circle'"
@@ -133,6 +151,7 @@
                     {{ feature.name }}
                   </ion-label>
                 </ion-item>
+}
               </ion-list>
 
               <!-- CTA Button -->
@@ -143,14 +162,19 @@
                 class="select-plan-btn"
                 size="large"
               >
-                <ion-spinner *ngIf="loading()" name="crescent"></ion-spinner>
-                <span *ngIf="!loading()">
+                @if (loading()) {
+<ion-spinner name="crescent"></ion-spinner>
+}
+                @if (!loading()) {
+<span>
                   {{ getButtonText(plan.plan) }}
                 </span>
+}
               </ion-button>
             </ion-card-content>
           </ion-card>
         </ion-col>
+}
       </ion-row>
     </ion-grid>
   </div>
@@ -169,17 +193,20 @@
           <ion-col size="4" class="feature-col">
             <strong>{{ 'PRICING.COMPARISON.FEATURES_LABEL' | translate }}</strong>
           </ion-col>
-          <ion-col size="2" *ngFor="let plan of plans" class="plan-col">
+          @for (plan of plans; track plan) {
+<ion-col size="2" class="plan-col">
             <div class="plan-header">
               <ion-icon [name]="plan.icon" [color]="plan.color"></ion-icon>
               <strong>{{ plan.name }}</strong>
             </div>
           </ion-col>
+}
         </ion-row>
 
         <!-- Feature Rows -->
-        <ion-row
-          *ngFor="let feature of features; let i = index"
+        @for (feature of features; track feature; let i = $index) {
+<ion-row
+         
           class="feature-row"
           [class.even]="i % 2 === 0"
         >
@@ -207,6 +234,7 @@
             </div>
           </ion-col>
         </ion-row>
+}
       </ion-grid>
     </div>
   </div>

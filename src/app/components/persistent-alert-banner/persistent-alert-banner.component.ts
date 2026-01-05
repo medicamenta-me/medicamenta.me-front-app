@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import {
@@ -20,11 +20,10 @@ import { CriticalAlertModalComponent } from '../critical-alert-modal/critical-al
   selector: 'app-persistent-alert-banner',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     IonIcon,
     IonButton
-  ],
+],
   template: `
     @if (hasCriticalAlerts()) {
       <div [class]="'persistent-banner ' + getSeverityClass()">

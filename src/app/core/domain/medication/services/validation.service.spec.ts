@@ -17,25 +17,51 @@ describe('ValidationService', () => {
   // TEST DATA HELPERS
   // =====================================================
 
-  const createValidMedication = (overrides: any = {}): MedicationEntity => {
-    return new MedicationEntity({
+  const createValidMedication = (overrides: any = {}): any => {
+    // Create a valid medication first, then override specific properties for testing
+    // For properties that would make the entity invalid, we'll use Object.defineProperty
+    // to bypass constructor validation
+    const defaultSchedule = overrides.schedule !== undefined ? overrides.schedule : [createValidDose('08:00')];
+    
+    const baseProps = {
       id: 'med-123',
       userId: 'user-123',
-      name: 'Paracetamol',
-      dosage: '500mg',
-      frequency: '8 em 8 horas',
+      name: overrides.name !== undefined && overrides.name === '' ? 'Temp' : (overrides.name || 'Paracetamol'),
+      dosage: overrides.dosage || '500mg',
+      frequency: overrides.frequency || '8 em 8 horas',
       time: '08:00',
-      currentStock: 10,
+      currentStock: overrides.currentStock !== undefined ? (overrides.currentStock >= 0 ? overrides.currentStock : 0) : 10,
       stockUnit: 'comprimidos',
       notes: 'Tomar com água',
-      active: true,
-      isArchived: false,
-      archivedAt: null,
-      schedule: [],
+      active: overrides.isArchived === true ? false : (overrides.active !== undefined ? overrides.active : true),
+      isArchived: overrides.isArchived || false,
+      archivedAt: overrides.archivedAt || null,
+      schedule: defaultSchedule,
       lastModified: new Date('2025-01-01'),
-      createdAt: new Date('2025-01-01'),
-      ...overrides
-    });
+      createdAt: new Date('2025-01-01')
+    };
+    
+    const medication = new MedicationEntity(baseProps);
+    
+    // Now override getters for invalid test cases
+    if (overrides.name === '') {
+      Object.defineProperty(medication, 'name', { get: () => '', configurable: true });
+    }
+    if (overrides.dosage === '') {
+      Object.defineProperty(medication, 'dosage', { get: () => '', configurable: true });
+    }
+    if (overrides.frequency === '') {
+      Object.defineProperty(medication, 'frequency', { get: () => '', configurable: true });
+    }
+    if (overrides.currentStock !== undefined && overrides.currentStock < 0) {
+      Object.defineProperty(medication, 'currentStock', { get: () => overrides.currentStock, configurable: true });
+    }
+    if (overrides.isArchived === true && overrides.active === true) {
+      Object.defineProperty(medication, 'active', { get: () => true, configurable: true });
+      Object.defineProperty(medication, 'isArchived', { get: () => true, configurable: true });
+    }
+    
+    return medication;
   };
 
   const createValidDose = (time: string = '08:00'): DoseEntity => {

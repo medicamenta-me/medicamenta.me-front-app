@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MedicationServiceV2 } from '../../services/medication-v2.service';
 import { PatientSelectorService } from '../../services/patient-selector.service';
@@ -62,7 +62,7 @@ import {
         <h1>{{ isEditMode ? ('MEDICATION_FORM.TITLE_EDIT' | translate) : ('MEDICATION_FORM.TITLE_NEW' | translate) }}</h1>
       </div>
 
-      <form [formGroup]="medicationForm" (ngSubmit)="saveMedication()">
+      <form [formGroup]="medicationForm" (ngSubmit)="saveMedication()" data-cy="medication-form">
         <!-- Patient Selection -->
         <div class="form-section">
           <h2 class="section-title">{{ 'MEDICATION_FORM.PATIENT' | translate }}</h2>
@@ -82,12 +82,19 @@ import {
               </label>
               <ion-input
                 id="med-name"
+                data-cy="medication-name"
                 class="accessible-input"
                 formControlName="name"
                 [placeholder]="'MEDICATIONS.NAME_PLACEHOLDER' | translate"
                 [attr.aria-label]="'MEDICATIONS.NAME' | translate"
                 aria-required="true">
               </ion-input>
+              @if (medicationForm.get('name')?.invalid && medicationForm.get('name')?.touched) {
+                <div class="error-message" data-cy="error-name">
+                  <ion-icon name="close-circle" aria-hidden="true"></ion-icon>
+                  <span>{{ 'MEDICATION_FORM.ERROR_NAME_REQUIRED' | translate }}</span>
+                </div>
+              }
             </div>
 
             <div class="input-group">
@@ -97,24 +104,32 @@ import {
               </label>
               <ion-input
                 id="med-dosage"
+                data-cy="medication-dosage"
                 class="accessible-input"
                 formControlName="dosage"
                 [placeholder]="'MEDICATIONS.DOSAGE_PLACEHOLDER' | translate"
                 [attr.aria-label]="'MEDICATIONS.DOSAGE' | translate"
                 aria-required="true">
               </ion-input>
+              @if (medicationForm.get('dosage')?.invalid && medicationForm.get('dosage')?.touched) {
+                <div class="error-message" data-cy="error-dosage">
+                  <ion-icon name="close-circle" aria-hidden="true"></ion-icon>
+                  <span>{{ 'MEDICATION_FORM.ERROR_DOSAGE_REQUIRED' | translate }}</span>
+                </div>
+              }
             </div>
 
             <div class="input-group">
-              <label class="input-label">
+              <div class="input-label section-label" role="heading" aria-level="3">
                 <ion-icon name="repeat-outline" aria-hidden="true"></ion-icon>
                 <span>{{ 'MEDICATIONS.FREQUENCY' | translate }}</span>
-              </label>
+              </div>
               <div class="frequency-row">
                 <div class="frequency-value">
                   <label for="freq-value" class="sr-only">{{ 'MEDICATION_FORM.FREQUENCY_VALUE' | translate }}</label>
                   <ion-input
                     id="freq-value"
+                    data-cy="frequency-value"
                     class="accessible-input"
                     type="number"
                     formControlName="frequencyValue"
@@ -128,11 +143,13 @@ import {
                   <label for="freq-unit" class="sr-only">{{ 'MEDICATION_FORM.FREQUENCY_UNIT' | translate }}</label>
                   <ion-select
                     id="freq-unit"
+                    data-cy="frequency-unit"
                     class="accessible-select"
                     formControlName="frequencyUnit"
                     interface="action-sheet"
                     [attr.aria-label]="'MEDICATION_FORM.FREQUENCY_UNIT' | translate">
-                    <ion-select-option value="minutes">{{ 'COMMON.MINUTES' | translate }}</ion-select-option>
+                    <!-- Combined data-cy for backward compatibility -->
+                    <ion-select-option data-cy="medication-frequency" value="minutes">{{ 'COMMON.MINUTES' | translate }}</ion-select-option>
                     <ion-select-option value="hours">{{ 'COMMON.HOURS' | translate }}</ion-select-option>
                     <ion-select-option value="days">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
                     <ion-select-option value="weeks">{{ 'COMMON.WEEKS' | translate }}</ion-select-option>
@@ -147,14 +164,20 @@ import {
                   <span>{{ 'MEDICATION_FORM.EVERY' | translate }} {{ getFrequencyDisplay() }}</span>
                 </div>
               }
+              @if ((medicationForm.get('frequencyValue')?.invalid && medicationForm.get('frequencyValue')?.touched) || (medicationForm.get('frequencyUnit')?.invalid && medicationForm.get('frequencyUnit')?.touched)) {
+                <div class="error-message" data-cy="error-frequency">
+                  <ion-icon name="close-circle" aria-hidden="true"></ion-icon>
+                  <span>{{ 'MEDICATION_FORM.ERROR_FREQUENCY_REQUIRED' | translate }}</span>
+                </div>
+              }
             </div>
 
             <!-- Stock Management (Phase B) -->
             <div class="input-group">
-              <label class="input-label">
+              <div class="input-label section-label" role="heading" aria-level="3">
                 <ion-icon name="repeat-outline" aria-hidden="true"></ion-icon>
                 <span>{{ 'MEDICATION_FORM.MEDICATION_TYPE' | translate }}</span>
-              </label>
+              </div>
               <div class="toggle-group">
                 <button type="button" 
                   class="toggle-btn"
@@ -187,6 +210,7 @@ import {
               </label>
               <ion-input
                 id="med-initial-stock"
+                data-cy="initial-stock"
                 class="accessible-input"
                 type="number"
                 formControlName="initialStock"
@@ -312,6 +336,7 @@ import {
                       <label [for]="'dose-time-' + $index" class="sr-only">{{ 'MEDICATION_FORM.TIME' | translate }} {{ $index + 1 }}</label>
                       <ion-input
                         [id]="'dose-time-' + $index"
+                        [attr.data-cy]="$index === 0 ? 'medication-time' : 'medication-time-' + $index"
                         class="accessible-input dose-time-input"
                         type="time"
                         formControlName="time"
@@ -392,6 +417,7 @@ import {
         <div class="bottom-actions">
           <button 
             type="button" 
+            data-cy="cancel-medication"
             class="action-btn-bottom back-btn" 
             routerLink="/tabs/medications"
             [attr.aria-label]="'COMMON.BACK' | translate">
@@ -400,6 +426,7 @@ import {
           </button>
           <button 
             type="submit" 
+            data-cy="save-medication"
             class="action-btn-bottom save-btn" 
             [disabled]="medicationForm.invalid"
             [attr.aria-label]="'MEDICATION_FORM.SAVE' | translate">
@@ -412,21 +439,20 @@ import {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
     PatientSelectorComponent,
-    IonHeader, 
-    IonToolbar, 
-    IonTitle, 
-    IonContent, 
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
     IonInput,
-    IonIcon, 
-    IonSelect, 
-    IonSelectOption, 
+    IonIcon,
+    IonSelect,
+    IonSelectOption,
     IonTextarea
-  ],
+],
   styleUrls: ['./medication-form.component.css'],
 })
 export class MedicationFormComponent implements OnInit {
@@ -553,17 +579,15 @@ export class MedicationFormComponent implements OnInit {
       if (intervalsPerDay > 0 && intervalsPerDay <= 48) {
         // Start from next hour after current time
         let nextHour = currentHour + 1;
-        let nextMinute = 0;
+        const nextMinute = 0;
         
         // If it's past midnight, wrap to next day
         if (nextHour >= 24) {
           nextHour = 0;
         }
 
-        let firstTimeInMinutes = nextHour * 60 + nextMinute;
+        const firstTimeInMinutes = nextHour * 60 + nextMinute;
 
-        console.log('[MedicationForm] Suggesting times - Current:', `${currentHour}:${currentMinute}`, 'First:', `${nextHour}:${nextMinute}`, 'Interval:', intervalMinutes, 'mins');
-        
         // Generate times starting from the next available time
         for (let i = 0; i < intervalsPerDay; i++) {
           const timeInMinutes = (firstTimeInMinutes + (i * intervalMinutes)) % 1440; // 1440 minutes in a day
@@ -623,7 +647,6 @@ export class MedicationFormComponent implements OnInit {
   suggestScheduleTimes() {
     // Only suggest if schedule is empty (don't overwrite user's manual edits)
     if (this.schedule.length > 0) {
-      console.log('[MedicationForm] Schedule already has values, skipping auto-suggestion');
       return;
     }
 
@@ -757,8 +780,6 @@ export class MedicationFormComponent implements OnInit {
         lowStockThreshold: formValue.lowStockThreshold || undefined,
         isArchived: false
       };
-
-      console.log('[MedicationForm] Saving medication for patient:', activePatient.name, medicationData);
 
       if (this.isEditMode && this.medId) {
         await this.medicationService.updateMedication(this.medId, medicationData);

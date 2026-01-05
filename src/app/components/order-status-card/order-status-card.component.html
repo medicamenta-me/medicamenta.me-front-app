@@ -1,0 +1,190 @@
+<!-- Order Status Card Template -->
+<!-- Exibe card visual com status do pedido e ações rápidas -->
+
+<ion-card
+  [class]="cardClass"
+  [button]="clickable"
+  (click)="onCardClick()"
+>
+  @if (clickable) {
+    <ion-ripple-effect></ion-ripple-effect>
+  }
+
+  <ion-card-header>
+    <!-- Header com logo e info básica -->
+    <div class="card-header-content">
+      <!-- Avatar da farmácia -->
+      @if (pharmacyLogo) {
+        <ion-avatar class="pharmacy-avatar">
+          <img [src]="pharmacyLogo" [alt]="pharmacyName" />
+        </ion-avatar>
+      } @else {
+        <ion-avatar class="pharmacy-avatar placeholder">
+          <ion-icon name="storefront"></ion-icon>
+        </ion-avatar>
+      }
+
+      <!-- Info principal -->
+      <div class="header-info">
+        <ion-card-title>{{ pharmacyName }}</ion-card-title>
+        <ion-card-subtitle>
+          <span class="order-id">{{ formatOrderId() }}</span>
+          <span class="separator">•</span>
+          <span class="item-count">
+            {{ itemCount }} {{ (itemCount === 1 ? 'MARKETPLACE_ORDERS.CARD.ITEM' : 'MARKETPLACE_ORDERS.CARD.ITEMS') | translate }}
+          </span>
+        </ion-card-subtitle>
+      </div>
+
+      <!-- Chevron para navegação -->
+      @if (clickable && displayMode !== 'compact') {
+        <ion-icon
+          name="chevron-forward"
+          class="chevron-icon"
+        ></ion-icon>
+      }
+    </div>
+
+    <!-- Status chip -->
+    <ion-chip
+      [color]="statusConfig.color"
+      class="status-chip"
+      [class.animate]="animateStatusChange"
+    >
+      <ion-icon [name]="statusConfig.icon"></ion-icon>
+      <ion-label>{{ statusConfig.labelKey | translate }}</ion-label>
+    </ion-chip>
+  </ion-card-header>
+
+  @if (displayMode !== 'compact') {
+    <ion-card-content>
+      <!-- Progress bar -->
+      @if (showProgress && !isFinalStatus) {
+        <div class="progress-section">
+          <ion-progress-bar
+            [value]="statusConfig.progressValue"
+            [color]="statusConfig.color"
+          ></ion-progress-bar>
+          <div class="progress-steps">
+            <span class="step" [class.active]="statusConfig.progressValue >= 0.1">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+            </span>
+            <span class="step" [class.active]="statusConfig.progressValue >= 0.25">
+              <ion-icon name="cube"></ion-icon>
+            </span>
+            <span class="step" [class.active]="statusConfig.progressValue >= 0.75">
+              <ion-icon [name]="getDeliveryIcon()"></ion-icon>
+            </span>
+            <span class="step" [class.active]="statusConfig.progressValue >= 1">
+              <ion-icon name="checkmark-circle"></ion-icon>
+            </span>
+          </div>
+        </div>
+      }
+
+      <!-- Informações do pedido -->
+      <div class="order-info">
+        <!-- Total -->
+        <div class="info-row">
+          <span class="label">{{ 'MARKETPLACE_ORDERS.CARD.TOTAL' | translate }}</span>
+          <span class="value total">{{ total | currency: 'BRL' }}</span>
+        </div>
+
+        <!-- Data de criação -->
+        @if (createdAt) {
+          <div class="info-row">
+            <span class="label">{{ 'MARKETPLACE_ORDERS.CARD.ORDERED_AT' | translate }}</span>
+            <span class="value">{{ createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        }
+
+        <!-- Estimativa de entrega -->
+        @if (shouldShowEstimate()) {
+          <div class="info-row estimate">
+            <ion-icon name="time-outline" color="primary"></ion-icon>
+            <span class="label">{{ 'MARKETPLACE_ORDERS.CARD.ESTIMATED_DELIVERY' | translate }}</span>
+            <span class="value highlight">{{ estimatedDelivery | date: 'dd/MM HH:mm' }}</span>
+          </div>
+        }
+
+        <!-- Código de rastreio -->
+        @if (trackingCode && canTrack) {
+          <div class="info-row tracking">
+            <ion-icon name="location" color="secondary"></ion-icon>
+            <span class="label">{{ 'MARKETPLACE_ORDERS.CARD.TRACKING' | translate }}</span>
+            <span class="value code">{{ trackingCode }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Ações -->
+      @if (showActions && displayMode === 'detailed') {
+        <div class="actions">
+          <!-- Ver detalhes -->
+          <ion-button
+            fill="outline"
+            size="small"
+            (click)="onViewDetails($event)"
+          >
+            <ion-icon slot="start" name="receipt-outline"></ion-icon>
+            {{ 'MARKETPLACE_ORDERS.ACTIONS.VIEW_DETAILS' | translate }}
+          </ion-button>
+
+          <!-- Rastrear (se disponível) -->
+          @if (canTrack) {
+            <ion-button
+              fill="solid"
+              size="small"
+              color="secondary"
+              (click)="onTrackOrder($event)"
+            >
+              <ion-icon slot="start" name="navigate-outline"></ion-icon>
+              {{ 'MARKETPLACE_ORDERS.ACTIONS.TRACK' | translate }}
+            </ion-button>
+          }
+
+          <!-- Contato -->
+          @if (!isFinalStatus) {
+            <ion-button
+              fill="clear"
+              size="small"
+              (click)="onContactPharmacy($event)"
+            >
+              <ion-icon slot="icon-only" name="chatbubble-outline"></ion-icon>
+            </ion-button>
+          }
+
+          <!-- Reordenar (se aplicável) -->
+          @if (canReorder) {
+            <ion-button
+              fill="solid"
+              size="small"
+              color="primary"
+              (click)="onReorder($event)"
+            >
+              <ion-icon slot="start" name="refresh-outline"></ion-icon>
+              {{ 'MARKETPLACE_ORDERS.ACTIONS.REORDER' | translate }}
+            </ion-button>
+          }
+        </div>
+      }
+
+      <!-- Status final messages -->
+      @if (isFinalStatus) {
+        <div class="final-status-message">
+          <ion-text [color]="statusConfig.color">
+            @if (isSuccessStatus) {
+              <p>{{ 'MARKETPLACE_ORDERS.MESSAGES.DELIVERED_SUCCESS' | translate }}</p>
+            }
+            @if (isErrorStatus && status === 'cancelled') {
+              <p>{{ 'MARKETPLACE_ORDERS.MESSAGES.ORDER_CANCELLED' | translate }}</p>
+            }
+            @if (isErrorStatus && status === 'refunded') {
+              <p>{{ 'MARKETPLACE_ORDERS.MESSAGES.ORDER_REFUNDED' | translate }}</p>
+            }
+          </ion-text>
+        </div>
+      }
+    </ion-card-content>
+  }
+</ion-card>

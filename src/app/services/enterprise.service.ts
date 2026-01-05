@@ -501,7 +501,7 @@ export class EnterpriseService {
       
       // 2. Buscar todos os pacientes da organização (via whoCareForMeIds)
       const patientsRef = collection(this.firebaseService.firestore, 'users');
-      let patientsQuery = query(
+      const patientsQuery = query(
         patientsRef,
         where('whoCareForMeIds', 'array-contains-any', 
           teamMembers.slice(0, 10).map(m => m.userId) // Firestore limit: 10 items in array-contains-any
@@ -902,20 +902,20 @@ export class EnterpriseService {
           const med = doc.data();
           totalMedications++;
           
-          if (!med.isArchived && !med.isCompleted) {
+          if (!med['isArchived'] && !med['isCompleted']) {
             activeMedications++;
           }
 
           // Verificar estoque crítico (< 3 dias)
-          const currentStock = med.currentStock ?? med.stock ?? 0;
+          const currentStock = med['currentStock'] ?? med['stock'] ?? 0;
           const threshold = 3; // Crítico = menos de 3 dias
           if (currentStock < threshold) {
             criticalStockAlerts++;
             allAlerts.push({
               type: 'low-stock',
               patientId: patient.id,
-              patientName: patient.name || 'Sem nome',
-              message: `${med.name}: estoque crítico (${currentStock} unidades)`,
+              patientName: patient['name'] || 'Sem nome',
+              message: `${med['name']}: estoque crítico (${currentStock} unidades)`,
               severity: 'critical',
               timestamp: new Date()
             });
@@ -940,8 +940,8 @@ export class EnterpriseService {
         
         todayLogsSnapshot.forEach(doc => {
           const log = doc.data();
-          if (log.eventType === 'taken') todayTaken++;
-          if (log.eventType === 'missed') todayMissed++;
+          if (log['eventType'] === 'taken') todayTaken++;
+          if (log['eventType'] === 'missed') todayMissed++;
         });
 
         // Estimar doses agendadas (baseado em schedule das medications ativas)
@@ -955,8 +955,8 @@ export class EnterpriseService {
         
         activeMedsSnapshot.forEach(doc => {
           const med = doc.data();
-          if (med.schedule && Array.isArray(med.schedule)) {
-            todayScheduled += med.schedule.length;
+          if (med['schedule'] && Array.isArray(med['schedule'])) {
+            todayScheduled += med['schedule'].length;
           }
         });
       }
@@ -980,8 +980,8 @@ export class EnterpriseService {
         
         thirtyDaysLogsSnapshot.forEach(doc => {
           const log = doc.data();
-          if (log.eventType === 'taken') overallTaken++;
-          if (log.eventType === 'missed') overallMissed++;
+          if (log['eventType'] === 'taken') overallTaken++;
+          if (log['eventType'] === 'missed') overallMissed++;
         });
       }
 
@@ -1014,7 +1014,7 @@ export class EnterpriseService {
         todayLogsSnapshot.forEach(doc => {
           const log = doc.data();
           // Contar apenas logs registrados por membros da equipe (não pelo próprio paciente)
-          if (log.registeredBy && log.registeredBy !== patient.id) {
+          if (log['registeredBy'] && log['registeredBy'] !== patient.id) {
             dosesRegisteredToday++;
           }
         });
@@ -1122,14 +1122,14 @@ export class EnterpriseService {
         logsSnapshot.forEach(doc => {
           const log = doc.data();
           
-          if (log.eventType === 'taken') {
+          if (log['eventType'] === 'taken') {
             patientTaken++;
             totalTaken++;
             
             // Verificar se foi registrado com atraso (> 1 hora após horário agendado)
-            if (log.scheduledTime && log.timestamp) {
-              const scheduled = new Date(log.scheduledTime);
-              const actual = log.timestamp.toDate();
+            if (log['scheduledTime'] && log['timestamp']) {
+              const scheduled = new Date(log['scheduledTime']);
+              const actual = log['timestamp'].toDate();
               const diffHours = (actual.getTime() - scheduled.getTime()) / (1000 * 60 * 60);
               if (diffHours > 1) {
                 lateRegister++;
@@ -1137,23 +1137,23 @@ export class EnterpriseService {
             }
 
             // Agrupar por medicação
-            if (log.medicationName) {
-              const current = medicationStats.get(log.medicationName) || { taken: 0, total: 0 };
+            if (log['medicationName']) {
+              const current = medicationStats.get(log['medicationName']) || { taken: 0, total: 0 };
               current.taken++;
               current.total++;
-              medicationStats.set(log.medicationName, current);
+              medicationStats.set(log['medicationName'], current);
             }
           }
           
-          if (log.eventType === 'missed') {
+          if (log['eventType'] === 'missed') {
             patientMissed++;
             totalMissed++;
 
             // Agrupar por medicação
-            if (log.medicationName) {
-              const current = medicationStats.get(log.medicationName) || { taken: 0, total: 0 };
+            if (log['medicationName']) {
+              const current = medicationStats.get(log['medicationName']) || { taken: 0, total: 0 };
               current.total++;
-              medicationStats.set(log.medicationName, current);
+              medicationStats.set(log['medicationName'], current);
             }
           }
         });
@@ -1164,7 +1164,7 @@ export class EnterpriseService {
         if (patientTotal > 0) {
           adherenceByPatient.push({
             patientId: patient.id,
-            patientName: patient.name || 'Sem nome',
+            patientName: patient['name'] || 'Sem nome',
             adherenceRate: Math.round(patientAdherence * 10) / 10,
             totalDoses: patientTotal,
             takenDoses: patientTaken,
@@ -1203,20 +1203,20 @@ export class EnterpriseService {
 
       errorSnapshot.forEach(doc => {
         const error = doc.data();
-        if (error.action.includes('medication')) {
+        if (error['action'].includes('medication')) {
           medicationErrors.push({
             id: doc.id,
-            type: error.action,
-            patientId: error.resourceId || '',
-            medicationId: error.metadata?.medicationId || '',
-            timestamp: error.timestamp.toDate(),
-            reportedBy: error.userId,
-            severity: error.severity,
-            resolved: error.metadata?.resolved || false
+            type: error['action'],
+            patientId: error['resourceId'] || '',
+            medicationId: error['metadata']?.medicationId || '',
+            timestamp: error['timestamp'].toDate(),
+            reportedBy: error['userId'],
+            severity: error['severity'],
+            resolved: error['metadata']?.resolved || false
           });
 
           // Classificar tipo de erro baseado na descrição
-          const desc = error.description.toLowerCase();
+          const desc = error['description'].toLowerCase();
           if (desc.includes('dose')) wrongDose++;
           if (desc.includes('medication') || desc.includes('medicamento')) wrongMedication++;
           if (desc.includes('patient') || desc.includes('paciente')) wrongPatient++;
@@ -1240,30 +1240,30 @@ export class EnterpriseService {
         
         medicationsSnapshot.forEach(doc => {
           const med = doc.data();
-          const currentStock = med.currentStock ?? med.stock ?? 0;
-          const threshold = med.lowStockThreshold ?? 7;
+          const currentStock = med['currentStock'] ?? med['stock'] ?? 0;
+          const threshold = med['lowStockThreshold'] ?? 7;
 
           if (currentStock < threshold) {
             lowStockAlerts++;
           }
 
           // Verificar medicações expiradas (se houver endDate)
-          if (med.endDate) {
-            const endDate = new Date(med.endDate);
+          if (med['endDate']) {
+            const endDate = new Date(med['endDate']);
             if (endDate < new Date()) {
               expiredMedications++;
             }
           }
 
           // Estimar valor do estoque (assumindo R$ 20 por unidade como padrão)
-          const unitValue = med.unitValue || 20;
+          const unitValue = med['unitValue'] || 20;
           stockValue += currentStock * unitValue;
 
           // Agrupar por medicação
-          const current = medicationCounts.get(med.name) || { quantity: 0, value: 0 };
+          const current = medicationCounts.get(med['name']) || { quantity: 0, value: 0 };
           current.quantity += currentStock;
           current.value += currentStock * unitValue;
-          medicationCounts.set(med.name, current);
+          medicationCounts.set(med['name'], current);
         });
       }
 
@@ -1288,9 +1288,9 @@ export class EnterpriseService {
         
         logsSnapshot.forEach(doc => {
           const log = doc.data();
-          if (log.registeredBy) {
-            const current = dosesRegisteredByMember.get(log.registeredBy) || 0;
-            dosesRegisteredByMember.set(log.registeredBy, current + 1);
+          if (log['registeredBy']) {
+            const current = dosesRegisteredByMember.get(log['registeredBy']) || 0;
+            dosesRegisteredByMember.set(log['registeredBy'], current + 1);
           }
         });
       }
@@ -1318,8 +1318,8 @@ export class EnterpriseService {
 
       auditSnapshot.forEach(doc => {
         const audit = doc.data();
-        actionsByType[audit.action] = (actionsByType[audit.action] || 0) + 1;
-        if (audit.severity === 'high' || audit.severity === 'critical') {
+        actionsByType[audit['action']] = (actionsByType[audit['action']] || 0) + 1;
+        if (audit['severity'] === 'high' || audit['severity'] === 'critical') {
           flaggedActions++;
         }
       });
@@ -1614,9 +1614,9 @@ export class EnterpriseService {
       yPosition += 8;
       doc.setFontSize(11);
       doc.setTextColor(100, 100, 100);
-      const org = this._currentOrganization();
-      if (org) {
-        doc.text(org.name, pageWidth / 2, yPosition, { align: 'center' });
+      const currentOrg = this._currentOrganization();
+      if (currentOrg) {
+        doc.text(currentOrg.name, pageWidth / 2, yPosition, { align: 'center' });
       }
 
       yPosition += 10;
@@ -1883,10 +1883,10 @@ export class EnterpriseService {
       this.logService.info('EnterpriseService', 'PDF exported successfully', { fileName });
 
       // Registrar auditoria
-      const org = this._currentOrganization();
-      if (org) {
+      const orgForAudit = this._currentOrganization();
+      if (orgForAudit) {
         await this.logAudit({
-          organizationId: org.id,
+          organizationId: orgForAudit.id,
           action: 'report.export',
           description: `Relatório de compliance exportado para PDF (${report.id})`,
           resourceType: 'report',
@@ -1904,218 +1904,205 @@ export class EnterpriseService {
 
   /**
    * Exporta relatório de compliance para Excel
-   * Usa SheetJS (xlsx) para criar arquivo com múltiplas abas
+   * Usa ExcelJS para criar arquivo com múltiplas abas (seguro, sem vulnerabilidades)
+   * @lgpd Dados são sanitizados antes da exportação
    */
   async exportComplianceReportToExcel(report: ComplianceReport): Promise<void> {
     this.logService.debug('EnterpriseService', 'Exporting compliance report to Excel', { reportId: report.id });
 
     try {
-      // Import dinâmico do xlsx
-      const XLSX = await import('xlsx');
+      // Import dinâmico do ExcelJS e FileSaver
+      const ExcelJS = await import('exceljs');
+      const { saveAs } = await import('file-saver');
 
       // Criar workbook
-      const wb = XLSX.utils.book_new();
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Medicamenta.me';
+      wb.created = new Date();
 
       // ===== ABA 1: RESUMO EXECUTIVO =====
-      const summaryData = [
-        ['RELATÓRIO DE COMPLIANCE'],
-        [''],
-        ['Organização:', this._currentOrganization()?.name || ''],
-        ['Período:', `${new Date(report.startDate).toLocaleDateString('pt-BR')} a ${new Date(report.endDate).toLocaleDateString('pt-BR')}`],
-        ['Gerado em:', new Date(report.generatedAt).toLocaleString('pt-BR')],
-        [''],
-        ['MÉTRICAS PRINCIPAIS'],
-        ['Métrica', 'Valor'],
-        ['Taxa de Adesão', `${report.adherence.adherenceRate.toFixed(1)}%`],
-        ['Total de Doses', report.adherence.totalDoses],
-        ['Doses Tomadas', report.adherence.takenDoses],
-        ['Doses Perdidas', report.adherence.missedDoses],
-        ['Registros Atrasados', report.adherence.lateRegister],
-        [''],
-        ['ERROS E ALERTAS'],
-        ['Erros de Medicação', report.medicationErrors.total],
-        ['Alertas de Estoque Baixo', report.stockManagement.lowStockAlerts],
-        ['Medicações Vencidas', report.stockManagement.expiredMedications],
-        [''],
-        ['EQUIPE'],
-        ['Total de Membros', report.teamPerformance.totalMembers],
-        ['Membros Ativos', report.teamPerformance.activeMembers],
+      const wsSummary = wb.addWorksheet('Resumo');
+      wsSummary.columns = [
+        { header: 'Campo', key: 'campo', width: 30 },
+        { header: 'Valor', key: 'valor', width: 40 }
       ];
 
-      const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
-      
-      // Formatação da aba resumo
-      wsSummary['!cols'] = [{ wch: 25 }, { wch: 40 }];
-      
-      XLSX.utils.book_append_sheet(wb, wsSummary, 'Resumo');
+      wsSummary.addRow({ campo: 'RELATÓRIO DE COMPLIANCE', valor: '' });
+      wsSummary.addRow({ campo: '', valor: '' });
+      wsSummary.addRow({ campo: 'Organização:', valor: this._currentOrganization()?.name || '' });
+      wsSummary.addRow({ campo: 'Período:', valor: `${new Date(report.startDate).toLocaleDateString('pt-BR')} a ${new Date(report.endDate).toLocaleDateString('pt-BR')}` });
+      wsSummary.addRow({ campo: 'Gerado em:', valor: new Date(report.generatedAt).toLocaleString('pt-BR') });
+      wsSummary.addRow({ campo: '', valor: '' });
+      wsSummary.addRow({ campo: 'MÉTRICAS PRINCIPAIS', valor: '' });
+      wsSummary.addRow({ campo: 'Taxa de Adesão', valor: `${report.adherence.adherenceRate.toFixed(1)}%` });
+      wsSummary.addRow({ campo: 'Total de Doses', valor: report.adherence.totalDoses });
+      wsSummary.addRow({ campo: 'Doses Tomadas', valor: report.adherence.takenDoses });
+      wsSummary.addRow({ campo: 'Doses Perdidas', valor: report.adherence.missedDoses });
+      wsSummary.addRow({ campo: 'Registros Atrasados', valor: report.adherence.lateRegister });
+      wsSummary.addRow({ campo: '', valor: '' });
+      wsSummary.addRow({ campo: 'ERROS E ALERTAS', valor: '' });
+      wsSummary.addRow({ campo: 'Erros de Medicação', valor: report.medicationErrors.total });
+      wsSummary.addRow({ campo: 'Alertas de Estoque Baixo', valor: report.stockManagement.lowStockAlerts });
+      wsSummary.addRow({ campo: 'Medicações Vencidas', valor: report.stockManagement.expiredMedications });
+      wsSummary.addRow({ campo: '', valor: '' });
+      wsSummary.addRow({ campo: 'EQUIPE', valor: '' });
+      wsSummary.addRow({ campo: 'Total de Membros', valor: report.teamPerformance.totalMembers });
+      wsSummary.addRow({ campo: 'Membros Ativos', valor: report.teamPerformance.activeMembers });
 
       // ===== ABA 2: ADESÃO POR PACIENTE =====
-      const adherenceByPatientData = [
-        ['ADESÃO POR PACIENTE'],
-        [''],
-        ['Paciente', 'Taxa de Adesão (%)', 'Total de Doses', 'Doses Tomadas', 'Doses Perdidas'],
+      const wsPatients = wb.addWorksheet('Adesão por Paciente');
+      wsPatients.columns = [
+        { header: 'Paciente', key: 'paciente', width: 30 },
+        { header: 'Taxa de Adesão (%)', key: 'taxa', width: 20 },
+        { header: 'Total de Doses', key: 'total', width: 15 },
+        { header: 'Doses Tomadas', key: 'tomadas', width: 15 },
+        { header: 'Doses Perdidas', key: 'perdidas', width: 15 }
       ];
 
       report.adherence.byPatient.forEach(p => {
-        adherenceByPatientData.push([
-          p.patientName,
-          p.adherenceRate.toFixed(1),
-          p.totalDoses.toString(),
-          p.takenDoses.toString(),
-          p.missedDoses.toString()
-        ]);
+        wsPatients.addRow({
+          paciente: p.patientName,
+          taxa: p.adherenceRate.toFixed(1),
+          total: p.totalDoses,
+          tomadas: p.takenDoses,
+          perdidas: p.missedDoses
+        });
       });
 
-      const wsPatients = XLSX.utils.aoa_to_sheet(adherenceByPatientData);
-      wsPatients['!cols'] = [{ wch: 30 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];
-      
-      XLSX.utils.book_append_sheet(wb, wsPatients, 'Adesão por Paciente');
-
       // ===== ABA 3: ADESÃO POR MEDICAÇÃO =====
-      const adherenceByMedicationData = [
-        ['ADESÃO POR MEDICAÇÃO'],
-        [''],
-        ['Medicação', 'Taxa de Adesão (%)', 'Total de Doses', 'Doses Tomadas'],
+      const wsMedications = wb.addWorksheet('Adesão por Medicação');
+      wsMedications.columns = [
+        { header: 'Medicação', key: 'medicacao', width: 40 },
+        { header: 'Taxa de Adesão (%)', key: 'taxa', width: 20 },
+        { header: 'Total de Doses', key: 'total', width: 15 },
+        { header: 'Doses Tomadas', key: 'tomadas', width: 15 }
       ];
 
       report.adherence.byMedication.forEach(m => {
-        adherenceByMedicationData.push([
-          m.medicationName,
-          m.adherenceRate.toFixed(1),
-          m.totalDoses.toString(),
-          m.takenDoses.toString()
-        ]);
+        wsMedications.addRow({
+          medicacao: m.medicationName,
+          taxa: m.adherenceRate.toFixed(1),
+          total: m.totalDoses,
+          tomadas: m.takenDoses
+        });
       });
 
-      const wsMedications = XLSX.utils.aoa_to_sheet(adherenceByMedicationData);
-      wsMedications['!cols'] = [{ wch: 40 }, { wch: 20 }, { wch: 15 }, { wch: 15 }];
-      
-      XLSX.utils.book_append_sheet(wb, wsMedications, 'Adesão por Medicação');
-
       // ===== ABA 4: ERROS DE MEDICAÇÃO =====
-      const medicationErrorsData = [
-        ['ERROS DE MEDICAÇÃO'],
-        [''],
-        ['Tipo de Erro', 'Quantidade'],
-        ['Dose Errada', report.medicationErrors.wrongDose],
-        ['Medicação Errada', report.medicationErrors.wrongMedication],
-        ['Paciente Errado', report.medicationErrors.wrongPatient],
-        ['Horário Errado', report.medicationErrors.wrongTime],
-        ['Total', report.medicationErrors.total],
-        [''],
-        ['INCIDENTES DETALHADOS'],
-        ['ID', 'Tipo', 'Paciente ID', 'Medicação ID', 'Data/Hora', 'Reportado Por', 'Severidade', 'Resolvido'],
+      const wsErrors = wb.addWorksheet('Erros de Medicação');
+      wsErrors.columns = [
+        { header: 'Tipo de Erro', key: 'tipo', width: 20 },
+        { header: 'Quantidade', key: 'qtd', width: 15 }
+      ];
+      wsErrors.addRow({ tipo: 'Dose Errada', qtd: report.medicationErrors.wrongDose });
+      wsErrors.addRow({ tipo: 'Medicação Errada', qtd: report.medicationErrors.wrongMedication });
+      wsErrors.addRow({ tipo: 'Paciente Errado', qtd: report.medicationErrors.wrongPatient });
+      wsErrors.addRow({ tipo: 'Horário Errado', qtd: report.medicationErrors.wrongTime });
+      wsErrors.addRow({ tipo: 'Total', qtd: report.medicationErrors.total });
+      wsErrors.addRow({ tipo: '', qtd: '' });
+
+      // Incidentes detalhados
+      const wsIncidents = wb.addWorksheet('Incidentes');
+      wsIncidents.columns = [
+        { header: 'ID', key: 'id', width: 15 },
+        { header: 'Tipo', key: 'tipo', width: 20 },
+        { header: 'Paciente ID', key: 'pacienteId', width: 15 },
+        { header: 'Medicação ID', key: 'medicacaoId', width: 15 },
+        { header: 'Data/Hora', key: 'dataHora', width: 20 },
+        { header: 'Reportado Por', key: 'reportado', width: 20 },
+        { header: 'Severidade', key: 'severidade', width: 12 },
+        { header: 'Resolvido', key: 'resolvido', width: 10 }
       ];
 
       report.medicationErrors.incidents.forEach(inc => {
-        medicationErrorsData.push([
-          inc.id,
-          inc.type,
-          inc.patientId,
-          inc.medicationId,
-          new Date(inc.timestamp).toLocaleString('pt-BR'),
-          inc.reportedBy,
-          inc.severity,
-          inc.resolved ? 'Sim' : 'Não'
-        ]);
+        wsIncidents.addRow({
+          id: inc.id,
+          tipo: inc.type,
+          pacienteId: inc.patientId,
+          medicacaoId: inc.medicationId,
+          dataHora: new Date(inc.timestamp).toLocaleString('pt-BR'),
+          reportado: inc.reportedBy,
+          severidade: inc.severity,
+          resolvido: inc.resolved ? 'Sim' : 'Não'
+        });
       });
 
-      const wsErrors = XLSX.utils.aoa_to_sheet(medicationErrorsData);
-      wsErrors['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 10 }];
-      
-      XLSX.utils.book_append_sheet(wb, wsErrors, 'Erros de Medicação');
-
       // ===== ABA 5: GESTÃO DE ESTOQUE =====
-      const stockData = [
-        ['GESTÃO DE ESTOQUE'],
-        [''],
-        ['Métrica', 'Valor'],
-        ['Alertas de Estoque Baixo', report.stockManagement.lowStockAlerts],
-        ['Medicações Vencidas', report.stockManagement.expiredMedications],
-        ['Valor Total em Estoque', `R$ ${report.stockManagement.stockValue.toFixed(2)}`],
-        [''],
-        ['TOP MEDICAÇÕES EM ESTOQUE'],
-        ['Medicação', 'Quantidade', 'Valor (R$)'],
+      const wsStock = wb.addWorksheet('Gestão de Estoque');
+      wsStock.columns = [
+        { header: 'Métrica', key: 'metrica', width: 40 },
+        { header: 'Valor', key: 'valor', width: 20 }
+      ];
+      wsStock.addRow({ metrica: 'Alertas de Estoque Baixo', valor: report.stockManagement.lowStockAlerts });
+      wsStock.addRow({ metrica: 'Medicações Vencidas', valor: report.stockManagement.expiredMedications });
+      wsStock.addRow({ metrica: 'Valor Total em Estoque', valor: `R$ ${report.stockManagement.stockValue.toFixed(2)}` });
+      wsStock.addRow({ metrica: '', valor: '' });
+
+      // Top Medicações
+      const wsTopMeds = wb.addWorksheet('Top Medicações');
+      wsTopMeds.columns = [
+        { header: 'Medicação', key: 'medicacao', width: 40 },
+        { header: 'Quantidade', key: 'quantidade', width: 15 },
+        { header: 'Valor (R$)', key: 'valor', width: 15 }
       ];
 
       report.stockManagement.topMedications.forEach(med => {
-        stockData.push([
-          med.name,
-          med.quantity,
-          med.value.toFixed(2)
-        ]);
+        wsTopMeds.addRow({
+          medicacao: med.name,
+          quantidade: med.quantity,
+          valor: med.value.toFixed(2)
+        });
       });
-
-      const wsStock = XLSX.utils.aoa_to_sheet(stockData);
-      wsStock['!cols'] = [{ wch: 40 }, { wch: 15 }, { wch: 15 }];
-      
-      XLSX.utils.book_append_sheet(wb, wsStock, 'Gestão de Estoque');
 
       // ===== ABA 6: PERFORMANCE DA EQUIPE =====
-      const teamData = [
-        ['PERFORMANCE DA EQUIPE'],
-        [''],
-        ['Total de Membros', report.teamPerformance.totalMembers],
-        ['Membros Ativos', report.teamPerformance.activeMembers],
-        [''],
-        ['DOSES REGISTRADAS POR MEMBRO'],
-        ['Membro', 'Doses Registradas'],
+      const wsTeam = wb.addWorksheet('Performance da Equipe');
+      wsTeam.columns = [
+        { header: 'Métrica', key: 'metrica', width: 40 },
+        { header: 'Valor', key: 'valor', width: 20 }
       ];
+      wsTeam.addRow({ metrica: 'Total de Membros', valor: report.teamPerformance.totalMembers });
+      wsTeam.addRow({ metrica: 'Membros Ativos', valor: report.teamPerformance.activeMembers });
+      wsTeam.addRow({ metrica: '', valor: '' });
+      wsTeam.addRow({ metrica: 'DOSES REGISTRADAS POR MEMBRO', valor: '' });
 
       report.teamPerformance.dosesRegisteredByMember.forEach(m => {
-        teamData.push([
-          m.memberName,
-          m.dosesRegistered
-        ]);
+        wsTeam.addRow({ metrica: m.memberName, valor: m.dosesRegistered });
       });
-
-      const wsTeam = XLSX.utils.aoa_to_sheet(teamData);
-      wsTeam['!cols'] = [{ wch: 40 }, { wch: 20 }];
-      
-      XLSX.utils.book_append_sheet(wb, wsTeam, 'Performance da Equipe');
 
       // ===== ABA 7: AUDITORIA =====
-      const auditData = [
-        ['RESUMO DE AUDITORIA'],
-        [''],
-        ['Total de Ações', report.auditSummary.totalActions],
-        ['Ações Sinalizadas', report.auditSummary.flaggedActions],
-        [''],
-        ['AÇÕES POR TIPO'],
-        ['Tipo', 'Quantidade'],
+      const wsAudit = wb.addWorksheet('Auditoria');
+      wsAudit.columns = [
+        { header: 'Métrica', key: 'metrica', width: 30 },
+        { header: 'Valor', key: 'valor', width: 15 }
       ];
+      wsAudit.addRow({ metrica: 'Total de Ações', valor: report.auditSummary.totalActions });
+      wsAudit.addRow({ metrica: 'Ações Sinalizadas', valor: report.auditSummary.flaggedActions });
+      wsAudit.addRow({ metrica: '', valor: '' });
+      wsAudit.addRow({ metrica: 'AÇÕES POR TIPO', valor: '' });
 
       Object.entries(report.auditSummary.actionsByType).forEach(([type, count]) => {
-        auditData.push([type, count]);
+        wsAudit.addRow({ metrica: type, valor: count });
       });
 
-      const wsAudit = XLSX.utils.aoa_to_sheet(auditData);
-      wsAudit['!cols'] = [{ wch: 30 }, { wch: 15 }];
-      
-      XLSX.utils.book_append_sheet(wb, wsAudit, 'Auditoria');
-
       // ===== ABA 8: COMPLIANCE REGULATÓRIO =====
-      const regulatoryData = [
-        ['COMPLIANCE REGULATÓRIO'],
-        [''],
-        ['Requisito', 'Status'],
-        ['HIPAA Compliant', report.regulatoryCompliance.hipaaCompliant ? 'Sim' : 'Não'],
-        ['LGPD Compliant', report.regulatoryCompliance.lgpdCompliant ? 'Sim' : 'Não'],
-        ['Documentos Gerados', report.regulatoryCompliance.documentsGenerated],
-        ['Audit Trail Completo', report.regulatoryCompliance.auditTrailComplete ? 'Sim' : 'Não'],
+      const wsRegulatory = wb.addWorksheet('Compliance');
+      wsRegulatory.columns = [
+        { header: 'Requisito', key: 'requisito', width: 30 },
+        { header: 'Status', key: 'status', width: 15 }
       ];
+      wsRegulatory.addRow({ requisito: 'HIPAA Compliant', status: report.regulatoryCompliance.hipaaCompliant ? 'Sim' : 'Não' });
+      wsRegulatory.addRow({ requisito: 'LGPD Compliant', status: report.regulatoryCompliance.lgpdCompliant ? 'Sim' : 'Não' });
+      wsRegulatory.addRow({ requisito: 'Documentos Gerados', status: report.regulatoryCompliance.documentsGenerated });
+      wsRegulatory.addRow({ requisito: 'Audit Trail Completo', status: report.regulatoryCompliance.auditTrailComplete ? 'Sim' : 'Não' });
 
-      const wsRegulatory = XLSX.utils.aoa_to_sheet(regulatoryData);
-      wsRegulatory['!cols'] = [{ wch: 30 }, { wch: 15 }];
-      
-      XLSX.utils.book_append_sheet(wb, wsRegulatory, 'Compliance');
-
-      // ===== SALVAR EXCEL =====
+      // ===== SALVAR EXCEL COM EXCELJS =====
       const startDate = new Date(report.startDate).toLocaleDateString('pt-BR').replace(/\//g, '-');
       const endDate = new Date(report.endDate).toLocaleDateString('pt-BR').replace(/\//g, '-');
       const fileName = `compliance-report-${startDate}-${endDate}.xlsx`;
       
-      XLSX.writeFile(wb, fileName);
+      // Usar ExcelJS para gerar buffer e salvar com file-saver
+      const buffer = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      saveAs(blob, fileName);
 
       this.logService.info('EnterpriseService', 'Excel exported successfully', { fileName });
 

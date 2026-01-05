@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, OnDestroy } from '@angular/core';
 import { LogService } from './log.service';
 
 /**
@@ -49,7 +49,7 @@ export interface CacheConfig {
 @Injectable({
   providedIn: 'root'
 })
-export class CacheManagerService {
+export class CacheManagerService implements OnDestroy {
   private readonly logService = inject(LogService);
   
   private cache = new Map<string, CacheEntry>();

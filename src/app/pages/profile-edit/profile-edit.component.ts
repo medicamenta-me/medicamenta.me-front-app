@@ -39,7 +39,7 @@ import { saveOutline } from 'ionicons/icons';
         <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
           <div class="form-container">
             <div class="form-field">
-              <label class="field-label">{{ 'PROFILE.FULL_NAME' | translate }}</label>
+              <div class="field-label section-label" role="heading" aria-level="3">{{ 'PROFILE.FULL_NAME' | translate }}</div>
               <ion-input 
                 class="accessible-input"
                 formControlName="name" 
@@ -49,7 +49,7 @@ import { saveOutline } from 'ionicons/icons';
             </div>
 
             <div class="form-field">
-              <label class="field-label">{{ 'PROFILE.EMAIL' | translate }}</label>
+              <div class="field-label section-label" role="heading" aria-level="3">{{ 'PROFILE.EMAIL' | translate }}</div>
               <ion-input 
                 class="accessible-input readonly"
                 formControlName="email" 
@@ -60,7 +60,7 @@ import { saveOutline } from 'ionicons/icons';
             </div>
 
             <div class="form-field">
-              <label class="field-label">{{ 'PROFILE.ROLE' | translate }}</label>
+              <div class="field-label section-label" role="heading" aria-level="3">{{ 'PROFILE.ROLE' | translate }}</div>
               <ion-select 
                 class="accessible-select"
                 formControlName="role" 
@@ -75,7 +75,7 @@ import { saveOutline } from 'ionicons/icons';
             </div>
 
             <div class="form-field">
-              <label class="field-label">{{ 'PROFILE.PHONE' | translate }}</label>
+              <div class="field-label section-label" role="heading" aria-level="3">{{ 'PROFILE.PHONE' | translate }}</div>
               <app-phone-input formControlName="phone"></app-phone-input>
             </div>
           </div>

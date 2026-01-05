@@ -1,0 +1,491 @@
+/**
+ * Order Status Card Styles
+ * 
+ * Estilos para o card de status de pedido.
+ * Suporta dark mode, animações e responsividade.
+ */
+
+// Variables
+$card-border-radius: 16px;
+$avatar-size: 48px;
+$avatar-size-compact: 36px;
+
+// Animations
+@keyframes pulse-highlight {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--ion-color-primary-rgb), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(var(--ion-color-primary-rgb), 0);
+  }
+}
+
+@keyframes status-change {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Host
+:host {
+  display: block;
+}
+
+// Card Base
+.order-status-card {
+  --background: var(--ion-card-background, var(--ion-item-background, var(--ion-background-color)));
+  
+  margin: 8px;
+  border-radius: $card-border-radius;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  // Clickable state
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  // Highlighted state
+  &.highlighted {
+    animation: pulse-highlight 2s infinite;
+    border: 2px solid var(--ion-color-primary);
+  }
+
+  // Status-specific borders
+  &.status-delivered {
+    border-left: 4px solid var(--ion-color-success);
+  }
+
+  &.status-cancelled,
+  &.status-refunded {
+    border-left: 4px solid var(--ion-color-danger);
+    opacity: 0.85;
+  }
+
+  &.status-pending {
+    border-left: 4px solid var(--ion-color-warning);
+  }
+
+  &.status-out_for_delivery {
+    border-left: 4px solid var(--ion-color-secondary);
+  }
+
+  &.status-preparing,
+  &.status-confirmed {
+    border-left: 4px solid var(--ion-color-primary);
+  }
+
+  // Final status opacity
+  &.final {
+    ion-card-content {
+      opacity: 0.9;
+    }
+  }
+}
+
+// Card Header
+ion-card-header {
+  padding: 16px;
+  padding-bottom: 12px;
+}
+
+.card-header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// Pharmacy Avatar
+.pharmacy-avatar {
+  width: $avatar-size;
+  height: $avatar-size;
+  flex-shrink: 0;
+
+  &.placeholder {
+    background: var(--ion-color-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 24px;
+      color: var(--ion-color-medium);
+    }
+  }
+
+  img {
+    object-fit: cover;
+  }
+}
+
+// Header Info
+.header-info {
+  flex: 1;
+  min-width: 0;
+
+  ion-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+
+  ion-card-subtitle {
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+}
+
+.order-id {
+  font-family: monospace;
+  font-weight: 500;
+  color: var(--ion-color-dark);
+}
+
+.separator {
+  color: var(--ion-color-light-shade);
+}
+
+.item-count {
+  color: var(--ion-color-medium);
+}
+
+// Chevron Icon
+.chevron-icon {
+  color: var(--ion-color-medium);
+  font-size: 20px;
+  transition: transform 0.2s ease;
+
+  .order-status-card:hover & {
+    transform: translateX(4px);
+  }
+}
+
+// Status Chip
+.status-chip {
+  margin-top: 12px;
+  height: 28px;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  ion-icon {
+    font-size: 16px;
+    margin-right: 4px;
+  }
+
+  &.animate {
+    animation: status-change 0.5s ease;
+  }
+}
+
+// Card Content
+ion-card-content {
+  padding: 0 16px 16px;
+}
+
+// Progress Section
+.progress-section {
+  margin-bottom: 16px;
+
+  ion-progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    --background: var(--ion-color-light);
+  }
+
+  .progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 0 4px;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--ion-color-light);
+    transition: all 0.3s ease;
+
+    ion-icon {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+    }
+
+    &.active {
+      background: var(--ion-color-primary);
+
+      ion-icon {
+        color: var(--ion-color-primary-contrast);
+      }
+    }
+  }
+}
+
+// Order Info
+.order-info {
+  background: var(--ion-color-light);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--ion-color-light-shade);
+  }
+
+  .label {
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+  }
+
+  .value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--ion-color-dark);
+
+    &.total {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--ion-color-primary);
+    }
+
+    &.highlight {
+      color: var(--ion-color-secondary);
+    }
+
+    &.code {
+      font-family: monospace;
+      background: var(--ion-color-light-shade);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+  }
+
+  &.estimate,
+  &.tracking {
+    ion-icon {
+      margin-right: 6px;
+    }
+  }
+}
+
+// Actions
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+
+  ion-button {
+    --border-radius: 8px;
+    font-size: 0.85rem;
+    height: 36px;
+  }
+}
+
+// Final Status Message
+.final-status-message {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--ion-color-light);
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+// ===========================================
+// MODE: COMPACT
+// ===========================================
+.mode-compact {
+  ion-card-header {
+    padding: 12px;
+  }
+
+  .pharmacy-avatar {
+    width: $avatar-size-compact;
+    height: $avatar-size-compact;
+  }
+
+  .header-info {
+    ion-card-title {
+      font-size: 0.9rem;
+    }
+
+    ion-card-subtitle {
+      font-size: 0.75rem;
+    }
+  }
+
+  .status-chip {
+    margin-top: 8px;
+    height: 24px;
+    font-size: 0.75rem;
+
+    ion-icon {
+      font-size: 14px;
+    }
+  }
+}
+
+// ===========================================
+// MODE: DETAILED
+// ===========================================
+.mode-detailed {
+  .order-info {
+    .info-row {
+      padding: 8px 0;
+
+      .label {
+        font-size: 0.9rem;
+      }
+
+      .value {
+        font-size: 0.95rem;
+      }
+    }
+  }
+}
+
+// ===========================================
+// DARK MODE
+// ===========================================
+:host-context(body.dark),
+:host-context(.ion-palette-dark) {
+  .order-status-card {
+    --background: var(--ion-color-dark);
+
+    &.clickable:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    &.status-cancelled,
+    &.status-refunded {
+      opacity: 0.75;
+    }
+  }
+
+  .order-id {
+    color: var(--ion-color-light);
+  }
+
+  .order-info {
+    background: var(--ion-color-dark-shade);
+  }
+
+  .info-row {
+    .value {
+      color: var(--ion-color-light);
+    }
+
+    &:not(:last-child) {
+      border-bottom-color: var(--ion-color-dark-tint);
+    }
+  }
+
+  .progress-section {
+    .step {
+      background: var(--ion-color-dark-shade);
+    }
+  }
+
+  .final-status-message {
+    background: var(--ion-color-dark-shade);
+  }
+
+  .pharmacy-avatar.placeholder {
+    background: var(--ion-color-dark-shade);
+  }
+}
+
+// ===========================================
+// RESPONSIVE
+// ===========================================
+@media (max-width: 374px) {
+  .order-status-card {
+    margin: 4px;
+  }
+
+  ion-card-header {
+    padding: 12px;
+  }
+
+  .pharmacy-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .header-info {
+    ion-card-title {
+      font-size: 0.9rem;
+    }
+
+    ion-card-subtitle {
+      font-size: 0.75rem;
+    }
+  }
+
+  .actions {
+    flex-direction: column;
+
+    ion-button {
+      width: 100%;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .order-status-card {
+    max-width: 500px;
+    margin: 12px auto;
+  }
+
+  .mode-detailed {
+    max-width: 600px;
+  }
+}

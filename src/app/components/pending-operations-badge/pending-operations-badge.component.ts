@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, effect } from '@angular/core';
+
 import { IonBadge } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { OfflineSyncService } from '../../services/offline-sync.service';
@@ -14,7 +14,7 @@ import { OfflineSyncService } from '../../services/offline-sync.service';
 @Component({
   selector: 'app-pending-operations-badge',
   standalone: true,
-  imports: [CommonModule, IonBadge, TranslateModule],
+  imports: [IonBadge, TranslateModule],
   template: `
     @if (pendingCount() > 0) {
       <div class="pending-badge-container" [class.pulse]="isPulsing">
@@ -97,8 +97,9 @@ export class PendingOperationsBadgeComponent {
   private previousCount = 0;
 
   constructor() {
-    // Watch for count changes to trigger animation
-    this.operationQueue.subscribe(queue => {
+    // Watch for count changes to trigger animation using effect
+    effect(() => {
+      const queue = this.operationQueue();
       const currentCount = queue.length;
       if (currentCount !== this.previousCount) {
         this.triggerPulse();

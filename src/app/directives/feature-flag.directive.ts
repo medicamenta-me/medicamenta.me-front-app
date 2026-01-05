@@ -20,7 +20,7 @@ import { FeatureFlagName } from '../models/feature-flags.model';
  * </ng-template>
  */
 @Directive({
-  selector: '[hasFeature]',
+  selector: '[appHasFeature]',
   standalone: true,
 })
 export class HasFeatureDirective {
@@ -75,7 +75,7 @@ export class HasFeatureDirective {
  * </div>
  */
 @Directive({
-  selector: '[requiresPlan]',
+  selector: '[appRequiresPlan]',
   standalone: true,
 })
 export class RequiresPlanDirective {

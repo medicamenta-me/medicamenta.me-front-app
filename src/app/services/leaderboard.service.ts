@@ -72,14 +72,16 @@ export class LeaderboardService {
     const now = new Date();
     
     switch (period) {
-      case 'week':
+      case 'week': {
         // Format: 2025-W45
         const weekNumber = this.getWeekNumber(now);
         return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
+      }
       
-      case 'month':
+      case 'month': {
         // Format: 2025-11
         return `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+      }
       
       case 'allTime':
         return 'all';

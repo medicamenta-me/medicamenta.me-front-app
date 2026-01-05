@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IonicModule } from '@ionic/angular';
 import { GamificationService } from '../../services/gamification.service';
 import { AchievementCardComponent } from '../achievement-card/achievement-card.component';
@@ -16,20 +16,20 @@ type TierType = 'all' | 'bronze' | 'silver' | 'gold' | 'platinum';
 @Component({
   selector: 'app-achievement-list',
   standalone: true,
-  imports: [CommonModule, IonicModule, AchievementCardComponent],
+  imports: [IonicModule, AchievementCardComponent],
   template: `
     <div class="achievement-list-container">
       <!-- Stats Header -->
-      <div class="stats-header">
-        <div class="stat-card">
+      <div class="stats-header" data-cy="achievement-stats">
+        <div class="stat-card" data-cy="unlocked-count">
           <div class="stat-value">{{ unlockedCount() }}</div>
           <div class="stat-label">Desbloqueadas</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-cy="total-achievements">
           <div class="stat-value">{{ totalAchievements() }}</div>
           <div class="stat-label">Total</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-cy="completion-percent">
           <div class="stat-value">{{ completionPercent() }}%</div>
           <div class="stat-label">Progresso</div>
         </div>
@@ -39,7 +39,7 @@ type TierType = 'all' | 'bronze' | 'silver' | 'gold' | 'platinum';
       <div class="filters-container">
         <!-- Status Filter -->
         <div class="filter-group">
-          <ion-segment [value]="statusFilter()" (ionChange)="onStatusFilterChange($event)">
+          <ion-segment [value]="statusFilter()" (ionChange)="onStatusFilterChange($event)" data-cy="achievement-status-filter">
             <ion-segment-button value="all">
               <ion-label>Todas</ion-label>
             </ion-segment-button>
@@ -89,7 +89,7 @@ type TierType = 'all' | 'bronze' | 'silver' | 'gold' | 'platinum';
       </div>
 
       <!-- Achievement List -->
-      <div class="achievements-grid">
+      <div class="achievements-grid" data-cy="achievements-list">
         @if (filteredAchievements().length === 0) {
           <div class="empty-state">
             <ion-icon name="trophy-outline"></ion-icon>
@@ -296,7 +296,6 @@ export class AchievementListComponent {
   }
 
   protected onAchievementClick(achievement: Achievement): void {
-    console.log('Achievement clicked:', achievement);
     // Could open modal with detailed info
   }
 }

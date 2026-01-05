@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { 
   IonCard, 
   IonCardContent, 
@@ -23,12 +23,11 @@ import {
   styleUrls: ['./quick-stats.component.css'],
   standalone: true,
   imports: [
-    CommonModule,
     IonCard,
     IonCardContent,
     IonIcon,
     TranslateModule
-  ]
+]
 })
 export class QuickStatsComponent {
   @Input() stats: QuickStats = {

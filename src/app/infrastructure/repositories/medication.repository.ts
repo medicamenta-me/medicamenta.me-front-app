@@ -336,7 +336,6 @@ export class MedicationRepository implements IMedicationRepository {
   private async cacheToIndexedDB(medications: Medication[]): Promise<void> {
     try {
       await this.indexedDB.putBatch('medications', medications);
-      console.log(`[MedicationRepository] Cached ${medications.length} medications to IndexedDB`);
     } catch (error) {
       console.error('[MedicationRepository] Failed to cache to IndexedDB:', error);
     }

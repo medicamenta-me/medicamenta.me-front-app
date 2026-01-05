@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { CountryService } from './country.service';
 import { LogService } from './log.service';
@@ -14,6 +14,10 @@ export interface LanguageOption {
   providedIn: 'root'
 })
 export class TranslationService {
+  private translate = inject(TranslateService);
+  private countryService = inject(CountryService);
+  private readonly logService = inject(LogService) ?? inject(LogService, { optional: true });
+
   private readonly STORAGE_KEY = 'app_language';
   
   private readonly languages: LanguageOption[] = [
@@ -82,11 +86,7 @@ export class TranslationService {
     'UY': 'es'
   };
 
-  constructor(
-    private translate: TranslateService,
-    private countryService: CountryService,
-    private readonly logService: LogService
-  ) {
+  constructor() {
     this.initializeLanguage();
   }
 
@@ -105,7 +105,7 @@ export class TranslationService {
     const savedLanguage = this.getSavedLanguage();
     if (savedLanguage && availableLanguages.includes(savedLanguage)) {
       this.translate.use(savedLanguage);
-      this.logService.info('TranslationService', 'Using saved language', { language: savedLanguage });
+      this.logService?.info('TranslationService', 'Using saved language', { language: savedLanguage });
       return;
     }
     
@@ -113,13 +113,13 @@ export class TranslationService {
     const browserLanguage = this.detectBrowserLanguage();
     if (browserLanguage && availableLanguages.includes(browserLanguage)) {
       this.translate.use(browserLanguage);
-      this.logService.info('TranslationService', 'Using browser language', { language: browserLanguage });
+      this.logService?.info('TranslationService', 'Using browser language', { language: browserLanguage });
       return;
     }
     
     // Usa português como padrão
     this.translate.use('pt');
-    this.logService.info('TranslationService', 'Using default language', { language: 'pt' });
+    this.logService?.info('TranslationService', 'Using default language', { language: 'pt' });
   }
 
   /**
@@ -134,7 +134,7 @@ export class TranslationService {
       const langCode = browserLang.split('-')[0].toLowerCase();
       return langCode;
     } catch (error: any) {
-      this.logService.error('TranslationService', 'Error detecting browser language', error as Error);
+      this.logService?.error('TranslationService', 'Error detecting browser language', error as Error);
       return null;
     }
   }
@@ -146,7 +146,7 @@ export class TranslationService {
     try {
       return localStorage.getItem(this.STORAGE_KEY);
     } catch (error: any) {
-      this.logService.error('TranslationService', 'Error getting saved language', error as Error);
+      this.logService?.error('TranslationService', 'Error getting saved language', error as Error);
       return null;
     }
   }
@@ -158,7 +158,7 @@ export class TranslationService {
     try {
       localStorage.setItem(this.STORAGE_KEY, languageCode);
     } catch (error: any) {
-      this.logService.error('TranslationService', 'Error saving language', error as Error);
+      this.logService?.error('TranslationService', 'Error saving language', error as Error);
     }
   }
 
@@ -191,9 +191,9 @@ export class TranslationService {
     if (this.translate.getLangs().includes(languageCode)) {
       this.translate.use(languageCode);
       this.saveLanguage(languageCode);
-      this.logService.info('TranslationService', 'Language changed', { languageCode });
+      this.logService?.info('TranslationService', 'Language changed', { languageCode });
     } else {
-      this.logService.warn('TranslationService', 'Language not available', { languageCode });
+      this.logService?.warn('TranslationService', 'Language not available', { languageCode });
     }
   }
 
@@ -222,14 +222,14 @@ export class TranslationService {
   /**
    * Traduz uma chave
    */
-  instant(key: string | string[], interpolateParams?: Object): string | any {
+  instant(key: string | string[], interpolateParams?: object): string | any {
     return this.translate.instant(key, interpolateParams);
   }
 
   /**
    * Traduz uma chave de forma assíncrona
    */
-  get(key: string | string[], interpolateParams?: Object) {
+  get(key: string | string[], interpolateParams?: object) {
     return this.translate.get(key, interpolateParams);
   }
 }

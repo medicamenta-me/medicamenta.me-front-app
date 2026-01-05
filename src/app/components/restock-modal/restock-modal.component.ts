@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -25,7 +25,6 @@ import { TranslationService } from '../../services/translation.service';
   selector: 'app-restock-modal',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     IonHeader,
@@ -35,7 +34,7 @@ import { TranslationService } from '../../services/translation.service';
     IonButton,
     IonInput,
     IonIcon
-  ],
+],
   template: `
     <ion-header>
       <ion-toolbar color="primary">

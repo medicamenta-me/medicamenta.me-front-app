@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   IonHeader,
   IonToolbar,
@@ -36,7 +36,6 @@ import { HapticPatternsService } from '../../services/haptic-patterns.service';
   styleUrls: ['./smart-suggestions-modal.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -50,7 +49,7 @@ import { HapticPatternsService } from '../../services/haptic-patterns.service';
     IonCardContent,
     IonBadge,
     IonNote
-  ]
+]
 })
 export class SmartSuggestionsModalComponent {
   private readonly modalCtrl = inject(ModalController);

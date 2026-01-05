@@ -25,7 +25,7 @@ import { LogService } from './log.service';
 export class CareNetworkService {
   private readonly firebaseService = inject(FirebaseService);
   private readonly authService = inject(AuthService);
-  private readonly logService = inject(LogService);
+  private readonly logService = inject(LogService, { optional: true });
   private readonly firestore: Firestore;
 
   // Signals for care network data
@@ -46,14 +46,14 @@ export class CareNetworkService {
     effect(() => {
       const user = this.authService.currentUser();
       if (user) {
-        this.logService.debug('CareNetworkService', 'User logged in, starting permission sync', { userId: user.uid });
+        this.logService?.debug('CareNetworkService', 'User logged in, starting permission sync', { userId: user.uid });
         
         // Reset permissions synced flag
         this.permissionsSynced.set(false);
         
         // CRITICAL: Sync helper arrays FIRST before any listeners start
         this.syncCarerIdsArray().then(() => {
-          this.logService.debug('CareNetworkService', '✅ Permissions synced, enabling Firestore access');
+          this.logService?.debug('CareNetworkService', '✅ Permissions synced, enabling Firestore access');
           // Mark permissions as synced BEFORE loading data
           this.permissionsSynced.set(true);
           
@@ -62,12 +62,12 @@ export class CareNetworkService {
           // Sync names to fix any users with email instead of name
           this.syncCareNetworkNames();
         }).catch(error => {
-          this.logService.error('CareNetworkService', '❌ Failed to sync permissions', error as Error);
+          this.logService?.error('CareNetworkService', '❌ Failed to sync permissions', error as Error);
           // Even if sync fails, allow app to continue
           this.permissionsSynced.set(true);
         });
       } else {
-        this.logService.debug('CareNetworkService', 'User logged out, clearing care network data');
+        this.logService?.debug('CareNetworkService', 'User logged out, clearing care network data');
         this.iCareFor.set([]);
         this.whoCareForMe.set([]);
         this.pendingInvites.set([]);
@@ -92,7 +92,7 @@ export class CareNetworkService {
         this.whoCareForMe.set(userData['whoCareForMe'] || []);
       }
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error loading care network', error as Error);
+      this.logService?.error('CareNetworkService', 'Error loading care network', error as Error);
     }
   }
 
@@ -122,7 +122,7 @@ export class CareNetworkService {
 
       this.pendingInvites.set(invites);
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error loading pending invites', error as Error);
+      this.logService?.error('CareNetworkService', 'Error loading pending invites', error as Error);
     }
   }
 
@@ -151,7 +151,7 @@ export class CareNetworkService {
         country: userData['country']
       };
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error searching user', error as Error);
+      this.logService?.error('CareNetworkService', 'Error searching user', error as Error);
       return null;
     }
   }
@@ -271,7 +271,7 @@ export class CareNetworkService {
         };
       }
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error adding care for user', error as Error);
+      this.logService?.error('CareNetworkService', 'Error adding care for user', error as Error);
       return {
         success: false,
         needsInvite: false,
@@ -323,7 +323,7 @@ export class CareNetworkService {
 
       return {success: true, message: 'Invite sent successfully'};
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error inviting carer', error as Error);
+      this.logService?.error('CareNetworkService', 'Error inviting carer', error as Error);
       return {success: false, message: 'Error sending invite'};
     }
   }
@@ -462,7 +462,7 @@ export class CareNetworkService {
 
       return true;
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error accepting invite', error as Error);
+      this.logService?.error('CareNetworkService', 'Error accepting invite', error as Error);
       return false;
     }
   }
@@ -481,7 +481,7 @@ export class CareNetworkService {
       await this.loadPendingInvites();
       return true;
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error rejecting invite', error as Error);
+      this.logService?.error('CareNetworkService', 'Error rejecting invite', error as Error);
       return false;
     }
   }
@@ -518,7 +518,7 @@ export class CareNetworkService {
 
       return true;
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error removing care for user', error as Error);
+      this.logService?.error('CareNetworkService', 'Error removing care for user', error as Error);
       return false;
     }
   }
@@ -552,7 +552,7 @@ export class CareNetworkService {
 
       return true;
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error removing carer', error as Error);
+      this.logService?.error('CareNetworkService', 'Error removing carer', error as Error);
       return false;
     }
   }
@@ -591,29 +591,29 @@ export class CareNetworkService {
   async syncCarerIdsArray(): Promise<void> {
     const currentUser = this.authService.currentUser();
     if (!currentUser) {
-      this.logService.debug('CareNetworkService', 'No current user, skipping carer IDs sync');
+      this.logService?.debug('CareNetworkService', 'No current user, skipping carer IDs sync');
       return;
     }
 
-    this.logService.debug('CareNetworkService', 'Starting carer IDs sync', { userId: currentUser.uid });
+    this.logService?.debug('CareNetworkService', 'Starting carer IDs sync', { userId: currentUser.uid });
 
     try {
       const myRef = doc(this.firestore, 'users', currentUser.uid);
       const myData = (await getDoc(myRef)).data();
       if (!myData) {
-        this.logService.warn('CareNetworkService', 'User document not found during carer IDs sync');
+        this.logService?.warn('CareNetworkService', 'User document not found during carer IDs sync');
         return;
       }
 
       const whoCareForMe: CarerUser[] = myData['whoCareForMe'] || [];
       const existingIds: string[] = myData['whoCareForMeIds'];
       
-      this.logService.debug('CareNetworkService', `Found ${whoCareForMe.length} carers in whoCareForMe`);
-      this.logService.debug('CareNetworkService', 'Existing whoCareForMeIds', { existingIds });
+      this.logService?.debug('CareNetworkService', `Found ${whoCareForMe.length} carers in whoCareForMe`);
+      this.logService?.debug('CareNetworkService', 'Existing whoCareForMeIds', { existingIds });
       
       // Extract user IDs from whoCareForMe array
       const carerIds = whoCareForMe.map(carer => carer.userId);
-      this.logService.debug('CareNetworkService', 'Extracted carer IDs', { carerIds });
+      this.logService?.debug('CareNetworkService', 'Extracted carer IDs', { carerIds });
       
       // Always update if whoCareForMeIds doesn't exist or is different
       const needsUpdate = existingIds === undefined || 
@@ -621,18 +621,18 @@ export class CareNetworkService {
                          JSON.stringify([...carerIds].sort((a, b) => a.localeCompare(b))) !== 
                          JSON.stringify([...existingIds].sort((a, b) => a.localeCompare(b)));
       
-      this.logService.debug('CareNetworkService', `Needs update: ${needsUpdate}`);
+      this.logService?.debug('CareNetworkService', `Needs update: ${needsUpdate}`);
       
       if (needsUpdate) {
         await updateDoc(myRef, {
           whoCareForMeIds: carerIds
         });
-        this.logService.debug('CareNetworkService', `✅ Sync completed successfully. ${carerIds.length} carer(s) saved.`);
+        this.logService?.debug('CareNetworkService', `✅ Sync completed successfully. ${carerIds.length} carer(s) saved.`);
       } else {
-        this.logService.debug('CareNetworkService', 'ℹ️ No update needed, arrays already match');
+        this.logService?.debug('CareNetworkService', 'ℹ️ No update needed, arrays already match');
       }
     } catch (error: any) {
-      this.logService.error('CareNetworkService', '❌ Error syncing carer IDs', error as Error);
+      this.logService?.error('CareNetworkService', '❌ Error syncing carer IDs', error as Error);
       throw error; // Re-throw to be caught by constructor
     }
   }
@@ -679,10 +679,10 @@ export class CareNetworkService {
           whoCareForMe: updatedCarers
         });
         await this.loadCareNetwork();
-        this.logService.debug('CareNetworkService', 'Care network names synced successfully');
+        this.logService?.debug('CareNetworkService', 'Care network names synced successfully');
       }
     } catch (error: any) {
-      this.logService.error('CareNetworkService', 'Error syncing care network names', error as Error);
+      this.logService?.error('CareNetworkService', 'Error syncing care network names', error as Error);
     }
   }
 
@@ -704,7 +704,7 @@ export class CareNetworkService {
       const carerIndex = whoCareForMe.findIndex(c => c.userId === carerId);
 
       if (carerIndex === -1) {
-        this.logService.warn('CareNetworkService', 'Carer not found in whoCareForMe list');
+        this.logService?.warn('CareNetworkService', 'Carer not found in whoCareForMe list');
         return false;
       }
 
@@ -726,10 +726,10 @@ export class CareNetworkService {
       });
 
       await this.loadCareNetwork();
-      this.logService.debug('CareNetworkService', `✅ Permissions updated for carer ${carerId}`);
+      this.logService?.debug('CareNetworkService', `✅ Permissions updated for carer ${carerId}`);
       return true;
     } catch (error: any) {
-      this.logService.error('CareNetworkService', '❌ Error updating permissions', error as Error);
+      this.logService?.error('CareNetworkService', '❌ Error updating permissions', error as Error);
       return false;
     }
   }
@@ -752,7 +752,7 @@ export class CareNetworkService {
       const carerIndex = whoCareForMe.findIndex(c => c.userId === carerId);
 
       if (carerIndex === -1) {
-        this.logService.warn('CareNetworkService', 'Carer not found in whoCareForMe list');
+        this.logService?.warn('CareNetworkService', 'Carer not found in whoCareForMe list');
         return false;
       }
 
@@ -764,10 +764,10 @@ export class CareNetworkService {
       });
 
       await this.loadCareNetwork();
-      this.logService.debug('CareNetworkService', `✅ Granted ${permissionType} to carer ${carerId}`);
+      this.logService?.debug('CareNetworkService', `✅ Granted ${permissionType} to carer ${carerId}`);
       return true;
     } catch (error: any) {
-      this.logService.error('CareNetworkService', '❌ Error granting permission', error as Error);
+      this.logService?.error('CareNetworkService', '❌ Error granting permission', error as Error);
       return false;
     }
   }
@@ -790,7 +790,7 @@ export class CareNetworkService {
       const carerIndex = whoCareForMe.findIndex(c => c.userId === carerId);
 
       if (carerIndex === -1) {
-        this.logService.warn('CareNetworkService', 'Carer not found in whoCareForMe list');
+        this.logService?.warn('CareNetworkService', 'Carer not found in whoCareForMe list');
         return false;
       }
 
@@ -802,10 +802,10 @@ export class CareNetworkService {
       });
 
       await this.loadCareNetwork();
-      this.logService.debug('CareNetworkService', `✅ Revoked ${permissionType} from carer ${carerId}`);
+      this.logService?.debug('CareNetworkService', `✅ Revoked ${permissionType} from carer ${carerId}`);
       return true;
     } catch (error: any) {
-      this.logService.error('CareNetworkService', '❌ Error revoking permission', error as Error);
+      this.logService?.error('CareNetworkService', '❌ Error revoking permission', error as Error);
       return false;
     }
   }

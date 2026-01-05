@@ -1,5 +1,5 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 export type SkeletonType = 'text' | 'title' | 'avatar' | 'thumbnail' | 'card' | 'list-item' | 'podium' | 'badge';
 export type SkeletonAnimation = 'pulse' | 'shimmer' | 'wave' | 'none';
@@ -26,7 +26,7 @@ export type SkeletonAnimation = 'pulse' | 'shimmer' | 'wave' | 'none';
 @Component({
   selector: 'app-skeleton',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     @if (count > 1) {
       @for (item of items; track $index) {
