@@ -189,6 +189,41 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/marketplace-orders/marketplace-orders.page').then(m => m.MarketplaceOrdersPage),
     canActivate: [authGuard, onboardingGuard],
   },
+  {
+    path: 'compliance-reports',
+    loadComponent: () => import('./pages/compliance-reports/compliance-reports.component').then(m => m.ComplianceReportsComponent),
+    canActivate: [authGuard, onboardingGuard],
+    data: { preload: 'low' }
+  },
+  {
+    path: 'enterprise-dashboard',
+    loadComponent: () => import('./pages/enterprise-dashboard/enterprise-dashboard.component').then(m => m.EnterpriseDashboardComponent),
+    canActivate: [authGuard, onboardingGuard],
+    data: { preload: 'low' }
+  },
+  {
+    path: 'manage-subscription',
+    loadComponent: () => import('./pages/manage-subscription/manage-subscription.page').then(m => m.ManageSubscriptionPage),
+    canActivate: [authGuard, onboardingGuard],
+    data: { preload: 'low' }
+  },
+  {
+    path: 'onboarding-plans',
+    loadComponent: () => import('./pages/onboarding-plans/onboarding-plans.page').then(m => m.OnboardingPlansPage),
+    canActivate: [authGuard],
+    data: { preload: 'medium' }
+  },
+  {
+    path: 'pricing',
+    loadComponent: () => import('./pages/pricing/pricing.page').then(m => m.PricingPage),
+    data: { preload: 'low' }
+  },
+  {
+    path: 'team-management',
+    loadComponent: () => import('./pages/team-management/team-management.component').then(m => m.TeamManagementComponent),
+    canActivate: [authGuard, onboardingGuard],
+    data: { preload: 'low' }
+  },
   { path: '**', redirectTo: 'login' }
 // Fallback route
 ];
