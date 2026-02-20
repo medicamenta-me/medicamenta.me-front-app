@@ -10,7 +10,7 @@ export const environment = {
   subdomain: 'app',
   
   // API Backend URL
-  apiUrl: 'http://localhost:5001/medicamenta-me/us-central1/api',
+  apiUrl: 'http://localhost:5001/medicamenta-me/southamerica-east1/api',
   
   // Firebase (COMPARTILHADO com todos os subdomínios)
   firebase: {
